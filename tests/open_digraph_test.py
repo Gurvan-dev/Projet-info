@@ -1,9 +1,9 @@
-from modules.open_digraph import *
 import unittest
 import sys
 import os
 root = os.path.normpath(os.path.join(__file__, './../..'))
 sys.path.append(root)  # allows us to fetch files from the project root
+from modules.open_digraph import *
 
 
 class InitTest(unittest.TestCase):
@@ -20,6 +20,16 @@ class InitTest(unittest.TestCase):
         self.assertEqual(o.inputs, [0, 1, 2, 7])
         self.assertEqual(o.outputs, [0])
         self.assertEqual(o.nodes, {node.id: node for node in []})
+
+        o2 = o.copy()
+
+        o2.inputs = [0, 1, 2, 3]
+        o2.outputs = [2]
+        o2.nodes = [node(0, 'i', {}, {1: 1})]
+
+        self.assertNotEqual(o.inputs, o2.inputs)
+        self.assertNotEqual(o.outputs, o2.outputs)
+        self.assertNotEqual(o.nodes, o2.nodes)
 
 
 if __name__ == '__main__':  # the following code is called only when
