@@ -17,6 +17,9 @@ class node:
     def __repr__(self):
         return f" Node({self})"
 
+    def copy(self):
+        return node(self.identity, self.label, self.parents, self.children)
+
 
 class open_digraph:  # for open directed graph
     def __init__(self, inputs, outputs, nodes):
@@ -35,6 +38,9 @@ class open_digraph:  # for open directed graph
 
     def __repr__(self):
         return f" Digraph({self})"
+
+    def copy(self):
+        return open_digraph(self.inputs, self.outputs, self.nodes)
 
     @classmethod
     def empty():
