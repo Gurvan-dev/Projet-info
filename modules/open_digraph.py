@@ -14,8 +14,11 @@ class node:
     def __str__(self) -> str:
         return f"   Id : {self.id}\n   Label : {self.label}\n   Parents : {self.parents}\n   Children : {self.children}"
 
+    def __repr__(self):
+        return f" Node({self})"
 
-class open_digraph:# for open directed graph
+
+class open_digraph:  # for open directed graph
     def __init__(self, inputs, outputs, nodes):
         '''
         inputs: int list; the ids of the input nodes
@@ -24,7 +27,11 @@ class open_digraph:# for open directed graph
         '''
         self.inputs = inputs
         self.outputs = outputs
-        self.nodes = {node.id:node for node in nodes}# self.nodes: <int,node> dict
+        # self.nodes: <int,node> dict
+        self.nodes = {node.id: node for node in nodes}
 
     def __str__(self) -> str:
         return f"  Input : {self.inputs} \n  Output : {self.outputs} \n  Nodes : {[id for id in self.nodes]}"
+
+    def __repr__(self):
+        return f" Digraph({self})"
