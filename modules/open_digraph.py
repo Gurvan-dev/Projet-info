@@ -10,6 +10,11 @@ class node:
         self.label = label
         self.parents = parents
         self.children = children
+
+    def __str__(self) -> str:
+        return f"   Id : {self.id}\n   Label : {self.label}\n   Parents : {self.parents}\n   Children : {self.children}"
+
+
 class open_digraph:# for open directed graph
     def __init__(self, inputs, outputs, nodes):
         '''
@@ -20,3 +25,6 @@ class open_digraph:# for open directed graph
         self.inputs = inputs
         self.outputs = outputs
         self.nodes = {node.id:node for node in nodes}# self.nodes: <int,node> dict
+
+    def __str__(self) -> str:
+        return f"  Input : {self.inputs} \n  Output : {self.outputs} \n  Nodes : {[id for id in self.nodes]}"
