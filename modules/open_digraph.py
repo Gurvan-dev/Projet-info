@@ -19,6 +19,20 @@ class node:
 
     def copy(self):
         return node(self.identity, self.label, self.parents, self.children)
+    
+    def get_id(self):
+        return self.id
+
+    def get_label(self):
+        return self.label
+
+    def get_parents_ids(self):
+        return self.parents
+
+    def get_children_id(self):
+        return self.children
+
+    
 
 
 class open_digraph:  # for open directed graph
@@ -45,3 +59,15 @@ class open_digraph:  # for open directed graph
     @classmethod
     def empty():
         return open_digraph([], [], [])
+
+    def get_input_ids(self):
+        return self.inputs
+
+    def get_output_ids(self):
+        return self.outputs
+    
+    def get_id_node_map(self):
+        return self.nodes
+
+    def get_nodes(self):
+        return [nodu for i, nodu in self.nodes]
