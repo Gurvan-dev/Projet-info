@@ -35,3 +35,7 @@ class open_digraph:  # for open directed graph
 
     def __repr__(self):
         return f" Digraph({self})"
+
+    @classmethod
+    def empty():
+        return open_digraph([], [], [])
