@@ -14,16 +14,16 @@ class node:
     def __str__(self) -> str:
         return f"   Id : {self.id}\n   Label : {self.label}\n   Parents : {self.parents}\n   Children : {self.children}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f" Node({self})"
 
     def copy(self):
         return node(self.identity, self.label, self.parents, self.children)
     
-    def get_id(self):
+    def get_id(self) -> int:
         return self.id
 
-    def get_label(self):
+    def get_label(self) -> str:
         return self.label
 
     def get_parents_ids(self):
@@ -72,6 +72,9 @@ class open_digraph:  # for open directed graph
 
     @classmethod
     def empty():
+        '''
+        Return an empty open digraph.
+        '''
         return open_digraph([], [], [])
 
     def get_input_ids(self):
