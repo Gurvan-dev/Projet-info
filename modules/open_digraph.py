@@ -32,6 +32,20 @@ class node:
     def get_children_id(self):
         return self.children
 
+    def set_id(self, new_id):
+        self.id = new_id
+
+    def set_parent_ids(self, new_parent):
+        self.parents = new_parent
+
+    def set_childen_ids(self, new_ids):
+        self.children = new_ids;
+
+    def add_parent_id(self, parent_id, mult):
+        self.parents[parent_id] = mult
+
+    def add_children_id(self, child_id, mult):
+        self.children[child_id] = mult
     
 
 
@@ -64,7 +78,7 @@ class open_digraph:  # for open directed graph
         return open_digraph([], [], [])
     
     def add_edge(self, src, trg):
-        self.inputs[src].children.add(trg)
+        self.get_node_by_id(src).children.add(trg)
 
     def get_input_ids(self):
         return self.inputs
