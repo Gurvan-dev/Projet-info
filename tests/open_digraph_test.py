@@ -33,6 +33,9 @@ class InitTest(unittest.TestCase):
         self.assertNotEqual(o.outputs, o2.outputs)
         self.assertNotEqual(o.nodes, o2.nodes)
         self.assertEqual([], o.get_nodes())
+        o2.add_node()
+        print(o.get_nodes())
+        self.assertEqual(o2.get_nodes(), [node(0, 'i', {}, {1: 1})])       #, node(1, '', {}, {}) ] )
 
 
 if __name__ == '__main__':  # the following code is called only when
