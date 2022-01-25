@@ -27,15 +27,15 @@ class InitTest(unittest.TestCase):
 
         o2.inputs = [0, 1, 2, 3]
         o2.outputs = [2]
-        o2.nodes = [node(0, 'i', {}, {1: 1})]
+        o2.nodes = {node.id : node for node in [node(1, 'i', {}, {1: 1})]}
 
         self.assertNotEqual(o.inputs, o2.inputs)
         self.assertNotEqual(o.outputs, o2.outputs)
         self.assertNotEqual(o.nodes, o2.nodes)
         self.assertEqual([], o.get_nodes())
         o2.add_node()
-        print(o.get_nodes())
-        self.assertEqual(o2.get_nodes(), [node(0, 'i', {}, {1: 1})])       #, node(1, '', {}, {}) ] )
+        print(o2.nodes)
+        self.assertEqual(o2.nodes[2], node(2, '', {}, {}))
 
 
 if __name__ == '__main__':  # the following code is called only when

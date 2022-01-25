@@ -12,10 +12,13 @@ class node:
         self.children = children
 
     def __str__(self) -> str:
-        return f"   Id : {self.id}\n   Label : {self.label}\n   Parents : {self.parents}\n   Children : {self.children}"
+        return f"Id : {self.id}   Label : {self.label}   Parents : {self.parents}   Children : {self.children}"
 
     def __repr__(self) -> str:
         return f" Node({self})"
+
+    def __eq__(self, other) -> bool:
+        return self.id == other.id and self.label == other.label and self.children == other.children and self.parents == other.parents
 
     def copy(self):
         return node(self.identity, self.label, self.parents, self.children)
@@ -42,12 +45,16 @@ class node:
         self.children = new_ids
 
     def add_parent_id(self, parent_id, mult):
-        self.parents[parent_id] = mult
+        if(self.parents.get(parent_id) == None):
+            self.parents[parent_id] = 1
+        else:
+            self.parents[parent_id] += 1
 
     def add_children_id(self, child_id, mult):
-        self.children[child_id] = mult
-    
-
+        if(self.children.get(child_id) == None):
+            self.children[child_id] = 1
+        else:
+            self.children[child_id] += 1
 
 class open_digraph:  # for open directed graph
     def __init__(self, inputs, outputs, nodes):
@@ -58,11 +65,10 @@ class open_digraph:  # for open directed graph
         '''
         self.inputs = inputs
         self.outputs = outputs
-        # self.nodes: <int,node> dict
-        self.nodes = {node.id: node for node in nodes}
+        self.nodes = {node.id: node for node in nodes} # self.nodes: <int,node> dict
 
     def __str__(self) -> str:
-        return f"  Input : {self.inputs} \n  Output : {self.outputs} \n  Nodes : {[id for id in self.nodes]}"
+        return f"Input : {self.inputs}   Output : {self.outputs}   Nodes : {[id for id in self.nodes]}"
 
     def __repr__(self):
         return f" Digraph({self})"
@@ -87,10 +93,10 @@ class open_digraph:  # for open directed graph
         return self.nodes
 
     def get_nodes(self):
-        return [nodu for i, nodu in self.nodes]
+        return list(self.nodes.values())
 
     def get_nodes_ids(self):
-        return [i for i, nodu in self.nodes]
+        return list(self.nodes.keys())
     
     def get_node_by_id(self, i):
         return self.nodes[i]
@@ -117,8 +123,11 @@ class open_digraph:  # for open directed graph
         return len(self.nodes) + 1
 
     def add_edge(self, src, trg):
-        self.get_node_by_id(src).add_children_id(trg, 1)
+        self.get_node_by_id(src).add_parent_id(trg, 1)
+        self.get_node_by_id(trg).add_children_id(trg, 1)
+    
 
     def add_node(self, label='', parents={}, children={}):
-        #i = self.new_id()
-        self.nodes.append(node(self.new_id(), label, parents, children))
+        i = self.new_id()
+        n = node(self.new_id(), label, parents, children)
+        self.nodes[i] = n
