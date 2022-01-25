@@ -14,6 +14,8 @@ class InitTest(unittest.TestCase):
         self.assertEqual(n0.parents, {})
         self.assertEqual(n0.children, {1: 1})
         self.assertIsInstance(n0, node)
+        n0.add_children_id(3, 1)
+        self.assertEqual(n0.children, {1: 1, 3 : 1})
 
     def test_init_open_digraph(self):
         o = open_digraph([0, 1, 2, 7], [0], [])
@@ -30,6 +32,7 @@ class InitTest(unittest.TestCase):
         self.assertNotEqual(o.inputs, o2.inputs)
         self.assertNotEqual(o.outputs, o2.outputs)
         self.assertNotEqual(o.nodes, o2.nodes)
+        self.assertEqual([], o.get_nodes())
 
 
 if __name__ == '__main__':  # the following code is called only when
