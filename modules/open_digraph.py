@@ -77,3 +77,15 @@ class open_digraph:  # for open directed graph
 
     def get_nodes(self):
         return [nodu for i, nodu in self.nodes]
+
+    def get_nodes_ids(self):
+        return [i for i, nodu in self.nodes]
+    
+    def get_node_by_id(self, i):
+        return self.nodes[i]
+
+    def get_nodes_by_ids(self, t):
+        res = []
+        for i in t:
+            res.append(self.nodes[i])
+        return res
