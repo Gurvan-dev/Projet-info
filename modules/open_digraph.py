@@ -56,9 +56,15 @@ class open_digraph:  # for open directed graph
     def copy(self):
         return open_digraph(self.inputs, self.outputs, self.nodes)
 
+    def new_id(self):
+        return len(self.nodes) + 1
+
     @classmethod
     def empty():
         return open_digraph([], [], [])
+    
+    def add_edge(self, src, trg):
+        self.inputs[src].children.add(trg)
 
     def get_input_ids(self):
         return self.inputs
