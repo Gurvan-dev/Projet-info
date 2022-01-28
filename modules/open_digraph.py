@@ -56,6 +56,25 @@ class node:
         else:
             self.children[child_id] += 1
 
+
+    def remove_parent_once(self, id):
+        self.parents[id] -= 1
+        if self.parents[id] == 0:
+            self.parents.pop(id)
+
+    def remove_children_once(self, id):
+        self.children[id] -= 1
+        if self.children[id] == 0:
+            self.children.pop(id)
+
+    def remove_parent_id(self, id):
+        self.parents.pop(id)
+
+    def remove_child_id(self, id):
+        self.children.pop(id)
+
+
+
 class open_digraph:  # for open directed graph
     def __init__(self, inputs, outputs, nodes):
         '''
