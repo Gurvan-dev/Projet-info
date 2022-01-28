@@ -150,3 +150,12 @@ class open_digraph:  # for open directed graph
         i = self.new_id()
         n = node(self.new_id(), label, parents, children)
         self.nodes[i] = n
+
+    def remove_edge(self, src, tgt):
+        self.get_node_by_id(src).remove_parent_id(trg) # Faux
+        self.get_node_by_id(trg).remove_children_id(trg) # Faux
+
+    def is_well_formed(self):
+        nod = self.get_nodes()
+        for id in self.inputs:
+            if (id in nod) AND (get_node_by_id(id).parents[id] == )
