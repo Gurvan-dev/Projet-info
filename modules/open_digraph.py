@@ -97,6 +97,9 @@ class open_digraph:  # for open directed graph
     def copy(self):
         return open_digraph(self.inputs, self.outputs, self.nodes.values())
 
+    def __eq__(self, __o: object) -> bool:
+        return self.inputs == object.inputs and object.outputs == object.outputs and self.nodes == object.nodes and self.c == object.c 
+
     @classmethod
     def empty():
         '''
@@ -173,8 +176,8 @@ class open_digraph:  # for open directed graph
         self.get_node_by_id(trg).remove_child_once(trg)
 
     def remove_parallel_edge(self, src, trg):
-        self.get_node_by_id(src).remove_parent(trg)
-        self.get_node_by_id(src).remove_child(trg)
+        self.get_node_by_id(src).remove_parent_id(trg)
+        self.get_node_by_id(src).remove_child_id(trg)
 
     def remove_node_by_id(self, id):
         n = self.nodes.pop(id)
