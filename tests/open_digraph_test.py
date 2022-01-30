@@ -70,6 +70,8 @@ class InitTest(unittest.TestCase):
 
         # Exercice 2
 
+            # Tests fonctions simples
+
         n1 = node(1, 'i', {1:2, 2:3, 3:1}, {1: 1, 2:4, 3:8})
         n2 = node(2, 'j', {1:5, 2:1, 3:2}, {1: 2, 2:2, 3:5})
         o3 = o2.copy()
@@ -81,7 +83,6 @@ class InitTest(unittest.TestCase):
         self.assertEqual(o3.get_node_by_id(1).get_parents_ids(), {1: 2, 2: 2, 3: 1})
         self.assertEqual(o3.get_node_by_id(1).get_children_id(), {1: 1, 2: 4, 3: 8})
 
-
         o3.remove_parallel_edge(1, 2)
         
         self.assertEqual(o3.get_node_by_id(1).get_parents_ids(), {1: 2, 3: 1})
@@ -91,7 +92,40 @@ class InitTest(unittest.TestCase):
 
         self.assertEqual(o3.get_nodes(), [node(1, 'i', {1: 2, 3: 1}, {1: 1, 3: 8})])
 
+            # Tests fonctions multiples
 
+        n1 = node(1, 'i', {1:2, 2:3, 3:1}, {1: 1, 2:4, 3:8})
+        n2 = node(2, 'j', {1:5, 2:1, 3:2}, {1: 2, 2:2, 3:5})
+        o3 = o2.copy()
+        o3.outputs = [0, 1, 2, 7]
+        o3.nodes = {node.id : node for node in [n1, n2]}
+
+        #
+        #o3.remove_edge(2, 3)
+        #print(n1)
+        #print(("\n"))
+        #print(n2)
+        #print("\n")
+        #o3.remove_edge(1, 2)
+        #o3.remove_edge(2, 2)
+        o3.remove_edges([(1, 2), (2, 3)])
+        #print(n1)
+        #print("\n")
+        #print(n2)
+
+
+        self.assertEqual(o3.get_node_by_id(1).get_parents_ids(), {1: 2, 2: 2, 3: 1})
+        self.assertEqual(o3.get_node_by_id(1).get_children_id(), {1: 1, 2: 4, 3: 8})
+        #self.assertEqual(o3.get_node_by_id(2).get_parents_ids(), {1: 5, 3: 1})
+        #self.assertEqual(o3.get_node_by_id(2).get_children_id(), {1: 2, 2: 1, 3: 4})
+
+
+
+        o3.remove_nodes_by_id([1, 2])
+
+
+
+        #[(1, 2), (1, 2), (1, 2)]
 
         #print(f"o3 nodes = {o3.nodes} \n")
         #o3.get_node_by_id(1).remove_parent_once(2)
