@@ -180,7 +180,8 @@ class open_digraph:  # for open directed graph
         self.get_node_by_id(src).remove_child_id(trg)
 
     def remove_node_by_id(self, id):
-        n = self.nodes.pop(id)
+        # TODO : En plus de remove de la list de node, on peut peut être remove les liens qui ammènent vers la node qu'on va pop
+        self.nodes.pop(id)
 
     def remove_edges(self, listEdge):
         for (src, trg) in listEdge:

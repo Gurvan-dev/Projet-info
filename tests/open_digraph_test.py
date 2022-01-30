@@ -72,22 +72,24 @@ class InitTest(unittest.TestCase):
 
             # Tests fonctions simples
 
-        print(o2)
-
         n1 = node(1, 'i', {1:2, 2:3, 3:1}, {1: 1, 2:4, 3:8})
         n2 = node(2, 'j', {1:5, 2:1, 3:2}, {1: 2, 2:2, 3:5})
         o3 = o2.copy()
         o3.outputs = [0, 1, 2, 7]
         o3.nodes = {node.id : node for node in [n1, n2]}
-
+        for n in o3.nodes.values():
+            print(n)
+        print(o3)
         o3.remove_edge(1, 2)
 
-        self.assertEqual(o3.get_node_by_id(1).get_parents_ids(), {1: 2, 2: 2, 3: 1})
-        self.assertEqual(o3.get_node_by_id(1).get_children_ids(), {1: 1, 2: 4, 3: 8})
+        self.assertEqual(o3.get_node_by_id(1).get_parents_ids(), {1: 2, 2: 3, 3: 1})
+        self.assertEqual(o3.get_node_by_id(1).get_children_ids(), {1: 1, 2: 3, 3: 8})
+        self.assertEqual(o3.get_node_by_id(2).get_parents_ids(), {1:4, 2:1, 3:2})
+        self.assertEqual(o3.get_node_by_id(2).get_children_ids(), {1: 2, 2:2, 3:5})
 
         o3.remove_parallel_edge(1, 2)
         
-        self.assertEqual(o3.get_node_by_id(1).get_parents_ids(), {1: 2, 3: 1})
+        self.assertEqual(o3.get_node_by_id(1).get_parents_ids(), {1: 2, 2: 3, 3: 1})
         self.assertEqual(o3.get_node_by_id(1).get_children_ids(), {1: 1, 3: 8})
 
         o3.remove_node_by_id(2)
