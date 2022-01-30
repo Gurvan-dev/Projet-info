@@ -62,7 +62,7 @@ class node:
             if self.parents[id] == 0:
                 self.parents.pop(id)
 
-    def remove_children_once(self, id):
+    def remove_child_once(self, id):
         if id in self.children:
             self.children[id] -= 1
             if self.children[id] == 0:
@@ -170,11 +170,11 @@ class open_digraph:  # for open directed graph
 
     def remove_edge(self, src, trg):
         self.get_node_by_id(src).remove_parent_once(trg)
-        self.get_node_by_id(trg).remove_children_once(trg)
+        self.get_node_by_id(trg).remove_child_once(trg)
 
     def remove_parallel_edge(self, src, trg):
         self.get_node_by_id(src).remove_parent(trg)
-        self.get_node_by_id(src).remove_children(trg)
+        self.get_node_by_id(src).remove_child(trg)
 
     def remove_node_by_id(self, id):
         n = self.nodes.pop(id)
@@ -194,14 +194,14 @@ class open_digraph:  # for open directed graph
 
 
     def is_well_formed(self):
-        for n in input:
+        for n in self.inputs:
             if not (n in self.nodes): # Vérifier que tout les éléments d'input sont dans le graphe.
                 return False
             if len(self.get_node_by_id(n).get_children_ids()) != 1: # Vérifier que les inputs n'ont qu'un enfant
                 return False 
             if len(self.get_node_by_id(n).get_parents_ids()) > 1: # Vérifier que les inputs n'ont pas de parents
                 return False 
-        for n in output:
+        for n in self.outputs:
             if not (n in self.nodes): 
                 return False
             if len(self.get_node_by_id(n).get_parents_ids() != 1): # Vérifier que les outputs n'ont qu'un parent
@@ -209,7 +209,7 @@ class open_digraph:  # for open directed graph
             if len(self.get_node_by_id(n).get_children_ids()) > 0: # Vérifier que les outputs n'ont pas d'enfants
                 return False
         for key in self.nodes.keys():
-            if(self.get_node_by_id(no).get_id() != key): # Vérifier que les cléfs de nodes correspondent a l'id.
+            if(self.get_node_by_id(n).get_id() != key): # Vérifier que les cléfs de nodes correspondent a l'id.
                 return False
         # TODO : si j a pour fils i avec multiplicit ́e m, alors i doit avoir pour parent j avec multiplicit ́e m, et vice-versa
         

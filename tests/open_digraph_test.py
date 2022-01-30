@@ -34,8 +34,62 @@ class InitTest(unittest.TestCase):
         self.assertNotEqual(o.nodes, o2.nodes)
         self.assertEqual([], o.get_nodes())
         o2.add_node()
-        print(o2.nodes)
+        #print(f"o2 nodes = {o2.nodes}")
         self.assertEqual(o2.nodes[1], node(1, '', {}, {}))
+
+
+        # Tests TD2
+
+        # Exercice 1
+
+        n1 = node(1, 'i', {1:2, 2:3, 3:1}, {1: 1, 2:4, 3:8})
+        n2 = node(2, 'j', {1:5, 2:1, 3:2}, {1: 2, 2:2, 3:5})
+        n1.remove_parent_once(2)
+        n2.remove_parent_once(2)
+
+        self.assertEqual(n1.get_parents_ids(), {1:2, 2:2, 3:1})
+        self.assertEqual(n2.get_parents_ids(), {1:5, 3:2})
+
+        n1.remove_child_once(1)
+        n2.remove_child_once(3)
+
+        self.assertEqual(n1.get_children_id(), {2:4, 3:8})
+        self.assertEqual(n2.get_children_id(), {1: 2, 2:2, 3:4})
+
+        n1.remove_parent_id(2)
+        n2.remove_parent_id(3)
+
+        self.assertEqual(n1.get_parents_ids(), {1:2, 3:1})
+        self.assertEqual(n2.get_parents_ids(), {1:5})
+
+        n1.remove_child_id(3)
+        n2.remove_child_id(1)
+
+        self.assertEqual(n1.get_children_id(), {2:4})
+        self.assertEqual(n2.get_children_id(), {2:2, 3:4})
+
+        # Exercice 2
+
+        n1 = node(1, 'i', {1:2, 2:3, 3:1}, {1: 1, 2:4, 3:8})
+        n2 = node(2, 'j', {1:5, 2:1, 3:2}, {1: 2, 2:2, 3:5})
+
+        o3 = o.copy()
+        o3.outputs = [0, 1, 2, 7]
+        o3.nodes = {node.id : node for node in [n1, n2]}
+
+        #o3.remove_edge()
+
+        #print(f"o3 nodes = {o3.nodes} \n")
+        #o3.get_node_by_id(1).remove_parent_once(2)
+        #o3.get_node_by_id(1).remove_child_once(2)
+
+        #print(f"o3 nodes = {o3.nodes} \n")
+
+        #print(type(o3))
+        #print(f"o3 nodes = {o3.nodes} \n")
+        #print(f"o3 nodes = {o3.nodes} \n")
+        #print(f"o3 nodes = {o3.nodes} \n")
+
 
 
 if __name__ == '__main__':  # the following code is called only when
