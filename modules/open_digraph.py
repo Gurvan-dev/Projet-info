@@ -32,7 +32,7 @@ class node:
     def get_parents_ids(self):
         return self.parents
 
-    def get_children_id(self):
+    def get_children_ids(self):
         return self.children
 
     def set_id(self, new_id):
@@ -172,11 +172,11 @@ class open_digraph:  # for open directed graph
 
 
     def remove_edge(self, src, trg):
-        self.get_node_by_id(src).remove_parent_once(trg)
-        self.get_node_by_id(trg).remove_child_once(trg)
+        self.get_node_by_id(trg).remove_parent_once(src)
+        self.get_node_by_id(src).remove_child_once(trg)
 
     def remove_parallel_edge(self, src, trg):
-        self.get_node_by_id(src).remove_parent_id(trg)
+        self.get_node_by_id(trg).remove_parent_id(src)
         self.get_node_by_id(src).remove_child_id(trg)
 
     def remove_node_by_id(self, id):
