@@ -95,7 +95,7 @@ class open_digraph:  # for open directed graph
         return f" Digraph({self})"
 
     def copy(self):
-        return open_digraph(self.inputs, self.outputs, self.nodes)
+        return open_digraph(self.inputs, self.outputs, self.nodes.values())
 
     @classmethod
     def empty():
