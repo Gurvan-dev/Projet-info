@@ -35,7 +35,7 @@ class InitTest(unittest.TestCase):
         self.assertEqual([], o.get_nodes())
         o2.add_node()
         print(o2.nodes)
-        self.assertEqual(o2.nodes[2], node(2, '', {}, {}))
+        self.assertEqual(o2.nodes[1], node(1, '', {}, {}))
 
 
 if __name__ == '__main__':  # the following code is called only when

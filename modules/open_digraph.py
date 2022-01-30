@@ -44,28 +44,29 @@ class node:
     def set_childen_ids(self, new_ids):
         self.children = new_ids
 
-    def add_parent_id(self, parent_id, mult):
-        if(self.parents.get(parent_id) == None):
-            self.parents[parent_id] = 1
+    def add_parent_id(self, parent_id, mult = 1):
+        if self.parents.get(parent_id) == None:
+            self.parents[parent_id] = mult
         else:
-            self.parents[parent_id] += 1
+            self.parents[parent_id] += mult
 
-    def add_children_id(self, child_id, mult):
-        if(self.children.get(child_id) == None):
-            self.children[child_id] = 1
+    def add_children_id(self, child_id, mult = 1):
+        if self.children.get(child_id) == None:
+            self.children[child_id] = mult
         else:
-            self.children[child_id] += 1
-
+            self.children[child_id] += mult
 
     def remove_parent_once(self, id):
-        self.parents[id] -= 1
-        if self.parents[id] == 0:
-            self.parents.pop(id)
+        if id in self.parents:
+            self.parents[id] -= 1
+            if self.parents[id] == 0:
+                self.parents.pop(id)
 
     def remove_children_once(self, id):
-        self.children[id] -= 1
-        if self.children[id] == 0:
-            self.children.pop(id)
+        if id in self.children:
+            self.children[id] -= 1
+            if self.children[id] == 0:
+                self.children.pop(id)
 
     def remove_parent_id(self, id):
         self.parents.pop(id)
@@ -85,6 +86,7 @@ class open_digraph:  # for open directed graph
         self.inputs = inputs
         self.outputs = outputs
         self.nodes = {node.id: node for node in nodes} # self.nodes: <int,node> dict
+        self.c = 0
 
     def __str__(self) -> str:
         return f"Input : {self.inputs}   Output : {self.outputs}   Nodes : {[id for id in self.nodes]}"
@@ -139,23 +141,58 @@ class open_digraph:  # for open directed graph
         self.outputs.append(id)
 
     def new_id(self):
-        return len(self.nodes) + 1
+        return self.c + 1
 
     def add_edge(self, src, trg):
-        self.get_node_by_id(src).add_parent_id(trg, 1)
-        self.get_node_by_id(trg).add_children_id(trg, 1)
+        self.get_node_by_id(src).add_parent_id(trg)
+        self.get_node_by_id(trg).add_children_id(trg)
     
-
     def add_node(self, label='', parents={}, children={}):
-        i = self.new_id()
-        n = node(self.new_id(), label, parents, children)
-        self.nodes[i] = n
+        id = self.new_id()
+        self.c = self.c + 1
+        self.nodes[id] = node(id, label, parents, children)
 
-    def remove_edge(self, src, tgt):
-        self.get_node_by_id(src).remove_parent_id(trg) # Faux
-        self.get_node_by_id(trg).remove_children_id(trg) # Faux
+    def remove_edge(self, src, trg):
+        self.get_node_by_id(src).remove_parent_once(trg)
+        self.get_node_by_id(trg).remove_children_once(trg)
+
+    def remove_parallel_edge(self, src, trg):
+        self.get_node_by_id(src).remove_parent(trg)
+        self.get_node_by_id(src).remove_children(trg)
+
+    def remove_node_by_id(self, id):
+        n = self.nodes.pop(id)
+
+    def remove_edges(self, listEdge):
+        for (src, trg) in listEdge:
+            self.remove_edge(src, trg)
+
+    def remove_parallel_edges(self, listEdge):
+        for (src, trg) in listEdge:
+            self.remove_parallel_edge(src, trg)
+
+    def remove_nodes_by_id(self, ids):
+        for id in ids:
+            self.remove_node_by_id(id)
 
     def is_well_formed(self):
-        nod = self.get_nodes()
-        for id in self.inputs:
-            if (id in nod) AND (get_node_by_id(id).parents[id] == )
+        for n in input:
+            if not (n in self.nodes): # Vérifier que tout les éléments d'input sont dans le graphe.
+                return False
+            if len(self.get_node_by_id(n).get_children_ids()) != 1: # Vérifier que les inputs n'ont qu'un enfant
+                return False 
+            if len(self.get_node_by_id(n).get_parents_ids()) > 1: # Vérifier que les inputs n'ont pas de parents
+                return False 
+        for n in output:
+            if not (n in self.nodes): 
+                return False
+            if len(self.get_node_by_id(n).get_parents_ids() != 1): # Vérifier que les outputs n'ont qu'un parent
+                return False 
+            if len(self.get_node_by_id(n).get_children_ids()) > 0: # Vérifier que les outputs n'ont pas d'enfants
+                return False
+        for key in self.nodes.keys():
+            if(self.get_node_by_id(no).get_id() != key): # Vérifier que les cléfs de nodes correspondent a l'id.
+                return False
+        # TODO : si j a pour fils i avec multiplicit ́e m, alors i doit avoir pour parent j avec multiplicit ́e m, et vice-versa
+        
+        return True
