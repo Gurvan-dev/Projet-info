@@ -33,8 +33,8 @@ class InitTest(unittest.TestCase):
         self.assertNotEqual(o.outputs, o2.outputs)
         self.assertNotEqual(o.nodes, o2.nodes)
         self.assertEqual([], o.get_nodes())
+
         o2.add_node()
-        #print(f"o2 nodes = {o2.nodes}")
         self.assertEqual(o2.nodes[1], node(1, '', {}, {}))
 
 
@@ -72,8 +72,7 @@ class InitTest(unittest.TestCase):
 
         n1 = node(1, 'i', {1:2, 2:3, 3:1}, {1: 1, 2:4, 3:8})
         n2 = node(2, 'j', {1:5, 2:1, 3:2}, {1: 2, 2:2, 3:5})
-
-        o3 = o.copy()
+        o3 = o2.copy()
         o3.outputs = [0, 1, 2, 7]
         o3.nodes = {node.id : node for node in [n1, n2]}
 
