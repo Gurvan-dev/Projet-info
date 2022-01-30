@@ -151,6 +151,22 @@ class open_digraph:  # for open directed graph
         id = self.new_id()
         self.c = self.c + 1
         self.nodes[id] = node(id, label, parents, children)
+        return id
+
+    def add_input_node(self, id):
+        # Vérifier que id n'est pas un input !
+        if id in self.input():
+            raise Exception('Tentative d\'ajouter un input avant un input.')
+        id_added = self.add_node()
+        self.get_node_by_id(id_added).add_parent_node(id)
+
+    def add_output_node(self, id):
+        # Vérifier que id n'est pas un output !
+        if id in self.input():
+            raise Exception('Tentative d\'ajouter un output derrière un output.')
+        id_added = self.add_node()
+        self.get_node_by_id(id_added).add_children_node(id)
+
 
     def remove_edge(self, src, trg):
         self.get_node_by_id(src).remove_parent_once(trg)
@@ -174,6 +190,8 @@ class open_digraph:  # for open directed graph
     def remove_nodes_by_id(self, ids):
         for id in ids:
             self.remove_node_by_id(id)
+
+
 
     def is_well_formed(self):
         for n in input:
