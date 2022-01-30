@@ -1,8 +1,17 @@
 # PROJET-INFO
 
-- [.] Ajouter documentations sur 'open_digraph.py'
-- [.] Ajouter commentaires sur worksheet
-- [.] Fonction add_edge
-- [.] Tester les fonctions remove
-- [.] fonctions remove exo 2
+## Divers
+
+- [.] Relire ce qui est déjà fait.
+  
+## Open Digrah
+
 - [.] Finir is_well_formed
+- [.] Ajouter documentations sur les diverses fonctions
+
+## Open Digraph Test
+
+- [.] Tester is_well_formed
+- [.] Tester "Add Input Node"
+- [.] Tester "Add Output Node"
+- [.] Commenter les tests
