@@ -77,7 +77,7 @@ class InitTest(unittest.TestCase):
         o3.outputs = [0, 1, 2, 7]
         o3.nodes = {node.id : node for node in [n1, n2]}
 
-        #o3.remove_edge()
+        o3.remove_edge()
 
         #print(f"o3 nodes = {o3.nodes} \n")
         #o3.get_node_by_id(1).remove_parent_once(2)
