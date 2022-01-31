@@ -8,8 +8,8 @@ class node:
         '''
         self.id = identity
         self.label = label
-        self.parents = parents
-        self.children = children
+        self.parents = parents.copy()
+        self.children = children.copy()
 
     def __str__(self) -> str:
         return f"Id : {self.id}   Label : {self.label}   Parents : {self.parents}   Children : {self.children}"
@@ -21,7 +21,7 @@ class node:
         return self.id == other.id and self.label == other.label and self.children == other.children and self.parents == other.parents
 
     def copy(self):
-        return node(self.identity, self.label, self.parents, self.children)
+        return node(self.id, self.label, self.parents.copy(), self.children.copy())
     
     def get_id(self) -> int:
         return self.id
@@ -77,7 +77,7 @@ class node:
 
 
 class open_digraph:  # for open directed graph
-    def __init__(self, inputs, outputs, nodes):
+    def __init__(self, inputs=[], outputs=[], nodes=[]):
         '''
         inputs: int list; the ids of the input nodes
         outputs: int list; the ids of the output nodes
@@ -86,7 +86,10 @@ class open_digraph:  # for open directed graph
         self.inputs = inputs
         self.outputs = outputs
         self.nodes = {node.id: node for node in nodes} # self.nodes: <int,node> dict
-        self.c = 0
+        if self.nodes == {}:
+            self.c = 0
+        else:
+            self.c = max([node.id for node in nodes])
 
     def __str__(self) -> str:
         return f"Input : {self.inputs}   Output : {self.outputs}   Nodes : {[id for id in self.nodes]}"
@@ -95,13 +98,13 @@ class open_digraph:  # for open directed graph
         return f" Digraph({self})"
 
     def copy(self):
-        return open_digraph(self.inputs, self.outputs, self.nodes.values())
+        return open_digraph(self.inputs.copy(), self.outputs.copy(), self.nodes.values())
 
     def __eq__(self, __o: object) -> bool:
         return self.inputs == object.inputs and object.outputs == object.outputs and self.nodes == object.nodes and self.c == object.c 
 
     @classmethod
-    def empty():
+    def empty(cls):
         '''
         Return an empty open digraph.
         '''
@@ -147,28 +150,31 @@ class open_digraph:  # for open directed graph
         return self.c + 1
 
     def add_edge(self, src, trg):
-        self.get_node_by_id(src).add_parent_id(trg)
-        self.get_node_by_id(trg).add_children_id(trg)
+        self.get_node_by_id(src).add_children_id(trg)
+        self.get_node_by_id(trg).add_parent_id(src)
     
     def add_node(self, label='', parents={}, children={}):
         id = self.new_id()
         self.c = self.c + 1
+        # TODO : Utiliser add edge ici
         self.nodes[id] = node(id, label, parents, children)
         return id
 
     def add_input_node(self, id):
         # Vérifier que id n'est pas un input !
-        if id in self.input():
+        if id in self.inputs:
             raise Exception('Tentative d\'ajouter un input avant un input.')
         id_added = self.add_node()
-        self.get_node_by_id(id_added).add_parent_node(id)
+        self.add_edge(id_added, id)
+        self.inputs.append(id_added)
 
     def add_output_node(self, id):
         # Vérifier que id n'est pas un output !
-        if id in self.input():
+        if id in self.outputs:
             raise Exception('Tentative d\'ajouter un output derrière un output.')
         id_added = self.add_node()
-        self.get_node_by_id(id_added).add_children_node(id)
+        self.add_edge(id, id_added)
+        self.outputs.append(id_added)
 
 
     def remove_edge(self, src, trg):
@@ -200,8 +206,6 @@ class open_digraph:  # for open directed graph
         for id in ids:
             self.remove_node_by_id(id)
 
-
-
     def is_well_formed(self):
         for n in self.inputs:
             if not (n in self.nodes): # Vérifier que tout les éléments d'input sont dans le graphe.
@@ -213,13 +217,20 @@ class open_digraph:  # for open directed graph
         for n in self.outputs:
             if not (n in self.nodes): 
                 return False
-            if len(self.get_node_by_id(n).get_parents_ids() != 1): # Vérifier que les outputs n'ont qu'un parent
+            if len(self.get_node_by_id(n).get_parents_ids()) != 1: # Vérifier que les outputs n'ont qu'un parent
                 return False 
             if len(self.get_node_by_id(n).get_children_ids()) > 0: # Vérifier que les outputs n'ont pas d'enfants
                 return False
         for key in self.nodes.keys():
-            if(self.get_node_by_id(n).get_id() != key): # Vérifier que les cléfs de nodes correspondent a l'id.
+            if(self.get_node_by_id(key).get_id() != key): # Vérifier que les cléfs de nodes correspondent a l'id.
                 return False
         # TODO : si j a pour fils i avec multiplicit ́e m, alors i doit avoir pour parent j avec multiplicit ́e m, et vice-versa
+        for j in self.nodes.values():
+            for i in j.get_children_ids().keys():
+                if not i in self.nodes.keys():
+                    return False
+                n = self.get_node_by_id(i)
+                if not (j.get_id() in n.get_parents_ids()) or j.get_children_ids()[i] != n.get_parents_ids()[j.get_id()]:
+                    return False
         
         return True

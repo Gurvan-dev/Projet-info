@@ -95,35 +95,36 @@ class InitTest(unittest.TestCase):
 
             # Tests fonctions multiples
 
-        n1 = node(1, 'i', {1:2, 2:3, 3:1}, {1: 1, 2:4, 3:8})
-        n2 = node(2, 'j', {1:5, 2:1, 3:2}, {1: 2, 2:2, 3:5})
-        o3 = o2.copy()
-        o3.outputs = [0, 1, 2, 7]
-        o3.nodes = {node.id : node for node in [n1, n2]}
-
-        #
-        #o3.remove_edge(2, 3)
-        #print(n1)
-        #print(("\n"))
-        #print(n2)
-        #print("\n")
-        #o3.remove_edge(1, 2)
-        #o3.remove_edge(2, 2)
-        o3.remove_edges([(1, 2), (2, 3)]) # ? La node 3 n'est pas dans o3 donc on ne peut rien y remove, l'erreur est normale
-        #print(n1)
-        #print("\n")
-        #print(n2)
+        o3 = open_digraph.empty()
+        o3.add_node("i", {1:2, 2:3, 3:1}, {1: 1, 2:4, 3:8})
+        o3.add_node('j', {1:5, 2:1, 3:2}, {1: 2, 2:2, 3:5})
+        o3.add_node()
 
 
-        self.assertEqual(o3.get_node_by_id(1).get_parents_ids(), {1: 2, 2: 2, 3: 1})
-        self.assertEqual(o3.get_node_by_id(1).get_children_id(), {1: 1, 2: 4, 3: 8})
-        #self.assertEqual(o3.get_node_by_id(2).get_parents_ids(), {1: 5, 3: 1})
-        #self.assertEqual(o3.get_node_by_id(2).get_children_id(), {1: 2, 2: 1, 3: 4})
+        o3.remove_edges([(1, 2), (2, 3)])
 
 
+        self.assertEqual(o3.get_node_by_id(1).get_parents_ids(), {1: 2, 2: 3, 3: 1})
+        self.assertEqual(o3.get_node_by_id(1).get_children_ids(), {1: 1, 2: 3, 3: 8})
+        self.assertEqual(o3.get_node_by_id(2).get_parents_ids(), {1: 4, 2: 1,  3: 2})
+        self.assertEqual(o3.get_node_by_id(2).get_children_ids(), {1: 2, 2: 2, 3: 4})
 
-        o3.remove_nodes_by_id([1, 2])
-        self.assertEqual(o3.get_nodes(), [])
+        o4 = open_digraph.empty()
+        self.assertTrue(o4.is_well_formed())
+        
+        o4.add_node()
+        o4.add_input_node(1)
+        o4.add_output_node(1)
+
+        print(o4)
+        print(o4.nodes[1])
+        print(o4.nodes[2])
+        print(o4.nodes[3])
+        self.assertTrue(o4.is_well_formed())
+
+
+        #o3.remove_nodes_by_id([1, 2])
+        #self.assertEqual(o3.get_nodes(), [])
 
 
         #[(1, 2), (1, 2), (1, 2)]
