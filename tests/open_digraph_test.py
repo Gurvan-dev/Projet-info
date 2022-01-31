@@ -126,7 +126,7 @@ class InitTest(unittest.TestCase):
 
 
         o3.remove_nodes_by_id([1, 2])
-
+        self.assertEqual(o3.get_nodes(), [])
 
 
         #[(1, 2), (1, 2), (1, 2)]
