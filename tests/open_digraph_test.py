@@ -77,9 +77,6 @@ class InitTest(unittest.TestCase):
         o3 = o2.copy()
         o3.outputs = [0, 1, 2, 7]
         o3.nodes = {node.id : node for node in [n1, n2]}
-        for n in o3.nodes.values():
-            print(n)
-        print(o3)
         o3.remove_edge(1, 2)
 
         self.assertEqual(o3.get_node_by_id(1).get_parents_ids(), {1: 2, 2: 3, 3: 1})
@@ -112,7 +109,7 @@ class InitTest(unittest.TestCase):
         #print("\n")
         #o3.remove_edge(1, 2)
         #o3.remove_edge(2, 2)
-        o3.remove_edges([(1, 2), (2, 3)])
+        o3.remove_edges([(1, 2), (2, 3)]) # ? La node 3 n'est pas dans o3 donc on ne peut rien y remove, l'erreur est normale
         #print(n1)
         #print("\n")
         #print(n2)
