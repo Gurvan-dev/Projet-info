@@ -160,8 +160,11 @@ class open_digraph:  # for open directed graph
     def add_node(self, label='', parents={}, children={}):
         id = self.new_id()
         self.c = self.c + 1
-        # TODO : Utiliser add edge ici
-        self.nodes[id] = node(id, label, parents, children)
+        self.nodes[id] = node(id, label, {}, {})
+        for p in parents:
+            self.add_edge(p, id)
+        for c in children:
+            self.add_edge(id, c)
         return id
 
     def add_input_node(self, id):
@@ -228,7 +231,7 @@ class open_digraph:  # for open directed graph
         for key in self.nodes.keys():
             if(self.get_node_by_id(key).get_id() != key): # Vérifier que les cléfs de nodes correspondent a l'id.
                 return False
-        # TODO : si j a pour fils i avec multiplicit ́e m, alors i doit avoir pour parent j avec multiplicit ́e m, et vice-versa
+        # Vérifier que la multiplicité est bien la même pour un parent et un enfant.
         for j in self.nodes.values():
             for i in j.get_children_ids().keys():
                 if not i in self.nodes.keys():

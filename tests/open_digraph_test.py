@@ -72,67 +72,64 @@ class InitTest(unittest.TestCase):
 
             # Tests fonctions simples
 
-        n1 = node(1, 'i', {1:2, 2:3, 3:1}, {1: 1, 2:4, 3:8})
-        n2 = node(2, 'j', {1:5, 2:1, 3:2}, {1: 2, 2:2, 3:5})
+        n1 = node(1, 'i', {2:3}, {2:4})
+        n2 = node(2, 'j', {1:4}, {1: 3})
         o3 = o2.copy()
-        o3.outputs = [0, 1, 2, 7]
+        o3.outputs = [1,2]
         o3.nodes = {node.id : node for node in [n1, n2]}
         o3.remove_edge(1, 2)
 
-        self.assertEqual(o3.get_node_by_id(1).get_parents_ids(), {1: 2, 2: 3, 3: 1})
-        self.assertEqual(o3.get_node_by_id(1).get_children_ids(), {1: 1, 2: 3, 3: 8})
-        self.assertEqual(o3.get_node_by_id(2).get_parents_ids(), {1:4, 2:1, 3:2})
-        self.assertEqual(o3.get_node_by_id(2).get_children_ids(), {1: 2, 2:2, 3:5})
+        self.assertEqual(o3.get_node_by_id(1).get_parents_ids(), {2: 3})
+        self.assertEqual(o3.get_node_by_id(1).get_children_ids(), {2: 3})
+        self.assertEqual(o3.get_node_by_id(2).get_parents_ids(), {1:3})
+        self.assertEqual(o3.get_node_by_id(2).get_children_ids(), {1: 3})
 
         o3.remove_parallel_edge(1, 2)
         
-        self.assertEqual(o3.get_node_by_id(1).get_parents_ids(), {1: 2, 2: 3, 3: 1})
-        self.assertEqual(o3.get_node_by_id(1).get_children_ids(), {1: 1, 3: 8})
+        self.assertEqual(o3.get_node_by_id(1).get_parents_ids(), {2: 3})
+        self.assertEqual(o3.get_node_by_id(1).get_children_ids(), {})
 
         o3.remove_node_by_id(2)
 
-        self.assertEqual(o3.get_nodes(), [node(1, 'i', {1: 2, 3: 1}, {1: 1, 3: 8})])
+        self.assertEqual(o3.get_nodes(), [n1])
 
             # Tests fonctions multiples
 
         o3 = open_digraph.empty()
-        o3.add_node("i", {1:2, 2:3, 3:1}, {1: 1, 2:4, 3:8})
-        o3.add_node('j', {1:5, 2:1, 3:2}, {1: 2, 2:2, 3:5})
-        o3.add_node()
-
+        o3.add_node('i')
+        o3.add_node('j', {1}, {1})
+        o3.add_node('k', {2}, {1})
 
         o3.remove_edges([(1, 2), (2, 3)])
 
 
-        self.assertEqual(o3.get_node_by_id(1).get_parents_ids(), {1: 2, 2: 3, 3: 1})
-        self.assertEqual(o3.get_node_by_id(1).get_children_ids(), {1: 1, 2: 3, 3: 8})
-        self.assertEqual(o3.get_node_by_id(2).get_parents_ids(), {1: 4, 2: 1,  3: 2})
-        self.assertEqual(o3.get_node_by_id(2).get_children_ids(), {1: 2, 2: 2, 3: 4})
+        self.assertEqual(o3.get_node_by_id(1).get_parents_ids(), {2:1, 3:1})
+        self.assertEqual(o3.get_node_by_id(1).get_children_ids(), {})
+        self.assertEqual(o3.get_node_by_id(2).get_parents_ids(), {})
+        self.assertEqual(o3.get_node_by_id(2).get_children_ids(), {1:1})
 
         o4 = open_digraph.empty()
-        self.assertTrue(o4.is_well_formed()) # Un graphique vide est bien formé 
+        self.assertTrue(o4.is_well_formed())    # Un graph vide devrait être bien formé 
         
-        o4.add_node() # Rajout d'une node qui laisse le graphe bien formé 
-        o4.add_input_node(1) # Test des méthodes de l'exo 4
-        o4.add_output_node(1) # Test des méthodes de l'exo 4
-
-        o5 = o4.copy() # Backup du digraph bien formé, pour re travailler dessus après avoir faussé o4
-        self.assertTrue(o5.is_well_formed())  # Verifier que o5 est bien formé 
-
-        self.assertTrue(o4.is_well_formed()) # Verifier que o4 est bien formé avant de le casser
         o4.add_node()
-        o4.add_edge(4, 3) # On a mal formé exprès un digraph car 3 est un output et un output ne peux avoir qu'un parent
+        o4.add_input_node(1)
+        o4.add_output_node(1) 
 
-        self.assertFalse(o4.is_well_formed()) # Test du digraph mal formé
+        o5 = o4.copy()
+        self.assertTrue(o5.is_well_formed())    # o5 est le graphe le plus simple qui est bien formé, avec un input, un output et un seule node entre les deux.
 
-        self.assertTrue(o5.is_well_formed())
+        o4.add_node()
+        o4.add_edge(4, 3)
+
+        self.assertFalse(o4.is_well_formed())   # Le graph a un output avec plusieurs parents, et est donc mal formé.
+
         o5.add_node()
         o5.add_node()
-        o5.add_edges([(4,5), (4,1), (5,1)]) # Ajout d'arêtes qui laissent le graphe bien formé 
+        o5.add_edges([(4,5), (4,1), (5,1)])     # Ajout d'arêtes qui laissent le graphe bien formé 
         self.assertTrue(o5.is_well_formed())
 
-        # TODO : Tester remove_edgeS (au pluriel)
-
+        o5.get_node_by_id(5).add_children_id(1) # On vérifie ici que si la multiplicité ne correspond pas entre deux noeuds, le graph n'est pas bien formé.
+        self.assertFalse(o5.is_well_formed()) 
 
 
 if __name__ == '__main__':  # the following code is called only when
