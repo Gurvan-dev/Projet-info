@@ -21,7 +21,7 @@ class node:
         return self.id == other.id and self.label == other.label and self.children == other.children and self.parents == other.parents
 
     def copy(self):
-        return node(self.id, self.label, self.parents.copy(), self.children.copy())
+        return node(self.id, self.label, self.parents, self.children)
     
     def get_id(self) -> int:
         return self.id
@@ -83,9 +83,9 @@ class open_digraph:  # for open directed graph
         outputs: int list; the ids of the output nodes
         nodes: node iter;
         '''
-        self.inputs = inputs
-        self.outputs = outputs
-        self.nodes = {node.id: node for node in nodes} # self.nodes: <int,node> dict
+        self.inputs = inputs.copy()
+        self.outputs = outputs.copy()
+        self.nodes = {node.id: node.copy() for node in nodes} # self.nodes: <int,node> dict
         if self.nodes == {}:
             self.c = 0
         else:
@@ -98,7 +98,7 @@ class open_digraph:  # for open directed graph
         return f" Digraph({self})"
 
     def copy(self):
-        return open_digraph(self.inputs.copy(), self.outputs.copy(), self.nodes.values())
+        return open_digraph(self.inputs, self.outputs, self.nodes.values())
 
     def __eq__(self, __o: object) -> bool:
         return self.inputs == object.inputs and object.outputs == object.outputs and self.nodes == object.nodes and self.c == object.c 
@@ -152,6 +152,10 @@ class open_digraph:  # for open directed graph
     def add_edge(self, src, trg):
         self.get_node_by_id(src).add_children_id(trg)
         self.get_node_by_id(trg).add_parent_id(src)
+    
+    def add_edges(self, edgeList):
+        for (src, trg) in edgeList:
+            self.add_edge(src,trg)
     
     def add_node(self, label='', parents={}, children={}):
         id = self.new_id()

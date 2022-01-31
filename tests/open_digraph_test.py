@@ -110,35 +110,28 @@ class InitTest(unittest.TestCase):
         self.assertEqual(o3.get_node_by_id(2).get_children_ids(), {1: 2, 2: 2, 3: 4})
 
         o4 = open_digraph.empty()
-        self.assertTrue(o4.is_well_formed())
+        self.assertTrue(o4.is_well_formed()) # Un graphique vide est bien formé 
         
+        o4.add_node() # Rajout d'une node qui laisse le graphe bien formé 
+        o4.add_input_node(1) # Test des méthodes de l'exo 4
+        o4.add_output_node(1) # Test des méthodes de l'exo 4
+
+        o5 = o4.copy() # Backup du digraph bien formé, pour re travailler dessus après avoir faussé o4
+        self.assertTrue(o5.is_well_formed())  # Verifier que o5 est bien formé 
+
+        self.assertTrue(o4.is_well_formed()) # Verifier que o4 est bien formé avant de le casser
         o4.add_node()
-        o4.add_input_node(1)
-        o4.add_output_node(1)
+        o4.add_edge(4, 3) # On a mal formé exprès un digraph car 3 est un output et un output ne peux avoir qu'un parent
 
-        print(o4)
-        print(o4.nodes[1])
-        print(o4.nodes[2])
-        print(o4.nodes[3])
-        self.assertTrue(o4.is_well_formed())
+        self.assertFalse(o4.is_well_formed()) # Test du digraph mal formé
 
+        self.assertTrue(o5.is_well_formed())
+        o5.add_node()
+        o5.add_node()
+        o5.add_edges([(4,5), (4,1), (5,1)]) # Ajout d'arêtes qui laissent le graphe bien formé 
+        self.assertTrue(o5.is_well_formed())
 
-        #o3.remove_nodes_by_id([1, 2])
-        #self.assertEqual(o3.get_nodes(), [])
-
-
-        #[(1, 2), (1, 2), (1, 2)]
-
-        #print(f"o3 nodes = {o3.nodes} \n")
-        #o3.get_node_by_id(1).remove_parent_once(2)
-        #o3.get_node_by_id(1).remove_child_once(2)
-
-        #print(f"o3 nodes = {o3.nodes} \n")
-
-        #print(type(o3))
-        #print(f"o3 nodes = {o3.nodes} \n")
-        #print(f"o3 nodes = {o3.nodes} \n")
-        #print(f"o3 nodes = {o3.nodes} \n")
+        # TODO : Tester remove_edgeS (au pluriel)
 
 
 
