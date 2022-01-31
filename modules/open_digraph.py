@@ -83,22 +83,22 @@ class open_digraph:  # for open directed graph
         outputs: int list; the ids of the output nodes
         nodes: node iter;
         '''
-        self.inputs = inputs.copy()
-        self.outputs = outputs.copy()
+        self.inputs = inputs.copy()     # On réalise ici des copie afin d'être sûr d'éviter toute confusion pendant l'utilisation de la classe.
+        self.outputs = outputs.copy()   # Une liste donnée en paramètre peut ainsi être ré-utilisée plus tard sans aucune incidence sur ce graphe.
         self.nodes = {node.id: node.copy() for node in nodes} # self.nodes: <int,node> dict
-        if self.nodes == {}:
-            self.c = 0
-        else:
+        if self.nodes == {}:    # On initialise ici un compteur qui va permettre d'avoir un ID unique pour chaque node,
+            self.c = 0          # sans risque de ré-attribution d'un même id a plusieurs node,
+        else:                   # et ce même après suppression ou ajout de plusieurs node. 
             self.c = max([node.id for node in nodes])
 
     def __str__(self) -> str:
-        return f"Input : {self.inputs}   Output : {self.outputs}   Nodes : {[id for id in self.nodes]}"
+        return f"Input : {self.inputs}   Output : {self.outputs}   Nodes : {[node for node in self.nodes]}"
 
     def __repr__(self):
         return f" Digraph({self})"
 
     def copy(self):
-        return open_digraph(self.inputs, self.outputs, self.nodes.values())
+        return open_digraph(self.inputs, self.outputs, self.nodes.values()) # On peut juste renvoyer un nouveau digraph avec comme paramètre les valeurs des variables actuels, car un copy est des le constructeur.
 
     def __eq__(self, __o: object) -> bool:
         return self.inputs == object.inputs and object.outputs == object.outputs and self.nodes == object.nodes and self.c == object.c 
@@ -158,6 +158,16 @@ class open_digraph:  # for open directed graph
             self.add_edge(src,trg)
     
     def add_node(self, label='', parents={}, children={}):
+        '''
+        label: Le nom de la node
+        parents: Les parents de la node
+        childrens : Les childrens de la node
+        Ici les paramètres possèdent des noms plutôt explicite quant a leurs fonctions.
+        Les parents ne seront pas directement ajouté a la node,
+        mais seront plutôt utilisé comme argument pour faire des add_edge.
+        De cette façon, on s'assure que le graphe soit bien formé qu'importe l'utilisation de add_node
+        (Le seul moyen pour que le graphe soit mal formé étant ainsi une erreur)
+        '''
         id = self.new_id()
         self.c = self.c + 1
         self.nodes[id] = node(id, label, {}, {})
@@ -168,6 +178,10 @@ class open_digraph:  # for open directed graph
         return id
 
     def add_input_node(self, id):
+        '''
+        id: L'id sur laquelle greffer une nouvelle node qui sera une input node liée par une arrête a cette première.
+        Throw une exception si la node sur laquelle on doit se greffer est elle même une input node, afin que le graphe reste bien formé.
+        '''
         # Vérifier que id n'est pas un input !
         if id in self.inputs:
             raise Exception('Tentative d\'ajouter un input avant un input.')
@@ -176,6 +190,10 @@ class open_digraph:  # for open directed graph
         self.inputs.append(id_added)
 
     def add_output_node(self, id):
+        '''
+        id: L'id sur laquelle greffer une nouvelle node qui sera une output node liée par une arrête a cette première.
+        Throw une exception si la node sur laquelle on doit se greffer est elle même une output node, afin que le graphe reste bien formé.
+        '''
         # Vérifier que id n'est pas un output !
         if id in self.outputs:
             raise Exception('Tentative d\'ajouter un output derrière un output.')
