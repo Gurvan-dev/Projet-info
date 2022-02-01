@@ -136,9 +136,20 @@ class InitTest(unittest.TestCase):
         
         
     def test_matrix_digraph(self):
-        m = random_matrix(9, 25)
+        m = random_matrix(5, 25)
         o2 = open_digraph.graph_from_adjacency_matrix(m)
-        print(o2.nodes)
+        #print(m)
+        #print("\n")
+        #print(o2.nodes)
+
+        self.assertEqual(len(o2.get_nodes()), 5)
+        for i in range(len(m)):
+            for j in range(len(m)):
+
+                #print(f"i : {i}, j : {j}")
+                if m[i][j] > 0:
+                    self.assertEqual(m[i][j], o2.get_node_by_id(i+1).children[j+1])
+        #print(o2.nodes)
 
 if __name__ == '__main__':  # the following code is called only when
     unittest.main()         # precisely this file is run
