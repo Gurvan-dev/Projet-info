@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, betavariate
 
 def random_int_list(n, bound, number_generator=(lambda a,b: random.betavariate(a,b))):
     tab = []
