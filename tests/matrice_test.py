@@ -8,8 +8,18 @@ from modules.matrice import *
 
 class InitTest(unittest.TestCase):
     def test_matrice(self):
-        self.assertTrue(True)
+
+        self.assertEqual(len(random_int_list(5, 20)), 5)
+
+        m = random_matrix(6, 75)
+        self.assertEqual(len(m), 6)
+        for i in m:
+            self.assertEqual(len(m), 6)
         
+        m = random_matrix(9, 70, null_diag=True)
+        for i in range(len(m)):
+            self.assertEqual(m[i][i], 0)
+
 
 
 
