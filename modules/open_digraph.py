@@ -264,7 +264,7 @@ class open_digraph:  # for open directed graph
         return True
 
     @classmethod
-    def graph_from_adjacency_matrix(cls, self, mat):
+    def graph_from_adjacency_matrix(cls, mat):
         '''
         mat : int list list
         Return an open digraph formed with the input matrix (See sujets/TD3.pdf).
@@ -273,9 +273,9 @@ class open_digraph:  # for open directed graph
         for i in range(len(mat)):
             o.add_node()
         for x in range(len(mat)):
-            for y in range(len(may)):
+            for y in range(len(mat)):
                 if mat[x][y] > 0:
-                    o.add_edge(x, y) 
+                    o.add_edge(x+1, y+1)  # Nos ids commencent par 1 donc +1
         return o
 
     @classmethod
