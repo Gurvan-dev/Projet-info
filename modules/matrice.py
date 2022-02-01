@@ -10,10 +10,6 @@ def random_matrix(n, bound, null_diag = False, symmetric = False, oriented = Fal
     mat = []
     for i in range(n):
         mat.append(random_int_list(n, bound))
-        # [i][j] > 0 => [j][i] = 0
-        if symmetric:
-            for j in range(max_bound):
-                map[i].append(map[i][max_bound-j])
             
     for x in range(n):
          for y in range(n):
