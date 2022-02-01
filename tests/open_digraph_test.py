@@ -4,6 +4,7 @@ import os
 root = os.path.normpath(os.path.join(__file__, './../..'))
 sys.path.append(root)  # allows us to fetch files from the project root
 from modules.open_digraph import *
+from modules.matrice import *
 
 
 class InitTest(unittest.TestCase):
@@ -127,12 +128,17 @@ class InitTest(unittest.TestCase):
         o5.add_edges([(4,5), (4,1), (5,1)])     # Ajout d'arêtes qui laissent le graphe bien formé 
         self.assertTrue(o5.is_well_formed())
 
-        o5.get_node_by_id(5).add_childr
-        en_id(1)                                # Action plus ou moins illégale, on devrait moralement faire ici un add edge.
+        o5.get_node_by_id(5).add_children_id(1)                                # Action plus ou moins illégale, on devrait moralement faire ici un add edge.
         self.assertFalse(o5.is_well_formed())   # On vérifie ici que si la multiplicité ne correspond pas entre deux noeuds, le graph n'est pas bien formé.
         o5.get_node_by_id(5).remove_child_once(1)
         o5.get_node_by_id(5).add_parent_id(4)
         self.assertFalse(o5.is_well_formed())   # De même que ci dessus, on vérifie ici l'inverse, c'est a dire si la multiplicité d'un enfant ne correspond pas a celui de son parent.
+        
+        
+    def test_matrix_digraph(self):
+        m = random_matrix(9, 25)
+        o2 = open_digraph.graph_from_adjacency_matrix(m)
+        print(o2.nodes)
 
 if __name__ == '__main__':  # the following code is called only when
     unittest.main()         # precisely this file is run
