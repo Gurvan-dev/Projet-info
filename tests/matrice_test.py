@@ -40,7 +40,7 @@ class InitTest(unittest.TestCase):
 
         for i in range(len(m)):
             for j in range(len(m)):
-                if m[i][j] > 0 and i > j:
+                if m[i][j] > 0 and i != j:
                     self.assertEqual(m[j][i], 0)
 
         
