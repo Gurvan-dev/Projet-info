@@ -16,10 +16,9 @@ def random_matrix(n, bound, null_diag = False, symmetric = False, oriented = Fal
             if null_diag and x == y:
                 mat [x][y] = 0
             if oriented and mat[x][y] > 0 and x > y:
-                z = randint(0, 10)
                 y_loc = y
                 x_loc = x
-                if(z % 2 == 0):
+                if(randint(0, 10) % 2 == 0):
                     x_loc, y_loc = y_loc, x_loc
                 mat[y_loc][x_loc] = 0
             if symmetric:
