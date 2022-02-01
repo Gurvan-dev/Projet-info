@@ -343,8 +343,9 @@ class open_digraph:  # for open directed graph
         return dic
 
     def adjacency_matrix(self):
-    '''
-    '''
+        '''
+        return : La matrice d'adjacency associé au graph
+        '''
 
         mat = []
         for _ in range (len(self.nodes)):
