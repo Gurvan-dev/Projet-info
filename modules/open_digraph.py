@@ -308,10 +308,9 @@ class open_digraph:  # for open directed graph
                 raise ValueError("Forme de matrice non correcte.")
             
             o = graph_from_adjacency_matrix(mat)
+            
             inputs = max(input, n)
             outputs = max(outputs, n)
-            inp = []
-            out = []
 
             for _ in range (inputs):
                 r = randint(1, n+1)                     # Nos ID commencent a 1, d'ou le 1, n+1.
