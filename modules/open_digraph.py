@@ -351,3 +351,4 @@ class open_digraph:  # for open directed graph
             i = dic[node.get_id()]
             for (child_id, mult) in node.get_children_ids():
                 mat[i][child_id] = mult
+        return mat
