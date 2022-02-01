@@ -1,15 +1,15 @@
 from random import randint
 
-def random_int_list(n, bound):
+def random_int_list(n, bound, number_generator=(lambda a,b: random.betavariate(a,b))):
     tab = []
     for i in range(n):
-        tab.append(randint(0, bound))
+        tab.append(number_generator(0, bound))
     return tab
 
-def random_matrix(n, bound, null_diag = False, symmetric = False, oriented = False, triangular = False):
+def random_matrix(n, bound, null_diag = False, symmetric = False, oriented = False, triangular = False, number_generator=(lambda a,b: random.betavariate(a,b))):
     mat = []
     for _ in range(n):
-        mat.append(random_int_list(n, bound))
+        mat.append(random_int_list(n, bound), number_generator)
             
     for x in range(n):
         for y in range(n):
