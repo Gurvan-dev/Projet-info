@@ -127,7 +127,8 @@ class InitTest(unittest.TestCase):
         o5.add_edges([(4,5), (4,1), (5,1)])     # Ajout d'arêtes qui laissent le graphe bien formé 
         self.assertTrue(o5.is_well_formed())
 
-        o5.get_node_by_id(5).add_children_id(1) # Action plus ou moins illégale, on devrait moralement faire ici un add edge.
+        o5.get_node_by_id(5).add_childr
+        en_id(1)                                # Action plus ou moins illégale, on devrait moralement faire ici un add edge.
         self.assertFalse(o5.is_well_formed())   # On vérifie ici que si la multiplicité ne correspond pas entre deux noeuds, le graph n'est pas bien formé.
         o5.get_node_by_id(5).remove_child_once(1)
         o5.get_node_by_id(5).add_parent_id(4)
