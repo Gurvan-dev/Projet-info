@@ -1,12 +1,12 @@
 from random import randint, betavariate
 
-def random_int_list(n, bound, number_generator=(lambda a,b: betavariate(1,b))):
+def random_int_list(n, bound, number_generator=(lambda a,b: randint(a, b))):
     tab = []
     for i in range(n):
         tab.append(number_generator(0, bound))
     return tab
 
-def random_matrix(n, bound, null_diag = False, symmetric = False, oriented = False, triangular = False, number_generator=(lambda a,b: betavariate(1,b))):
+def random_matrix(n, bound, null_diag = False, symmetric = False, oriented = False, triangular = False, number_generator=(lambda a,b: randint(a, b))):
     mat = []
     for _ in range(n):
         mat.append(random_int_list(n, bound, number_generator))
