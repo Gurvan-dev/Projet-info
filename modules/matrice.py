@@ -9,7 +9,7 @@ def random_int_list(n, bound, number_generator=(lambda a,b: betavariate(1,b))):
 def random_matrix(n, bound, null_diag = False, symmetric = False, oriented = False, triangular = False, number_generator=(lambda a,b: betavariate(1,b))):
     mat = []
     for _ in range(n):
-        mat.append(random_int_list(n, bound), number_generator)
+        mat.append(random_int_list(n, bound, number_generator))
             
     for x in range(n):
         for y in range(n):
