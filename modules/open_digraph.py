@@ -1,3 +1,5 @@
+import matrice
+
 class node:
     def __init__(self, identity, label, parents, children):
         '''
@@ -259,3 +261,44 @@ class open_digraph:  # for open directed graph
                     return False
         
         return True
+
+        @classmethod
+        def graph_from_adjacency_matrix(cls, self, mat):
+            '''
+            mat : int list list
+            Return an open digraph formed with the input matrix (See sujets/TD3.pdf).
+            '''
+            o = open_digraph([], [], [])
+            for i in range(len(mat)):
+                o.add_node()
+            for x in range(len(mat)):
+                for y in range(len(may)):
+                    if mat[x][y] > 0:
+                        o.add_edge(x, y)
+            return o
+
+        @classmethod
+        def random(cls, n, bound, inputs=0, outputs=0, form = "free"):
+            '''
+            Doc
+            Bien pr ́eciser ici les options possibles pour form !
+            '''
+    
+            if form=="free":
+                mat = matrice.matrice.random_matrix(n, bound)
+            elif form=="DAG":
+                o = graph_from_adjacency_matrix(mat)
+            elif form=="oriented":
+                mat = matrice.matrice.random_matrix(n, bound, oriented=True)
+            elif form=="loop-free":
+                o = graph_from_adjacency_matrix(mat)
+            elif form=="undirected":
+                mat = matrice.matrice.random_matrix(n, bound, oriented=False)
+            elif form=="loop-free undirected":
+                o = graph_from_adjacency_matrix(mat)
+            else:
+                raise ValueError("Forme de matricec non correcte.")
+            
+            o = graph_from_adjacency_matrix(mat)
+                    
+            return o

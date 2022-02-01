@@ -1,24 +1,32 @@
 from random import randint
+class matrice:
 
-def random_int_list(n, bound):
-    tab = []
-    for i in range(n):
-        tab.append(randint(0, bound))
-    return tab
+    @classmethod
+    def random_int_list(cls, n, bound):
+        tab = []
+        for i in range(n):
+            tab.append(randint(0, bound))
+        return tab
 
-def random_matrix(n, bound, null_diag = False, symmetric = False, oriented = False, triangular = False):
-    mat = []
-    for i in range(n):
-        mat.append(random_int_list(n, bound))
+    @classmethod
+    def random_matrix(cls, n, bound, null_diag = False, symmetric = False, oriented = False, triangular = False):
+        mat = []
+        for i in range(n):
+            mat.append(random_int_list(n, bound))
             
-    for x in range(n):
-         for y in range(n):
-            if null_diag and x == y:
-                mat [x][y] = 0
-            if oriented and mat[x][y] > 0:
-                mat[y][x] = 0
-            if symmetric:
-                mat[y][x] = mat[x][y]
-            if triangular and x > j:
-                mat[x][y] = 0
-    return mat
+        for x in range(n):
+            for y in range(n):
+                if null_diag and x == y:
+                    mat [x][y] = 0
+                if oriented and mat[x][y] > 0 and x > y:
+                    z = randint(0, 10)
+                    y_loc = y
+                    x_loc = x
+                    if(z % 2 == 0):
+                        x_loc, y_loc = y_loc, x_loc
+                    mat[y_loc][x_loc] = 0
+                if symmetric:
+                    mat[y][x] = mat[x][y]
+                if triangular and x > y:
+                    mat[x][y] = 0
+        return mat
