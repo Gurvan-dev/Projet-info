@@ -20,6 +20,38 @@ class InitTest(unittest.TestCase):
         for i in range(len(m)):
             self.assertEqual(m[i][i], 0)
 
+        m = random_matrix(9, 70,null_diag=True, symmetric=True)
+        for i in range(len(m)):
+            for j in range(len(m)):
+                self.assertEqual(m[i][j], m[j][i])
+
+        #oriented
+
+        m = random_matrix(9, 25, oriented = True)
+        #print("[  ")
+        #for i in range(len(m)):
+        #    print("[  ")
+        #    for j in range(len(m)):
+        #        print(f"  {m[i][j]}  ")
+        #    print("]")
+            #print("\n")
+        #print("]")
+        print(m)
+
+        for i in range(len(m)):
+            for j in range(len(m)):
+                if m[i][j] > 0 and i > j:
+                    self.assertEqual(m[j][i], 0)
+
+        
+
+
+
+
+         
+         
+        # #triangular
+
 
 
 
