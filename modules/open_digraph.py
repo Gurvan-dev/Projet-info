@@ -1,4 +1,4 @@
-import matrice
+from modules.matrice import *
 from random import randint
 
 class node:
@@ -282,14 +282,17 @@ class open_digraph:  # for open directed graph
         def random(cls, n, bound, inputs=0, outputs=0, form = "free"):
             '''
             Doc
-            Bien pr ́eciser ici les options possibles pour form !
+            n       : Nombre de noeuds dans le graphe
+            bound   : Nombre maximal de multiplicité pour une arrête
+            inputs  : Nombre d'input a générer dans le graphe
+            outputs : Nombre d'outputs a générer dans le graphe
             form :
                 free                    : La matrice générée n'aura pas de contraintes.
                 DAG                     : La matrice générée sera acyclique dirigé
                 oriented                : La matrice sera orienté
                 loop-free               : Un noeud ne pourra pas pointer sur lui même (Donc la diagonale de la matrice générée sera nulle)
-                undirected              : 
-                loop-free undirected    :
+                undirected              : La matrice sera symmétrique.
+                loop-free undirected    : Combinaison de loop free et undirected
             '''
     
             if form=="free":
@@ -308,12 +311,12 @@ class open_digraph:  # for open directed graph
                 raise ValueError("Forme de matrice non correcte.")
             
             o = graph_from_adjacency_matrix(mat)
-            
+
             inputs = max(input, n)
             outputs = max(outputs, n)
 
             for _ in range (inputs):
-                r = randint(1, n+1)                     # Nos ID commencent a 1, d'ou le 1, n+1.
+                r = randint(1, n+1)                   # Nos ID commencent a 1, d'ou le 1, n+1.
                 while r in o.get_input_ids():         # Ne peut pas être une boucle infinie car on a restreint input a n au maximum
                     r = (r+1) % (n+1)
                 inputs.append(r)
@@ -327,3 +330,24 @@ class open_digraph:  # for open directed graph
                 o.add_output_id(r)
         
             return o
+
+    def get_dic(self):
+        '''
+        return dictionnaire int -> int, associant a chaque id de noeud un unique entier 0 ≤ i < n
+        '''
+        dic = {}
+        count = 0
+        for nod in self.nodes.values():
+            dic[nod.id] = count
+            count = count + 1
+        return dic
+
+    def adjacency_matrix(self):
+        mat = []
+        for _ in range (len(self.nodes)):
+            mat.append([] * len(self.nodes))
+        dic = self.get_dic()
+        for node in self.nodes.values():
+            i = dic[node.get_id()]
+            for (child_id, mult) in node.get_children_ids():
+                mat[i][child_id] = mult

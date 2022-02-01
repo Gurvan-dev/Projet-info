@@ -8,7 +8,7 @@ def random_int_list(n, bound):
 
 def random_matrix(n, bound, null_diag = False, symmetric = False, oriented = False, triangular = False):
     mat = []
-    for i in range(n):
+    for _ in range(n):
         mat.append(random_int_list(n, bound))
             
     for x in range(n):
