@@ -263,73 +263,73 @@ class open_digraph:  # for open directed graph
         
         return True
 
-        @classmethod
-        def graph_from_adjacency_matrix(cls, self, mat):
-            '''
-            mat : int list list
-            Return an open digraph formed with the input matrix (See sujets/TD3.pdf).
-            '''
-            o = open_digraph([], [], [])
-            for i in range(len(mat)):
-                o.add_node()
-            for x in range(len(mat)):
-                for y in range(len(may)):
-                    if mat[x][y] > 0:
-                        o.add_edge(x, y)
-            return o
+    @classmethod
+    def graph_from_adjacency_matrix(cls, self, mat):
+        '''
+        mat : int list list
+        Return an open digraph formed with the input matrix (See sujets/TD3.pdf).
+        '''
+        o = open_digraph([], [], [])
+        for i in range(len(mat)):
+            o.add_node()
+        for x in range(len(mat)):
+            for y in range(len(may)):
+                if mat[x][y] > 0:
+                    o.add_edge(x, y) 
+        return o
 
-        @classmethod
-        def random(cls, n, bound, inputs=0, outputs=0, form = "free"):
-            '''
-            Doc
-            n       : Nombre de noeuds dans le graphe
-            bound   : Nombre maximal de multiplicité pour une arrête
-            inputs  : Nombre d'input a générer dans le graphe
-            outputs : Nombre d'outputs a générer dans le graphe
-            form :
-                free                    : La matrice générée n'aura pas de contraintes.
-                DAG                     : La matrice générée sera acyclique dirigé
-                oriented                : La matrice sera orienté
-                loop-free               : Un noeud ne pourra pas pointer sur lui même (Donc la diagonale de la matrice générée sera nulle)
-                undirected              : La matrice sera symmétrique.
-                loop-free undirected    : Combinaison de loop free et undirected
-            '''
-    
-            if form=="free":
-                mat = matrice.matrice.random_matrix(n, bound)
-            elif form=="DAG":
-                mat = matrice.matrice.random_matrix(n, bound, triagular=True)
-            elif form=="oriented":
-                mat = matrice.matrice.random_matrix(n, bound, oriented=True)
-            elif form=="loop-free":
-                o = graph_from_adjacency_matrix(mat, null_diag=True)
-            elif form=="undirected":
-                mat = matrice.matrice.random_matrix(n, bound, symmetric=True)
-            elif form=="loop-free undirected":
-                o = graph_from_adjacency_matrix(mat, symmetric=True ,null_diag=True)
-            else:
-                raise ValueError("Forme de matrice non correcte.")
+    @classmethod
+    def random(cls, n, bound, inputs=0, outputs=0, form = "free"):
+        '''
+        Doc
+        n       : Nombre de noeuds dans le graphe
+        bound   : Nombre maximal de multiplicité pour une arrête
+        inputs  : Nombre d'input a générer dans le graphe
+        outputs : Nombre d'outputs a générer dans le graphe
+        form :
+            free                    : La matrice générée n'aura pas de contraintes.
+            DAG                     : La matrice générée sera acyclique dirigé
+            oriented                : La matrice sera orienté
+            loop-free               : Un noeud ne pourra pas pointer sur lui même (Donc la diagonale de la matrice générée sera nulle)
+            undirected              : La matrice sera symmétrique.
+            loop-free undirected    : Combinaison de loop free et undirected
+        '''
+
+        if form=="free":
+            mat = matrice.matrice.random_matrix(n, bound)
+        elif form=="DAG":
+            mat = matrice.matrice.random_matrix(n, bound, triagular=True)
+        elif form=="oriented":
+            mat = matrice.matrice.random_matrix(n, bound, oriented=True)
+        elif form=="loop-free":
+            o = graph_from_adjacency_matrix(mat, null_diag=True)
+        elif form=="undirected":
+            mat = matrice.matrice.random_matrix(n, bound, symmetric=True)
+        elif form=="loop-free undirected":
+            o = graph_from_adjacency_matrix(mat, symmetric=True ,null_diag=True)
+        else:
+            raise ValueError("Forme de matrice non correcte.")
             
-            o = graph_from_adjacency_matrix(mat)
+        o = graph_from_adjacency_matrix(mat)
 
-            inputs = max(input, n)
-            outputs = max(outputs, n)
+        inputs = max(input, n)
+        outputs = max(outputs, n)
 
-            for _ in range (inputs):
-                r = randint(1, n+1)                   # Nos ID commencent a 1, d'ou le 1, n+1.
-                while r in o.get_input_ids():         # Ne peut pas être une boucle infinie car on a restreint input a n au maximum
-                    r = (r+1) % (n+1)
-                inputs.append(r)
-                o.add_input_id(r)
+        for _ in range (inputs):
+            r = randint(1, n+1)                   # Nos ID commencent a 1, d'ou le 1, n+1.
+            while r in o.get_input_ids():         # Ne peut pas être une boucle infinie car on a restreint input a n au maximum
+                r = (r+1) % (n+1)
+            inputs.append(r)
+            o.add_input_id(r)
 
-            for _ in range (outputs):
-                r = randint(1, n+1)                 # Nos ID commencent a 1, d'ou le 1, n+1.
-                while r in get_outputs_ids:         # Ne peut pas être une boucle infinie car on a restreint output a n au maximum
-                    r = (r+1) % (n+1)
-                outputs.append(r)
-                o.add_output_id(r)
+        for _ in range (outputs):
+            r = randint(1, n+1)                 # Nos ID commencent a 1, d'ou le 1, n+1.
+            while r in get_outputs_ids:         # Ne peut pas être une boucle infinie car on a restreint output a n au maximum
+                r = (r+1) % (n+1)
+            outputs.append(r)
+            o.add_output_id(r)
         
-            return o
+        return o
 
     def get_dic(self):
         '''
@@ -343,6 +343,9 @@ class open_digraph:  # for open directed graph
         return dic
 
     def adjacency_matrix(self):
+    '''
+    '''
+
         mat = []
         for _ in range (len(self.nodes)):
             mat.append([] * len(self.nodes))
