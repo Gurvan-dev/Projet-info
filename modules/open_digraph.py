@@ -284,7 +284,7 @@ class open_digraph:  # for open directed graph
             Bien pr ́eciser ici les options possibles pour form !
             form :
                 free                    : La matrice générée n'aura pas de contraintes.
-                DAG                     : La matrice générée sera acyclique 
+                DAG                     : La matrice générée sera acyclique dirigé
                 oriented                : La matrice sera orienté
                 loop-free               : Un noeud ne pourra pas pointer sur lui même (Donc la diagonale de la matrice générée sera nulle)
                 undirected              : 
@@ -294,15 +294,15 @@ class open_digraph:  # for open directed graph
             if form=="free":
                 mat = matrice.matrice.random_matrix(n, bound)
             elif form=="DAG": # Directed Acyclic graph
-                o = graph_from_adjacency_matrix(mat)
+                mat = matrice.matrice.random_matrix(n, bound, )
             elif form=="oriented":
                 mat = matrice.matrice.random_matrix(n, bound, oriented=True)
             elif form=="loop-free": # Diagonal null
-                o = graph_from_adjacency_matrix(mat)
+                o = graph_from_adjacency_matrix(mat, null_diag=True)
             elif form=="undirected":
                 mat = matrice.matrice.random_matrix(n, bound, oriented=False)
             elif form=="loop-free undirected":
-                o = graph_from_adjacency_matrix(mat)
+                o = graph_from_adjacency_matrix(mat,)
             else:
                 raise ValueError("Forme de matricec non correcte.")
             

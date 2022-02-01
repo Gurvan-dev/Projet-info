@@ -26,4 +26,4 @@ def random_matrix(n, bound, null_diag = False, symmetric = False, oriented = Fal
                 mat[y][x] = mat[x][y]
             if triangular and x > y:
                 mat[x][y] = 0
-        return mat
+    return mat
