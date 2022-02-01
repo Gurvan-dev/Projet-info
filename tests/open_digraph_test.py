@@ -113,6 +113,8 @@ class InitTest(unittest.TestCase):
         
         o4.add_node()
         o4.add_input_node(1)
+        with self.assertRaises(Exception):
+            o4.add_input_node(2)
         o4.add_output_node(1) 
 
         o5 = o4.copy()
@@ -136,20 +138,36 @@ class InitTest(unittest.TestCase):
         
         
     def test_matrix_digraph(self):
-        m = random_matrix(5, 25)
+        n = 5
+        bound = 25
+        m = random_matrix(n, bound)
         o2 = open_digraph.graph_from_adjacency_matrix(m)
-        #print(m)
-        #print("\n")
-        #print(o2.nodes)
 
         self.assertEqual(len(o2.get_nodes()), 5)
-        for i in range(len(m)):
+        for i in range(len(m)):                     # On va vérifier pour chacune des valeurs de la matrice que un edge correspondant est bien présent dans le graphe.
             for j in range(len(m)):
-
-                #print(f"i : {i}, j : {j}")
                 if m[i][j] > 0:
                     self.assertEqual(m[i][j], o2.get_node_by_id(i+1).children[j+1])
-        #print(o2.nodes)
+        
+        
+        o2 = open_digraph.random(n, bound, form="free")
+        # TODO : Rien a tester réellement ici.
+
+        o2 = open_digraph.random(n, bound, form="DAG")
+        # TODO : Trouver test ici
+
+        o2 = open_digraph.random(n, bound, form="oriented")
+        # TODO : Vérifier ici que o2 n'a aucune arrête qui va dans les deux sens i.e que si une node d'id a a un child d'id b, alors b n'a pas de child d'id a.
+
+        o2 = open_digraph.random(n, bound, form="loop-free")
+        # TODO : Vérifier ici que o2 n'a aucun node qui va vers lui même
+
+        o2 = open_digraph.random(n, bound, form="undirected")
+        # TODO : Vérifier ici que o2 est symmétrique (parents = enfant)
+
+        o2 = open_digraph.random(n, bound, form="loop-free undirected")
+        # TODO : Vérifier ici que o2 est symmétrique ET n'a aucun node qui pointe vers lui même
+
 
 if __name__ == '__main__':  # the following code is called only when
     unittest.main()         # precisely this file is run

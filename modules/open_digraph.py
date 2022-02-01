@@ -296,38 +296,38 @@ class open_digraph:  # for open directed graph
         '''
 
         if form=="free":
-            mat = matrice.matrice.random_matrix(n, bound)
+            mat = random_matrix(n, bound)
         elif form=="DAG":
-            mat = matrice.matrice.random_matrix(n, bound, triagular=True)
+            mat = random_matrix(n, bound, triangular=True)
         elif form=="oriented":
-            mat = matrice.matrice.random_matrix(n, bound, oriented=True)
+            mat = random_matrix(n, bound, oriented=True)
         elif form=="loop-free":
-            o = graph_from_adjacency_matrix(mat, null_diag=True)
+            mat = random_matrix(n, bound, null_diag=True)
         elif form=="undirected":
-            mat = matrice.matrice.random_matrix(n, bound, symmetric=True)
+            mat = random_matrix(n, bound, symmetric=True)
         elif form=="loop-free undirected":
-            o = graph_from_adjacency_matrix(mat, symmetric=True ,null_diag=True)
+            mat = random_matrix(n,bound, symmetric=True ,null_diag=True)
         else:
             raise ValueError("Forme de matrice non correcte.")
             
-        o = graph_from_adjacency_matrix(mat)
+        o = open_digraph.graph_from_adjacency_matrix(mat)
 
-        inputs = max(input, n)
+        inputs = max(inputs, n)
         outputs = max(outputs, n)
+
+
 
         for _ in range (inputs):
             r = randint(1, n+1)                   # Nos ID commencent a 1, d'ou le 1, n+1.
             while r in o.get_input_ids():         # Ne peut pas être une boucle infinie car on a restreint input a n au maximum
                 r = (r+1) % (n+1)
-            inputs.append(r)
             o.add_input_id(r)
 
         for _ in range (outputs):
             r = randint(1, n+1)                 # Nos ID commencent a 1, d'ou le 1, n+1.
-            while r in get_outputs_ids:         # Ne peut pas être une boucle infinie car on a restreint output a n au maximum
+            while r in o.get_output_ids():         # Ne peut pas être une boucle infinie car on a restreint output a n au maximum
                 r = (r+1) % (n+1)
-            outputs.append(r)
-            o.add_output_id(r)
+            o.add_outputs_id(r)
         
         return o
 
