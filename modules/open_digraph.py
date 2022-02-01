@@ -274,8 +274,8 @@ class open_digraph:  # for open directed graph
             o.add_node()
         for x in range(len(mat)):
             for y in range(len(mat)):
-                if mat[x][y] > 0:
-                    o.add_edge(x+1, y+1)  # Nos ids commencent par 1 donc +1
+                    for _ in range(mat[x][y]):
+                        o.add_edge(x+1, y+1)  # Nos ids commencent par 1 donc +1
         return o
 
     @classmethod
