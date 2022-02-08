@@ -1,5 +1,7 @@
 from modules.matrice import *
 from random import randint
+import os
+import re
 
 class node:
     def __init__(self, identity, label, parents, children):
@@ -21,7 +23,7 @@ class node:
         return f" Node({self})"
 
     def __eq__(self, other) -> bool:
-        return self.id == other.id and self.label == other.label and self.children == other.children and self.parents == other.parents
+        return self.id == other.id and self.label == other.label and sorted(self.children) == sorted(other.children) and sorted(self.parents) == sorted(other.parents)
 
     def copy(self):
         return node(self.id, self.label, self.parents, self.children)
@@ -110,7 +112,8 @@ class open_digraph:  # for open directed graph
         return open_digraph(self.inputs, self.outputs, self.nodes.values()) # On peut juste renvoyer un nouveau digraph avec comme paramètre les valeurs des variables actuels, car un copy est des le constructeur.
 
     def __eq__(self, __o: object) -> bool:
-        return self.inputs == object.inputs and object.outputs == object.outputs and self.nodes == object.nodes and self.c == object.c 
+        # TODO : Fix le sorted ici des nodes qui ne fonctionne pas
+        return sorted(self.inputs) == sorted(object.inputs) and sorted(object.outputs) == sorted(object.outputs) and sorted(self.nodes) == sorted(object.nodes)
 
     @classmethod
     def empty(cls):
@@ -166,7 +169,7 @@ class open_digraph:  # for open directed graph
         for (src, trg) in edgeList:
             self.add_edge(src,trg)
     
-    def add_node(self, label='', parents={}, children={}):
+    def add_node(self, label='', parents={}, children={}, id = 0):
         '''
         label: Le nom de la node
         parents: Les parents de la node
@@ -177,7 +180,8 @@ class open_digraph:  # for open directed graph
         De cette façon, on s'assure que le graphe soit bien formé qu'importe l'utilisation de add_node
         (Le seul moyen pour que le graphe soit mal formé étant ainsi une erreur)
         '''
-        id = self.new_id()
+        if id <= 0:
+            id = self.new_id()
         self.c = self.c + 1
         self.nodes[id] = node(id, label, {}, {})
         for p in parents:
@@ -319,10 +323,10 @@ class open_digraph:  # for open directed graph
         o = open_digraph.graph_from_adjacency_matrix(mat)
 
         for _ in range (inputs):
-            o.add_input_id(randint(1, n+1))   # Nos ID commencent a 1, d'ou le 1, n+1.
+            o.add_input_node(randint(1, n))   # Nos ID commencent a 1, d'ou le 1, n+1.
 
         for _ in range (outputs):
-            o.add_outputs_id(randint(1, n+1)) # Nos ID commencent a 1, d'ou le 1, n+1.
+            o.add_output_node(randint(1, n)) # Nos ID commencent a 1, d'ou le 1, n+1.
         
         return o
 
@@ -351,3 +355,57 @@ class open_digraph:  # for open directed graph
             for (child_id, mult) in node.get_children_ids():
                 mat[i][child_id] = mult
         return mat
+    
+    def save_as_dot_file(self, path = 'Out.dot', verbose=False):
+
+        with open(path, 'w') as f:
+            f.writelines("digraph G {\n")
+             
+            for node in self.nodes.keys():
+                lab = self.get_node_by_id(node).get_label()
+                param = ''
+                if node in self.inputs:
+                    param = "shape= box "
+                elif node in self.outputs:
+                    param = "shape= box3d "
+                if verbose:
+                    f.writelines(f"\tv{node} [label=\"{lab} id=({node})\" {param}]\n")
+                elif lab != '':
+                    f.writelines(f"\tv{node} [label=\"{lab}\" {param}]\n")
+                elif param != '':
+                    f.writelines(f"\tv{node} [{param}]\n")
+                for c in self.get_node_by_id(node).get_children_ids():
+                    for _ in range(self.get_node_by_id(node).get_children_mult(c)):
+                        f.writelines(f"\tv{node} -> v{c};\n" )
+            f.writelines(("}"))
+
+    @classmethod
+    def from_dot_file(cls, path):
+        # TODO : Read Label
+        # TODO : Read input/output
+        cls = open_digraph.empty()
+        with open(path, 'r') as f:
+            s = f.readline()
+            
+            while s != "":
+                s = f.readline()
+                lesPtitsNombres = list(map(int, re.findall('\d+', s)))
+                
+                if len(lesPtitsNombres) > 1: # On a une ligne avec plus de deux nombres
+                    par = lesPtitsNombres[0]
+                    chi = lesPtitsNombres[1]
+                    if par not in cls.nodes.keys():
+                        cls.add_node(id = par)
+                    if chi not in cls.nodes.keys():
+                        cls.add_node(id = chi)
+                    cls.add_edge(par, chi)
+        return cls
+
+    def display(self):
+        self.save_as_dot_file('tmp.dot')
+        with open('tmp.dot', 'r') as f:
+            t = f.read()
+            t = t.replace('\n', '%0A%09')
+            t = t.replace('\t', '')
+            t = t.replace(';', '%3B')
+        os.system("firefox -url 'https://dreampuf.github.io/GraphvizOnline#" + t + "'")

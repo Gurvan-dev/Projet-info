@@ -178,6 +178,13 @@ class InitTest(unittest.TestCase):
         o2 = open_digraph.random(n, bound, form="loop-free undirected")
         # TODO : Vérifier ici que o2 est symmétrique ET n'a aucun node qui pointe vers lui même
 
+        m = open_digraph.random(5, 5, 3, 3)
+        m.save_as_dot_file()
+        m2 = open_digraph.from_dot_file("Out.dot")
+        print(m)
+        m.display()
+        self.assertEqual(m.get_nodes(), m2.get_nodes())
+
 
 if __name__ == '__main__':  # the following code is called only when
     unittest.main()         # precisely this file is run
