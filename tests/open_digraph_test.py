@@ -151,19 +151,29 @@ class InitTest(unittest.TestCase):
         
         
         o2 = open_digraph.random(n, bound, form="free")
-        # TODO : Rien a tester réellement ici.
+        # TODO : Rien a tester réellement ici (a vérifier)
 
         o2 = open_digraph.random(n, bound, form="DAG")
         # TODO : Trouver test ici
 
         o2 = open_digraph.random(n, bound, form="oriented")
-        # TODO : Vérifier ici que o2 n'a aucune arrête qui va dans les deux sens i.e que si une node d'id a a un child d'id b, alors b n'a pas de child d'id a.
-
+        # On vérifie ici que o2 n'a aucune arrête qui va dans les deux sens 
+        # i.e que si une node d'id a a un child d'id b, alors b n'a pas de child d'id a.
+        for noeud in o2.get_nodes():
+            for c in noeud.get_children_ids():
+                self.assertFalse(c in o2.get_node_by_id(c).get_children_ids())
+       
         o2 = open_digraph.random(n, bound, form="loop-free")
-        # TODO : Vérifier ici que o2 n'a aucun node qui va vers lui même
+        # On Vérifie ici que o2 n'a aucun noeud avec une arrête qui va vers lui même
+        for noeud in o2.get_nodes():
+            self.assertFalse(noeud.get_id() in noeud.get_children_ids())
 
         o2 = open_digraph.random(n, bound, form="undirected")
-        # TODO : Vérifier ici que o2 est symmétrique (parents = enfant)
+        # On vérifier ici que o2 est symmétrique (Que si un noeud a une arrête de multplicité x vers b, alors b a également une arrête de multiplicité x vers a)
+        for noeud in o2.get_nodes():
+            for child in noeud.get_children_ids():
+                self.assertEqual(noeud.get_children_mult(child), o2.get_node_by_id(child).get_parent_mult(noeud.get_id()))
+        
 
         o2 = open_digraph.random(n, bound, form="loop-free undirected")
         # TODO : Vérifier ici que o2 est symmétrique ET n'a aucun node qui pointe vers lui même

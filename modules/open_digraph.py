@@ -38,6 +38,12 @@ class node:
     def get_children_ids(self):
         return self.children
 
+    def get_children_mult(self, id):
+        return self.children[id]
+    
+    def get_parent_mult(self, id):
+        return self.parents[id]
+
     def set_id(self, new_id):
         self.id = new_id
 
@@ -269,7 +275,7 @@ class open_digraph:  # for open directed graph
         mat : int list list
         Return an open digraph formed with the input matrix (See sujets/TD3.pdf).
         '''
-        o = open_digraph([], [], [])
+        o = open_digraph.empty()
         for i in range(len(mat)):
             o.add_node()
         for x in range(len(mat)):
@@ -312,22 +318,11 @@ class open_digraph:  # for open directed graph
             
         o = open_digraph.graph_from_adjacency_matrix(mat)
 
-        inputs = max(inputs, n)
-        outputs = max(outputs, n)
-
-
-
         for _ in range (inputs):
-            r = randint(1, n+1)                   # Nos ID commencent a 1, d'ou le 1, n+1.
-            while r in o.get_input_ids():         # Ne peut pas être une boucle infinie car on a restreint input a n au maximum
-                r = (r+1) % (n+1)
-            o.add_input_id(r)
+            o.add_input_id(randint(1, n+1))   # Nos ID commencent a 1, d'ou le 1, n+1.
 
         for _ in range (outputs):
-            r = randint(1, n+1)                 # Nos ID commencent a 1, d'ou le 1, n+1.
-            while r in o.get_output_ids():         # Ne peut pas être une boucle infinie car on a restreint output a n au maximum
-                r = (r+1) % (n+1)
-            o.add_outputs_id(r)
+            o.add_outputs_id(randint(1, n+1)) # Nos ID commencent a 1, d'ou le 1, n+1.
         
         return o
 
