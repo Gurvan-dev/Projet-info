@@ -183,6 +183,10 @@ class open_digraph:  # for open directed graph
         De cette façon, on s'assure que le graphe soit bien formé qu'importe l'utilisation de add_node
         (Le seul moyen pour que le graphe soit mal formé étant ainsi une erreur)
         '''
+        if parents is None:
+            parents={}
+        if children is None:
+            children={}
         if id <= 0:
             id = self.new_id()
         self.c = self.c + 1
