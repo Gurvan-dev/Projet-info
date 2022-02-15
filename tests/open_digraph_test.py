@@ -181,8 +181,11 @@ class InitTest(unittest.TestCase):
         m = open_digraph.random(5, 5, 3, 3)
         m.save_as_dot_file()
         m2 = open_digraph.from_dot_file("Out.dot")
+        #print(m.get_nodes())
+        #print(m2.get_nodes())
+        #m.display()
         print(m)
-        m.display()
+        print(m2)
         self.assertEqual(m.get_nodes(), m2.get_nodes())
 
 

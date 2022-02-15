@@ -54,6 +54,9 @@ class node:
 
     def set_childen_ids(self, new_ids):
         self.children = new_ids
+    
+    def set_label(self, new_label):
+        self.label = new_label
 
     def add_parent_id(self, parent_id, mult = 1):
         if self.parents.get(parent_id) == None:
@@ -190,15 +193,17 @@ class open_digraph:  # for open directed graph
             self.add_edge(id, c)
         return id
 
-    def add_input_node(self, id):
+    def add_input_node(self, id, id_added=0):
         '''
         id: L'id sur laquelle greffer une nouvelle node qui sera une input node liée par une arrête a cette première.
+        id_added : L'id de l'input qu'on va ajouter. Si aucune valeur n'est spécifiée ou si la valeur est >= 0, on va attribuer une valeur aléatoire.
         Throw une exception si la node sur laquelle on doit se greffer est elle même une input node, afin que le graphe reste bien formé.
         '''
         # Vérifier que id n'est pas un input !
         if id in self.inputs:
-            raise Exception('Tentative d\'ajouter un input avant un input.')
-        id_added = self.add_node()
+            raise Exception('Tentative d\'ajouter un input sur un input.')
+        if id_added <= 0:
+            id_added = self.add_node()
         self.add_edge(id_added, id)
         self.inputs.append(id_added)
 
@@ -360,45 +365,67 @@ class open_digraph:  # for open directed graph
 
         with open(path, 'w') as f:
             f.writelines("digraph G {\n")
-             
             for node in self.nodes.keys():
                 lab = self.get_node_by_id(node).get_label()
                 param = ''
                 if node in self.inputs:
                     param = "shape= box "
                 elif node in self.outputs:
-                    param = "shape= box3d "
+                    param = "shape= star "
                 if verbose:
                     f.writelines(f"\tv{node} [label=\"{lab} id=({node})\" {param}]\n")
                 elif lab != '':
                     f.writelines(f"\tv{node} [label=\"{lab}\" {param}]\n")
                 elif param != '':
                     f.writelines(f"\tv{node} [{param}]\n")
-                for c in self.get_node_by_id(node).get_children_ids():
-                    for _ in range(self.get_node_by_id(node).get_children_mult(c)):
-                        f.writelines(f"\tv{node} -> v{c};\n" )
+
+            for node in self.nodes.keys():
+                n = self.get_node_by_id(node)
+                
+                name = ''.join([f'v{c} ' * n.get_children_mult(c) for c in n.get_children_ids()])
+                name = '{' + name + '}'
+                f.writelines(f"\tv{node} -> {name};\n" )
             f.writelines(("}"))
 
     @classmethod
     def from_dot_file(cls, path):
-        # TODO : Read Label
-        # TODO : Read input/output
         cls = open_digraph.empty()
         with open(path, 'r') as f:
             s = f.readline()
             
             while s != "":
                 s = f.readline()
-                lesPtitsNombres = list(map(int, re.findall('\d+', s)))
+                lesPtitsNombres = list(map(int, re.findall('\d+', s))) # On trouve tout les entiers sur la ligne
+
+                if len(lesPtitsNombres) == 0:
+                    continue
+                par = lesPtitsNombres[0] # parent : Le premier chiffre de la ligne
+                if len(lesPtitsNombres) > 1: # On a une ligne avec plus de deux nombres : C'est une connection entre plusieurs node
+                    for i in range(1,len(lesPtitsNombres)):
+                        chi = lesPtitsNombres[i] #children
+                        if par not in cls.nodes.keys():
+                            cls.add_node(id = par)
+                        if chi not in cls.nodes.keys():
+                            cls.add_node(id = chi)
+                        cls.add_edge(par, chi)
                 
-                if len(lesPtitsNombres) > 1: # On a une ligne avec plus de deux nombres
-                    par = lesPtitsNombres[0]
-                    chi = lesPtitsNombres[1]
+                elif 'star' in s:
+                    print(f'output : {par}')
+                    # TODO : par est une output node
+                elif 'box' in s:
+                    print(f'input : {par}')
+                    # TODO : par est une input node
+                if 'label' in s:
+                    b,c,lab = s.partition('label') # On partitionne ici pour avoir tout ce qui est après le label. On doit pouvoir l'intégrér a l'expression regex qui suit mais je sais pas faire j'avoue
+                    lab = re.findall('.*"(.*?)".*', lab)[0] # C'est du regex j'avoue je comprend pas
+                    # On regarde tout ce qu'il y a après le label entre guillemets,
+                    # et on prend le premier mot.
+                    # ça doit pouvoir raise une exception si il n'y a rien mais en théorie ça ne peut pas arriver
+                    print(lab)
                     if par not in cls.nodes.keys():
-                        cls.add_node(id = par)
-                    if chi not in cls.nodes.keys():
-                        cls.add_node(id = chi)
-                    cls.add_edge(par, chi)
+                        cls.add_node(id=par, label=lab)
+                    else:
+                        cls.get_node_by_id(par).set_label(lab)
         return cls
 
     def display(self):
