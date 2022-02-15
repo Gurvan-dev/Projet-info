@@ -98,9 +98,6 @@ class node:
     def degree(self):
         return self.indegree + self.outdegree
 
-    
-
-
 class open_digraph:  # for open directed graph
     def __init__(self, inputs=[], outputs=[], nodes=[]):
         '''
@@ -127,7 +124,7 @@ class open_digraph:  # for open directed graph
 
     def __eq__(self, __o: object) -> bool:
         # TODO : Fix le sorted ici des nodes qui ne fonctionne pas
-        return sorted(self.inputs) == sorted(object.inputs) and sorted(object.outputs) == sorted(object.outputs) and sorted(self.nodes) == sorted(object.nodes)
+        return sorted(self.inputs) == sorted(object.inputs) and sorted(object.outputs) == sorted(object.outputs) and self.nodes == object.nodes
 
     @classmethod
     def empty(cls):
@@ -219,21 +216,26 @@ class open_digraph:  # for open directed graph
             raise Exception('Tentative d\'ajouter un input sur un input.')
         if id_added <= 0:
             id_added = self.add_node()
+        else:
+            self.add_node(id=id_added)
         self.add_edge(id_added, id)
         self.inputs.append(id_added)
 
-    def add_output_node(self, id):
+    def add_output_node(self, id, id_added=0):
         '''
         id: L'id sur laquelle greffer une nouvelle node qui sera une output node liée par une arrête a cette première.
+        id_added : L'id de l'input qu'on va ajouter. Si aucune valeur n'est spécifiée ou si la valeur est >= 0, on va attribuer une valeur aléatoire.
         Throw une exception si la node sur laquelle on doit se greffer est elle même une output node, afin que le graphe reste bien formé.
         '''
         # Vérifier que id n'est pas un output !
         if id in self.outputs:
             raise Exception('Tentative d\'ajouter un output derrière un output.')
-        id_added = self.add_node()
+        if id_added <= 0:
+            id_added = self.add_node()
+        else:
+            self.add_node(id=id_added)
         self.add_edge(id, id_added)
         self.outputs.append(id_added)
-
 
     def remove_edge(self, src, trg):
         self.get_node_by_id(trg).remove_parent_once(src)
@@ -319,7 +321,7 @@ class open_digraph:  # for open directed graph
         form :
             free                    : La matrice générée n'aura pas de contraintes.
             DAG                     : La matrice générée sera acyclique dirigé
-            oriented                : La matrice sera orienté
+            oriented                : La matrice générée sera orienté
             loop-free               : Un noeud ne pourra pas pointer sur lui même (Donc la diagonale de la matrice générée sera nulle)
             undirected              : La matrice sera symmétrique.
             loop-free undirected    : Combinaison de loop free et undirected
@@ -406,37 +408,39 @@ class open_digraph:  # for open directed graph
     def from_dot_file(cls, path):
         cls = open_digraph.empty()
         with open(path, 'r') as f:
-            s = f.readline()
-            
+            s = f.readline() # On enlève la première ligne inutile ici
+            inp = []
+            oup = []
             while s != "":
                 s = f.readline()
                 lesPtitsNombres = list(map(int, re.findall('\d+', s))) # On trouve tout les entiers sur la ligne
-
                 if len(lesPtitsNombres) == 0:
                     continue
                 par = lesPtitsNombres[0] # parent : Le premier chiffre de la ligne
+                
                 if len(lesPtitsNombres) > 1: # On a une ligne avec plus de deux nombres : C'est une connection entre plusieurs node
                     for i in range(1,len(lesPtitsNombres)):
                         chi = lesPtitsNombres[i] #children
-                        if par not in cls.nodes.keys():
-                            cls.add_node(id = par)
-                        if chi not in cls.nodes.keys():
-                            cls.add_node(id = chi)
-                        cls.add_edge(par, chi)
+                        if par in inp: # On a vx -> { y } qqchose avec x qui est une input node. Donc on crée une input node d'id x et on la greffe sur y.
+                            cls.add_input_node(id=chi,id_added=par)
+                        if chi in oup:
+                            cls.add_output_node(id=par,id_added=chi)
+                        else:
+                            if par not in cls.nodes.keys():
+                                cls.add_node(id = par)
+                            if chi not in cls.nodes.keys():
+                                cls.add_node(id = chi)
+                            cls.add_edge(par, chi)
                 
-                elif 'star' in s:
-                    print(f'output : {par}')
-                    # TODO : par est une output node
-                elif 'box' in s:
-                    print(f'input : {par}')
-                    # TODO : par est une input node
+                elif 'star' in s: # 'star' est utilisé pour les inputs.
+                    oup.append(par)
+                elif 'box' in s: # 'box' est utilisé pour définir un output.
+                    inp.append(par)
                 if 'label' in s:
                     b,c,lab = s.partition('label') # On partitionne ici pour avoir tout ce qui est après le label. On doit pouvoir l'intégrér a l'expression regex qui suit mais je sais pas faire j'avoue
                     lab = re.findall('.*"(.*?)".*', lab)[0] # C'est du regex j'avoue je comprend pas
                     # On regarde tout ce qu'il y a après le label entre guillemets,
                     # et on prend le premier mot.
-                    # ça doit pouvoir raise une exception si il n'y a rien mais en théorie ça ne peut pas arriver
-                    print(lab)
                     if par not in cls.nodes.keys():
                         cls.add_node(id=par, label=lab)
                     else:
@@ -483,7 +487,7 @@ class bool_circ(open_digraph):
         
         for node in self.nodes:
             lab = node.get_label()
-            if not (lab == '&' or lab == '|' or lab == '~' or lab == '0' or lab == '1' or lab == '^'): #TODO: Verifier que dans les nodes avec un label a 0 ou a 1 il y a effectivement un 0 ou un 1
+            if not (lab == '&' or lab == '|' or lab == '~' or lab == '0' or lab == '1' or lab == '^'): # Vérification que le label est valide
                 return False
             if lab == ' ' and (node.indegree() != 1 ): # Les portes de copies doivent avoir une seule entrée
                 return False

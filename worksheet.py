@@ -19,4 +19,7 @@ m.display()
 m2 = m.from_dot_file('tmp.dot')
 m2.display()
 
+print(m)
+print(m2)
+
 
