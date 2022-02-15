@@ -476,6 +476,9 @@ class bool_circ(open_digraph):
             self.label = g.label
             self.parents = g.parents.copy()
             self.children = g.children.copy()
+        
+        if not self.is_well_formed():
+            raise ValueError("Circuit Booléen mal formé")
 
     def is_well_formed(self):
         if not self.is_cyclic():
@@ -483,7 +486,7 @@ class bool_circ(open_digraph):
         
         for node in self.nodes:
             lab = node.get_label()
-            if not (lab == '&' or lab == '|' or lab == '~' or lab == '0' or lab == '1' or lab == '^'):
+            if not (lab == '&' or lab == '|' or lab == '~' or lab == '0' or lab == '1' or lab == '^'): #TODO: Verifier que dans les nodes avec un label a 0 ou a 1 il y a effectivement un 0 ou un 1
                 return False
         
         return True
