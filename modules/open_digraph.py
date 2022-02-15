@@ -91,8 +91,7 @@ class node:
     
     def indegree(self):
         return sum(self.parents.values())
-
-    
+        
     def outdegree(self):
         return sum(self.children.values())
     
@@ -466,8 +465,6 @@ class open_digraph:  # for open directed graph
                 
         return True
 
-
-
 class bool_circ(open_digraph):
 
     def __init__(self, g):
@@ -488,6 +485,13 @@ class bool_circ(open_digraph):
             lab = node.get_label()
             if not (lab == '&' or lab == '|' or lab == '~' or lab == '0' or lab == '1' or lab == '^'): #TODO: Verifier que dans les nodes avec un label a 0 ou a 1 il y a effectivement un 0 ou un 1
                 return False
+            if lab == ' ' and (node.indegree() != 1 ): # Les portes de copies doivent avoir une seule entrée
+                return False
+            if (lab == '&' or lab=='|') and (node.outdegree() != 1): # Les portes 'Et' et 'Ou' doivent avoir éxactement une sortie.
+                return False      
+            if (lab == '~') and (node.outdegree() != 1 or node.indegree() != 1): # Les portes 'Non' doivent avoir une entrée et une sortie.
+                return False
+
         
         return True
         
