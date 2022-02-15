@@ -2,6 +2,7 @@ from modules.matrice import *
 from random import randint
 import os
 import re
+import sys
 
 class node:
     def __init__(self, identity, label, parents, children):
@@ -87,7 +88,18 @@ class node:
 
     def remove_child_id(self, id):
         self.children.pop(id)
+    
+    def indegree(self):
+        return sum(self.parents.values())
 
+    
+    def outdegree(self):
+        return sum(self.children.values())
+    
+    def degree(self):
+        return self.indegree + self.outdegree
+
+    
 
 
 class open_digraph:  # for open directed graph
@@ -439,4 +451,41 @@ class open_digraph:  # for open directed graph
             t = t.replace('\n', '%0A%09')
             t = t.replace('\t', '')
             t = t.replace(';', '%3B')
-        os.system("firefox -url 'https://dreampuf.github.io/GraphvizOnline#" + t + "'")
+            
+            os.system("firefox -url 'https://dreampuf.github.io/GraphvizOnline#" + t + "'")
+
+    def is_cyclic(self):
+        if self.get_nodes() == []:
+            return False
+        
+        for i in self.get_nodes():
+            if i.children.values() == []:
+                o = self.copy()
+                o.remove_node_by_id(i.get_id())
+                return o.is_cyclic()
+                
+        return True
+
+
+
+class bool_circ(open_digraph):
+
+    def __init__(self, g):
+        if isinstance(g, open_digraph):
+            self.id = g.identity
+            self.label = g.label
+            self.parents = g.parents.copy()
+            self.children = g.children.copy()
+
+    def is_well_formed(self):
+        if not self.is_cyclic():
+            return False
+        
+        for node in self.nodes:
+            lab = node.get_label()
+            if not (lab == '&' or lab == '|' or lab == '~' or lab == '0' or lab == '1' or lab == '^'):
+                return False
+        
+        return True
+        
+            
