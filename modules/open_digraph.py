@@ -321,13 +321,10 @@ class open_digraph:  # for open directed graph
         kev_inv = key_inv.reverse()
         for key in key_inv:
             old_new.append((self.nodes[key], key+n))
-        print(type(self.nodes))
         for (o,n) in old_new:
             self.nodes[n] = o
             self.nodes.pop(o.get_id())
-        print(type(self.nodes))
         self.sort()
-        print(type(self.nodes))
             
 
     def iparallel(self, g):
@@ -344,7 +341,6 @@ class open_digraph:  # for open directed graph
     def parallel(a,b):
         c = a.copy()
         c.iparallel(b)
-
 
     @classmethod
     def graph_from_adjacency_matrix(cls, mat):
