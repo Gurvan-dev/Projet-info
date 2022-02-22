@@ -192,5 +192,13 @@ class InitTest(unittest.TestCase):
         self.assertEqual(m, m2)
 
 
+        print(f"o2 = {o2}")
+        print(f"min o2 = {o2.min_id()}")
+        print(f"max o2 = {o2.max_id()}")
+        o2.shift_indices(4)
+        print(f"o2 = {o2}")
+
+
+
 if __name__ == '__main__':  # the following code is called only when
     unittest.main()         # precisely this file is run
