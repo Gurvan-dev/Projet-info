@@ -106,9 +106,9 @@ class node:
     
     def shift(self, node, shiftAmount):
         if node in self.children:
-            self.children[shift+shiftAmount] = self.children.pop(node)
+            self.children[node+shiftAmount] = self.children.pop(node)
         if node in self.parents:
-            self.parents[shift+shiftAmount] = self.parents.pop(node)
+            self.parents[node+shiftAmount] = self.parents.pop(node)
 
 class open_digraph:  # for open directed graph
     def __init__(self, inputs=[], outputs=[], nodes=[]):
