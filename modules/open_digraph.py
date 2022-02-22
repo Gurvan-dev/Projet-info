@@ -24,6 +24,7 @@ class node:
         return f" Node({self})"
 
     def __eq__(self, other) -> bool:
+        # Pour le coup sort ici n'est pas opti mais permet de s'éviter des casse tête dans la formation des graphes.
         self.sort()
         other.sort()
         return self.id == other.id and self.label == other.label and self.children == other.children and self.parents == other.parents
@@ -141,13 +142,9 @@ class open_digraph:  # for open directed graph
 
     def __eq__(self, other) -> bool:
         # TODO : Trouver une méthode plus optimisée. Ici le sorted fonctionne, mais on perd beaucoup en éfficacitée. On pourrait considérér que on sort une fois a la création peut être ?
-        self.sort()
-        other.sort()
         return self.inputs == other.inputs and other.outputs == other.outputs and self.nodes == other.nodes
 
     def sort(self):
-        self.inputs=sorted(self.inputs)
-        self.outputs=sorted(self.outputs)
         c = {}
         for k in sorted(self.nodes.keys()):
             c[k] = self.nodes[k]
@@ -331,7 +328,7 @@ class open_digraph:  # for open directed graph
     def shift_indices (self,n):
         old_new = []
         key_inv = sorted(self.nodes.keys())
-        if n > 0:
+        if n > 0: # Si on doit faire un shift positif, on va d'abord décaler les plus grands nombre puis les plus petits, afin de ne pas écraser de donnée.
             kev_inv = key_inv.reverse()
         for key in key_inv:
             self.nodes[key].shift_indice(n)
@@ -340,7 +337,7 @@ class open_digraph:  # for open directed graph
             self.nodes[n] = o
             self.nodes.pop(o.get_id())
             o.set_id(n)
-        self.sort()
+       
             
 
     def iparallel(self, g):
@@ -354,14 +351,27 @@ class open_digraph:  # for open directed graph
             self.nodes[new_id] = n.copy()
 
     @classmethod
-    def parallel(a,b):
-        c = a.copy()
-        c.iparallel(b)
+    def parallel(cls, a,b):
+        cls = a.copy()
+        cls.iparallel(b)
+        return cls
 
     def icompose(self, g):
         if len(self.inputs) != len(g.outputs):
             raise ValueError(f"Erreur: Tentative de composition entre deux graphe qui n'ont pas la même taille (inp : {len(self.inputs)} oup : {len(g.outputs)}")
+        # Connected tout les outputs de g aux inputs de l
+        self.iparallel(g)
+        for inp in self.inputs:
+            oup = g.inputs.pop(0)
+            self.outputs.pop(oup)
+            self.inputs.pop(inp)
+            self.add_edge(oup, inp)
 
+    @classmethod
+    def compose(cls, a,b):
+        cls = a.copy()
+        cls.icompose(b)
+        return cls
 
     @classmethod
     def graph_from_adjacency_matrix(cls, mat):
