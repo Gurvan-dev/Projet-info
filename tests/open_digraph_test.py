@@ -184,9 +184,12 @@ class InitTest(unittest.TestCase):
         #print(m.get_nodes())
         #print(m2.get_nodes())
         #m.display()
+
+        print(m2 == m2)
+        print(m==m)
         print(m)
         print(m2)
-        self.assertEqual(m.get_nodes(), m2.get_nodes())
+        self.assertEqual(m, m2)
 
 
 if __name__ == '__main__':  # the following code is called only when

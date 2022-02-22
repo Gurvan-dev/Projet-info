@@ -24,7 +24,14 @@ class node:
         return f" Node({self})"
 
     def __eq__(self, other) -> bool:
-        return self.id == other.id and self.label == other.label and sorted(self.children) == sorted(other.children) and sorted(self.parents) == sorted(other.parents)
+        self.sort()
+        other.sort()
+        return self.id == other.id and self.label == other.label and self.children == other.children and self.parents == other.parents
+
+    def sort(self):
+        self.children = sorted(self.children)
+        self.parents = sorted(self.parents)
+
 
     def copy(self):
         return node(self.id, self.label, self.parents, self.children)
@@ -122,9 +129,16 @@ class open_digraph:  # for open directed graph
     def copy(self):
         return open_digraph(self.inputs, self.outputs, self.nodes.values()) # On peut juste renvoyer un nouveau digraph avec comme paramètre les valeurs des variables actuels, car un copy est des le constructeur.
 
-    def __eq__(self, __o: object) -> bool:
-        # TODO : Fix le sorted ici des nodes qui ne fonctionne pas
-        return sorted(self.inputs) == sorted(object.inputs) and sorted(object.outputs) == sorted(object.outputs) and self.nodes == object.nodes
+    def __eq__(self, other) -> bool:
+        # TODO : Trouver une méthode plus optimisée. Ici le sorted fonctionne, mais on perd beaucoup en éfficacitée. On pourrait considérér que on sort une fois a la création peut être ?
+        self.sort()
+        other.sort()
+        return self.inputs == other.inputs and other.outputs == other.outputs and self.nodes == other.nodes
+
+    def sort(self):
+        self.inputs=sorted(self.inputs)
+        self.outputs=sorted(self.outputs)
+        self.nodes=sorted(self.nodes)
 
     @classmethod
     def empty(cls):
