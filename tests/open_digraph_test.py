@@ -193,10 +193,14 @@ class InitTest(unittest.TestCase):
 
 
         print(f"o2 = {o2}")
-        print(f"min o2 = {o2.min_id()}")
-        print(f"max o2 = {o2.max_id()}")
+        #print(f"min o2 = {o2.min_id()}")
+        #print(f"max o2 = {o2.max_id()}")
         o2.shift_indices(4)
         print(f"o2 = {o2}")
+        #print(f"o2.nodes = {o2.get_nodes()}")
+        self.assertEqual(o2.nodes, {5, 6, 7, 8, 9})
+        #o2.shift_indices(4)
+        #self.assertEqual(o2.get_nodes(), {9, 10, 11, 12, 13})
 
 
 
