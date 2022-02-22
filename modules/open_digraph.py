@@ -123,7 +123,7 @@ class open_digraph:  # for open directed graph
         if self.nodes == {}:    # On initialise ici un compteur qui va permettre d'avoir un ID unique pour chaque node,
             self.c = 0          # sans risque de ré-attribution d'un même id a plusieurs node,
         else:                   # et ce même après suppression ou ajout de plusieurs node. 
-            self.c = max([node.id for node in nodes])
+            self.c = max(self.nodes.keys())
 
     def __str__(self) -> str:
         return f"Input : {self.inputs}   Output : {self.outputs}   Nodes : {[node for node in self.nodes]}"
@@ -143,7 +143,7 @@ class open_digraph:  # for open directed graph
     def sort(self):
         self.inputs=sorted(self.inputs)
         self.outputs=sorted(self.outputs)
-        #self.nodes=sorted(self.nodes, key=self.nodes.keys())
+        self.nodes= sorted(self.nodes)
 
     @classmethod
     def empty(cls):
