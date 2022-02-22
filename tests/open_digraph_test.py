@@ -185,12 +185,7 @@ class InitTest(unittest.TestCase):
         #print(m2.get_nodes())
         #m.display()
 
-        print(m2 == m2)
-        print(m==m)
-        print(m)
-        print(m2)
         self.assertEqual(m, m2)
-
 
         print(f"o2 = {o2}")
         #print(f"min o2 = {o2.min_id()}")
@@ -198,7 +193,7 @@ class InitTest(unittest.TestCase):
         o2.shift_indices(4)
         print(f"o2 = {o2}")
         #print(f"o2.nodes = {o2.get_nodes()}")
-        self.assertEqual(o2.nodes, {5, 6, 7, 8, 9})
+        self.assertEqual(o2.nodes, [5, 6, 7, 8, 9])
         #o2.shift_indices(4)
         #self.assertEqual(o2.get_nodes(), {9, 10, 11, 12, 13})
 
