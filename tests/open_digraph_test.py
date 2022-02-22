@@ -136,6 +136,19 @@ class InitTest(unittest.TestCase):
         o5.get_node_by_id(5).add_parent_id(4)
         self.assertFalse(o5.is_well_formed())   # De même que ci dessus, on vérifie ici l'inverse, c'est a dire si la multiplicité d'un enfant ne correspond pas a celui de son parent.
         
+
+        #print(f"\no3 = {o3.get_nodes()}\n")
+        #print(f"min o2 = {o2.min_id()}")
+        #print(f"max o2 = {o2.max_id()}")
+        o3.shift_indices(2)
+        #print(f"\no3 = {o3.get_nodes()}\n")
+        #print(f"o2.nodes = {o2.get_nodes()}")
+        self.assertEqual(list(o3.nodes.keys()), [3, 4, 5])
+        o3.shift_indices(-2)
+        self.assertEqual(list(o3.nodes.keys()), [1, 2, 3])
+
+        #o2.shift_indices(4)
+        #self.assertEqual(o2.get_nodes(), {9, 10, 11, 12, 13})
         
     def test_matrix_digraph(self):
         n = 5
@@ -186,16 +199,6 @@ class InitTest(unittest.TestCase):
         #m.display()
 
         self.assertEqual(m, m2)
-
-        print(f"o2 = {o2.nodes}")
-        #print(f"min o2 = {o2.min_id()}")
-        #print(f"max o2 = {o2.max_id()}")
-        o2.shift_indices(4)
-        print(f"o2 = {o2.nodes}")
-        #print(f"o2.nodes = {o2.get_nodes()}")
-        #self.assertEqual(o2.nodes.keys(), [5, 6, 7, 8, 9])
-        #o2.shift_indices(4)
-        #self.assertEqual(o2.get_nodes(), {9, 10, 11, 12, 13})
 
 
 
