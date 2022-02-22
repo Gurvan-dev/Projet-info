@@ -310,14 +310,18 @@ class open_digraph:  # for open directed graph
         return True
     
     def min_id(self):
-        return min(self.nodes.keys());
+        return min(self.nodes.keys())
         
     def max_id(self):
-        return max(self.nodes.keys());
+        return max(self.nodes.keys())
 
     def shift_indices (self,n):
         for key in self.nodes.keys():
             self.nodes[key+n] = self.nodes.pop(key)
+
+    def iparallel(self, g):
+        ...
+
 
     @classmethod
     def graph_from_adjacency_matrix(cls, mat):
