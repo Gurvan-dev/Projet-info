@@ -317,7 +317,7 @@ class open_digraph:  # for open directed graph
 
     def shift_indices (self,n):
         for key in self.nodes.keys():
-            dictionary[key+n] = dictionary.pop(key)
+            self.nodes[key+n] = self.nodes.pop(key)
 
     @classmethod
     def graph_from_adjacency_matrix(cls, mat):
