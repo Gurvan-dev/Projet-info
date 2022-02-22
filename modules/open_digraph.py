@@ -103,6 +103,12 @@ class node:
     
     def degree(self):
         return self.indegree + self.outdegree
+    
+    def shift(self, node, shiftAmount):
+        if node in self.children:
+            self.children[shift+shiftAmount] = self.children.pop(node)
+        if node in self.parents:
+            self.parents[shift+shiftAmount] = self.parents.pop(node)
 
 class open_digraph:  # for open directed graph
     def __init__(self, inputs=[], outputs=[], nodes=[]):
@@ -322,6 +328,8 @@ class open_digraph:  # for open directed graph
         for key in key_inv:
             old_new.append((self.nodes[key], key+n))
         for (o,n) in old_new:
+            o.set_id(n)
+            o.shift(key, n)
             self.nodes[n] = o
             self.nodes.pop(o.get_id())
         self.sort()
