@@ -105,6 +105,7 @@ class node:
         return self.indegree + self.outdegree
     
     def shift_indice(self, shiftInd):
+        # TODO : Améliorer ici car code crade un peu
         pc = {}
         cc = {}
         for id in self.parents.keys():
