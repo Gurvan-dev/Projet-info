@@ -32,7 +32,6 @@ class node:
         self.children = sorted(self.children)
         self.parents = sorted(self.parents)
 
-
     def copy(self):
         return node(self.id, self.label, self.parents, self.children)
     
@@ -138,7 +137,7 @@ class open_digraph:  # for open directed graph
     def sort(self):
         self.inputs=sorted(self.inputs)
         self.outputs=sorted(self.outputs)
-        self.nodes=sorted(self.nodes)
+        #self.nodes=sorted(self.nodes, key=self.nodes.keys())
 
     @classmethod
     def empty(cls):
@@ -322,10 +321,13 @@ class open_digraph:  # for open directed graph
         kev_inv = key_inv.reverse()
         for key in key_inv:
             old_new.append((self.nodes[key], key+n))
+        print(type(self.nodes))
         for (o,n) in old_new:
             self.nodes[n] = o
             self.nodes.pop(o.get_id())
+        print(type(self.nodes))
         self.sort()
+        print(type(self.nodes))
             
 
     def iparallel(self, g):
@@ -337,6 +339,7 @@ class open_digraph:  # for open directed graph
             new_id = M-m+1+k
             n.set_id(new_id)
             self.nodes[new_id] = n.copy()
+
     @classmethod
     def parallel(a,b):
         c = a.copy()
