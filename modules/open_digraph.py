@@ -316,11 +316,10 @@ class open_digraph:  # for open directed graph
         return max(self.nodes.keys())
 
     def shift_indices (self,n):
-        old_new = []
+        key_inv = sorted(self.nodes.keys())
+        kev_inv = key_inv[:-1]
         for key in self.nodes.keys():
             old_new.append((self.nodes[key], key+n))
-        old_new = sorted(old_new)
-        old_new = old_new[:-1]
         for (o,n) in old_new:
             self.nodes[n] = o
             self.nodes.pop(o.get_id())
