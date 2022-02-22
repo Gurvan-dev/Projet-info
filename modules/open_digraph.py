@@ -316,13 +316,16 @@ class open_digraph:  # for open directed graph
         return max(self.nodes.keys())
 
     def shift_indices (self,n):
+        old_new = []
+        
         key_inv = sorted(self.nodes.keys())
-        kev_inv = key_inv[:-1]
-        for key in self.nodes.keys():
+        kev_inv = key_inv.reverse()
+        for key in key_inv:
             old_new.append((self.nodes[key], key+n))
         for (o,n) in old_new:
             self.nodes[n] = o
             self.nodes.pop(o.get_id())
+        self.sort()
             
 
     def iparallel(self, g):
