@@ -330,9 +330,9 @@ class open_digraph:  # for open directed graph
 
     def shift_indices (self,n):
         old_new = []
-        
         key_inv = sorted(self.nodes.keys())
-        kev_inv = key_inv.reverse()
+        if n > 0:
+            kev_inv = key_inv.reverse()
         for key in key_inv:
             self.nodes[key].shift_indice(n)
             old_new.append((self.nodes[key], key+n))
@@ -357,6 +357,10 @@ class open_digraph:  # for open directed graph
     def parallel(a,b):
         c = a.copy()
         c.iparallel(b)
+
+    def icompose(self, g):
+        if len(self.inputs) != len(g.outputs):
+            raise ValueError(f"Erreur: Tentative de composition entre deux graphe qui n'ont pas la même taille (inp : {len(self.inputs)} oup : {len(g.outputs)}")
 
 
     @classmethod
