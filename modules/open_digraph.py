@@ -337,6 +337,11 @@ class open_digraph:  # for open directed graph
             new_id = M-m+1+k
             n.set_id(new_id)
             self.nodes[new_id] = n.copy()
+    @classmethod
+    def parallel(a,b):
+        c = a.copy()
+        c.iparallel(b)
+
 
     @classmethod
     def graph_from_adjacency_matrix(cls, mat):
