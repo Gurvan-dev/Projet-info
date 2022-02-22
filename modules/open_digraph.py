@@ -319,7 +319,7 @@ class open_digraph:  # for open directed graph
         old_new = []
         for key in self.nodes.keys():
             old_new.append((self.nodes[key], key+n))
-        old_new = sort(old_new)
+        old_new = sorted(old_new)
         old_new = old_new[:-1]
         for (o,n) in old_new:
             self.nodes[n] = o
