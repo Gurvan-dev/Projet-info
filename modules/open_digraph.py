@@ -318,10 +318,12 @@ class open_digraph:  # for open directed graph
     def shift_indices (self,n):
         old_new = []
         for key in self.nodes.keys():
-            old_new.append((key, key+n))
+            old_new.append((self.nodes[key], key+n))
+        old_new = sort(old_new)
+        old_new = old_new[:-1]
         for (o,n) in old_new:
-            self.nodes[n] = self.nodes[o]
-            self.nodes.pop(o)
+            self.nodes[n] = o
+            self.nodes.pop(o.get_id())
             
 
     def iparallel(self, g):
@@ -535,7 +537,4 @@ class bool_circ(open_digraph):
             if (lab == '~') and (node.outdegree() != 1 or node.indegree() != 1): # Les portes 'Non' doivent avoir une entrée et une sortie.
                 return False
 
-        
         return True
-        
-            
