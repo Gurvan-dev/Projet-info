@@ -136,16 +136,21 @@ class InitTest(unittest.TestCase):
         o5.get_node_by_id(5).add_parent_id(4)
         self.assertFalse(o5.is_well_formed())   # De même que ci dessus, on vérifie ici l'inverse, c'est a dire si la multiplicité d'un enfant ne correspond pas a celui de son parent.
         
-
-        #print(f"\no3 = {o3.get_nodes()}\n")
+        o4 = o3.copy()
+        #print(f"\no3 = {o3.get_node(s()}\n")
         #print(f"min o2 = {o2.min_id()}")
         #print(f"max o2 = {o2.max_id()}")
+        for i in o3.get_nodes():
+            print(i)
         o3.shift_indices(2)
         #print(f"\no3 = {o3.get_nodes()}\n")
         #print(f"o2.nodes = {o2.get_nodes()}")
-        self.assertEqual(list(o3.nodes.keys()), [3, 4, 5])
+        self.assertEqual(sorted(list(o3.nodes.keys())), [3, 4, 5])
+        for i in o3.get_nodes_ids():
+            self.assertEqual(o3.get_node_by_id(i).get_children_ids().keys(), o3.get_node_by_id(i).get_children_ids().keys())
         o3.shift_indices(-2)
-        self.assertEqual(list(o3.nodes.keys()), [1, 2, 3])
+        self.assertEqual(sorted(list(o3.nodes.keys())), [1, 2, 3])
+
 
         #o2.shift_indices(4)
         #self.assertEqual(o2.get_nodes(), {9, 10, 11, 12, 13})
