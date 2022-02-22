@@ -320,8 +320,14 @@ class open_digraph:  # for open directed graph
             self.nodes[key+n] = self.nodes.pop(key)
 
     def iparallel(self, g):
-        ...
-
+        M = self.max_id()
+        m = self.max_id()
+        id_max = max(m, M)
+        self.shift_indices(id_max)
+        for (k, n) in g.get_nodes():
+            new_id = M-m+1+k
+            n.set_id(new_id)
+            self.nodes[new_id] = n.copy()
 
     @classmethod
     def graph_from_adjacency_matrix(cls, mat):
