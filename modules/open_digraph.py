@@ -316,8 +316,13 @@ class open_digraph:  # for open directed graph
         return max(self.nodes.keys())
 
     def shift_indices (self,n):
+        old_new = []
         for key in self.nodes.keys():
-            self.nodes[key+n] = self.nodes.pop(key)
+            old_new.append((key, key+n))
+        for (o,n) in old_new:
+            self.nodes[n] = self.nodes[o]
+            self.nodes.pop(o)
+            
 
     def iparallel(self, g):
         M = self.max_id()
