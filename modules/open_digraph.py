@@ -338,14 +338,14 @@ class open_digraph:  # for open directed graph
             self.nodes.pop(o.get_id())
             o.set_id(n)
        
-            
+        
 
     def iparallel(self, g):
         M = self.max_id()
         m = self.max_id()
         id_max = max(m, M)
         self.shift_indices(id_max)
-        for (k, n) in g.get_nodes():
+        for (k, n) in g.nodes:
             new_id = M-m+1+k
             n.set_id(new_id)
             self.nodes[new_id] = n.copy()
@@ -372,6 +372,40 @@ class open_digraph:  # for open directed graph
         cls = a.copy()
         cls.icompose(b)
         return cls
+
+    def composant_connexe(self):
+        compte = 0
+        closed = []
+        open = list(self.nodes.keys()).copy()
+        while len(open) > 0:
+            start = open.pop(0)
+            
+            if start not in closed:
+                start_node = self.get_node_by_id(start)
+                closed.append(start)
+                connexe_open = list(start_node.children.keys()).copy()
+                for p in start_node.parents:
+                    connexe_open.append(p)
+            
+                while len(connexe_open) > 0:
+                    cur = connexe_open.pop(0)
+                    
+                    if cur not in closed:
+                        cur_node = self.get_node_by_id(cur)
+                        closed.append(cur)
+                
+                        for child in cur_node.children:
+                            if child not in closed and child not in connexe_open:
+                                connexe_open.append(child)
+
+                        
+                        for par in cur_node.parents:
+                            if par not in closed and par not in connexe_open:
+                                connexe_open.append(par)
+                                closed.append(par)
+                compte = compte+1
+        return compte
+       
 
     @classmethod
     def graph_from_adjacency_matrix(cls, mat):
