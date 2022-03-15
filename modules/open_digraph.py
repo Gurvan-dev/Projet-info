@@ -583,14 +583,27 @@ class open_digraph:  # for open directed graph
                 
         return True
 
-    def dijkstra(src, direction = None):
+    @classmethod
+    def dijkstra(cls, src, direction = None):
 	    opened = [src]
 	    dist = {src:0}
-	    closed = {}
-	    while(opened != []):
-		    u = min(dist, key=f)
-		    neighbours = u.parents 
+	    prev = {}
+	    while opened != []:
+            current = min(opened, key=dist)
+            opened.pop(current)
+            if direction == -1:
+                neighbours = u.parents
+            else:
+                neighbours = u.children
+            for neigh in neighbours:
+                if neig not in dist:
+                    opened.append(neigh)
+                if neig not in dist or dist[neigh] < (dist[current] + 1):
+                    dist[neigh] = dist[current] + 1
+                    prev[neigh] = current
 
+        return dist
+                
 class bool_circ(open_digraph):
 
     def __init__(self, g):
