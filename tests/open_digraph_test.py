@@ -150,6 +150,10 @@ class InitTest(unittest.TestCase):
             self.assertEqual(o3.get_node_by_id(i).get_children_ids().keys(), o3.get_node_by_id(i).get_children_ids().keys())
         o3.shift_indices(-2)
         self.assertEqual(sorted(list(o3.nodes.keys())), [1, 2, 3])
+        print('\n')
+        print(f"\no3 = {o3.get_nodes()}\n ")
+        #n0 = node(0, 'i', {}, {1: 1})
+        o3.dijkstra(2)
 
 
         #o2.shift_indices(4)
@@ -204,6 +208,9 @@ class InitTest(unittest.TestCase):
         #m.display()
 
         self.assertEqual(m, m2)
+
+
+    
 
 
 
