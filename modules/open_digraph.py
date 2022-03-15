@@ -628,6 +628,21 @@ class open_digraph:  # for open directed graph
 			cur = dij[cur]
 		return path
 
+	def ancetre_commun(self, a,b):
+		'''
+		Doc
+		a : Une id de node
+		b : Une id de node
+		'''
+		dija = self.dijkstra(a, -1)[0]
+		dijb = self.dijkstra(b, -1)[0]
+		res = {}
+		for (id_n, dist) in dija:
+			if id_n in dijb:
+				res[id_n] = (dija[id_n], dijb[id_n])
+		return res
+
+
 				
 class bool_circ(open_digraph):
 
