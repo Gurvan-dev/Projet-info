@@ -593,9 +593,9 @@ class open_digraph:  # for open directed graph
 			else:
 				neighbours = self.get_node_by_id(current).children
 			for neigh in neighbours:
-				if neigh() not in dist:
+				if neigh not in dist:
 					opened.append(neigh)
-				if neigh() not in dist or dist[neigh.get_id()] < (dist[current()] + 1):
+				if neigh not in dist or dist[neigh.get_id()] < (dist[current] + 1):
 					dist[neigh] = dist[current] + 1
 					prev[neigh] = current
 		return dist
