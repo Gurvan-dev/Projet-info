@@ -12,3 +12,4 @@ utilisé (dans la méthode, donc), ce qui évite de potentiellement l’oublier.
 - [.] is_well_formed : pour inputs, il faut renvoyer false si nb de parents >0 (et pas >1). Il faut également vérifier la multiplicité de l’unique fils de l’input. Idem outputs. Ce qui est fait pour les enfants de j doit être fait pour ses parents aussi.
 - [.] Doc : c’est bien mais il manque quelques docstrings. Début de typage, c’est une bonne idée, il aurait fallu poursuivre.
 -[.] Tests : essayez de les séparer en plusieurs méthodes de tests.
+- [.] Utiliser mixins
