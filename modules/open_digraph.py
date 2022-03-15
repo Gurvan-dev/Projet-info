@@ -337,8 +337,6 @@ class open_digraph:  # for open directed graph
 			self.nodes.pop(o.get_id())
 			o.set_id(n)
 	   
-		
-
 	def iparallel(self, g):
 		M = self.max_id()
 		m = g.max_id()
@@ -346,8 +344,6 @@ class open_digraph:  # for open directed graph
 		self.shift_indices(id_max)
 		for n in g.get_nodes():
 			n = n.copy()
-			n.shift_indice(M-m+1)
-
 			self.nodes[n.get_id()] = n.copy()
 
 	@classmethod
@@ -587,19 +583,19 @@ class open_digraph:  # for open directed graph
 	@classmethod
 	def dijkstra(cls, src, direction = None):
 		opened = [src]
-		dist = {src:0}
+		dist = {src.get_id():0}
 		prev = {}
 		while opened != []:
 			current = min(opened, key=dist)
 			opened.pop(current)
 			if direction == -1:
-				neighbours = u.parents
+				neighbours = opened.parents
 			else:
-				neighbours = u.children
+				neighbours = opened.children
 			for neigh in neighbours:
-				if neig not in dist:
+				if neigh.get_id() not in dist:
 					opened.append(neigh)
-				if neig not in dist or dist[neigh] < (dist[current] + 1):
+				if neigh.get_id() not in dist or dist[neigh.get_id()] < (dist[current.get_id()] + 1):
 					dist[neigh] = dist[current] + 1
 					prev[neigh] = current
 
