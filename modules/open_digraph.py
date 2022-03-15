@@ -350,9 +350,10 @@ class open_digraph:  # for open directed graph
             self.nodes[new_id] = n.copy()
 
     @classmethod
-    def parallel(cls, a,b):
+    def parallel(cls, a,b_list):
         cls = a.copy()
-        cls.iparallel(b)
+        for b in b_list:
+            cls.iparallel(b.copy())
         return cls
 
     def icompose(self, g):
@@ -367,15 +368,18 @@ class open_digraph:  # for open directed graph
             self.add_edge(oup, inp)
 
     @classmethod
-    def compose(cls, a,b):
+    def compose(cls, a,b_list):
         cls = a.copy()
-        cls.icompose(b)
+        for b in b_list:
+            cls.icompose(b.copy())
         return cls
 
-    def composant_connexe(self):
+    def connected_components(self):
         compte = 0
         closed = []
+        dic_connexe = {}
         open = list(self.nodes.keys()).copy()
+        
         while len(open) > 0:
             start = open.pop(0)
             
@@ -392,18 +396,17 @@ class open_digraph:  # for open directed graph
                     if cur not in closed:
                         cur_node = self.get_node_by_id(cur)
                         closed.append(cur)
-                
+                        dic_connexe[cur] = compte
                         for child in cur_node.children:
                             if child not in closed and child not in connexe_open:
                                 connexe_open.append(child)
-
                         
                         for par in cur_node.parents:
                             if par not in closed and par not in connexe_open:
                                 connexe_open.append(par)
                                 closed.append(par)
                 compte = compte+1
-        return compte
+        return (compte, dic_connexe)
        
 
     @classmethod
