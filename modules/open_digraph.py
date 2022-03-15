@@ -587,7 +587,7 @@ class open_digraph:  # for open directed graph
 		prev = {}
 		while opened != []:
 			current = min(opened, key=dist.get)
-			opened.pop(current)
+			opened.remove(current)
 			if direction == -1:
 				neighbours = self.get_node_by_id(current).parents
 			else:
