@@ -582,6 +582,15 @@ class open_digraph:  # for open directed graph
 
 	
 	def dijkstra(self, src, direction = None, tgt = None):
+		'''
+		Doc
+		src : L'id de la node de départ
+		direction :
+			1 pour aller de parents vers enfant
+			-1 pour aller d'enfant a parent
+			None pour avoir les deux directions (TODO)
+		tgt : Si on recherche un chemin en particulier, une fois trouver, arrête la recherche de chemin.
+		'''
 		opened = [src]
 		dist = {src:0}
 		prev = {}
@@ -598,9 +607,27 @@ class open_digraph:  # for open directed graph
 				if neigh not in dist or dist[neigh.get_id()] < (dist[current] + 1):
 					dist[neigh] = dist[current] + 1
 					prev[neigh] = current
+					if  tgt == neigh:
+						return (dist, prev)	
 		return (dist, prev)
 
-	
+	def shortest_path(self, src, tgt, direction = None):
+		'''
+		Doc
+		src : L'id du node de départ
+		tgt : L'id de la node d'arrivée
+		Renvoie le plus court chemin de src vers tgt.
+		'''
+		dij = self.dijkstra(src, direction, tgt)[1] # On appelle dijkstra
+		if tgt not in dij: # Si l'arrivée n'est pas dans le tableau, il n'y a aucun chemin qui va de a vers b avec la direction demandée.
+			raise "Path not found."
+		path = []
+		cur = [dij][tgt]
+		while(cur != src): # On rebrousse chemin dans la liste des prev
+			path.append(cur)
+			cur = dij[cur]
+		return path
+
 				
 class bool_circ(open_digraph):
 
