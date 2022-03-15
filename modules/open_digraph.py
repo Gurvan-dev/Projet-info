@@ -341,13 +341,14 @@ class open_digraph:  # for open directed graph
 
 	def iparallel(self, g):
 		M = self.max_id()
-		m = self.max_id()
+		m = g.max_id()
 		id_max = max(m, M)
 		self.shift_indices(id_max)
-		for (k, n) in g.nodes:
-			new_id = M-m+1+k
-			n.set_id(new_id)
-			self.nodes[new_id] = n.copy()
+		for n in g.get_nodes():
+			n = n.copy()
+			n.shift_indice(M-m+1)
+
+			self.nodes[n.get_id()] = n.copy()
 
 	@classmethod
 	def parallel(cls, a,b_list):
