@@ -585,6 +585,8 @@ class open_digraph:  # for open directed graph
 		opened = [src]
 		dist = {src:0}
 		prev = {}
+		if(src not in self.nodes.keys()):
+			raise "pas cool"
 		while opened != []:
 			current = min(opened, key=dist.get)
 			opened.pop(current)
