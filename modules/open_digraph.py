@@ -581,7 +581,7 @@ class open_digraph:  # for open directed graph
 		return True
 
 	
-	def dijkstra(self, src, direction = None):
+	def dijkstra(self, src, direction = None, tgt = None):
 		opened = [src]
 		dist = {src:0}
 		prev = {}
@@ -598,7 +598,9 @@ class open_digraph:  # for open directed graph
 				if neigh not in dist or dist[neigh.get_id()] < (dist[current] + 1):
 					dist[neigh] = dist[current] + 1
 					prev[neigh] = current
-		return dist
+		return (dist, prev)
+
+	
 				
 class bool_circ(open_digraph):
 
