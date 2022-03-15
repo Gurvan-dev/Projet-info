@@ -583,7 +583,7 @@ class open_digraph:  # for open directed graph
 	
 	def dijkstra(self, src, direction = None):
 		opened = [src]
-		dist = {src():0}
+		dist = {src:0}
 		prev = {}
 		while opened != []:
 			current = min(opened, key=dist)
