@@ -153,7 +153,11 @@ class InitTest(unittest.TestCase):
         print('\n')
         print(f"\no3 = {o3.get_nodes()}\n ")
         #n0 = node(0, 'i', {}, {1: 1})
-        o3.dijkstra(2)
+        self.assertEqual(o3.dijkstra(2), ({2: 0, 1: 1}, {1: 2}))
+        self.assertEqual(o3.dijkstra(1), ({1: 0}, {}))
+        self.assertEqual(o3.dijkstra(3), ({3: 0, 1: 1}, {1: 3}))
+
+        #print(o3.dijkstra(3))
 
 
         #o2.shift_indices(4)
