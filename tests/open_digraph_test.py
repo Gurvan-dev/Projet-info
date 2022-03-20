@@ -191,6 +191,7 @@ class InitTest(unittest.TestCase):
         # Quelques tests de ancetre commun
         self.assertEqual(o1.ancetre_commun(1, 1), {1:(0,0), 2:(1,1)})
         self.assertEqual(o1.ancetre_commun(2, 5), {1:(1,1), 2:(0,2)})
+        print(type(o1.ancetre_commun(1, 1)))
 
     def test_tri_topologique(self):
         o = open_digraph.random(5, 6, form='undirected')

@@ -1,142 +1,11 @@
 from modules.matrice import *
+from modules.node import *
 from random import randint
 import os
 import re
 import sys
 
-class node:
-	def __init__(self, identity, label, parents, children):
-		'''
-		identity: int; its unique id in the graph
-		label: string;
-		parents: int->int dict; maps a parent node's id to its multiplicity
-		children: int->int dict; maps a child node's id to its multiplicity
-		'''
-		self.id = identity
-		self.label = label
-		self.parents = parents.copy()
-		self.children = children.copy()
-
-	def __str__(self) -> str:
-		return f"Id : {self.id}   Label : {self.label}   Parents : {self.parents}   Children : {self.children}"
-
-	def __repr__(self) -> str:
-		return f" Node({self})"
-
-	def __eq__(self, other) -> bool:
-		# Pour le coup sort ici n'est pas opti mais permet de s'éviter des casse tête dans la formation des graphes.
-		self.sort()
-		other.sort()
-		return self.id == other.id and self.label == other.label and self.children == other.children and self.parents == other.parents
-
-	def sort(self):
-		self.children = sorted(self.children)
-		self.parents = sorted(self.parents)
-
-	def copy(self):
-		return node(self.id, self.label, self.parents, self.children)
-	
-	def get_id(self) -> int:
-		return self.id
-
-	def get_label(self) -> str:
-		return self.label
-
-	def get_parents_ids(self):
-		return self.parents
-
-	def get_children_ids(self):
-		return self.children
-
-	def get_children_mult(self, id):
-		'''
-		Retourne la multiplicité de id
-		'''
-		return self.children[id]
-
-	def get_childrens_mult(self):
-		'''
-		Retourne la multiplicité totale de tout les enfants
-		'''
-		tot = 0
-		for i in self.children.keys():
-			tot = tot + self.children[i]
-		return tot
-
-	def get_parent_mult(self, id):
-		return self.parents[id]
-
-	def get_parents_mult(self):
-		'''
-		Retourne la multiplicité totale de tout les parents
-		'''
-		tot = 0
-		for i in self.parents.keys():
-			tot = tot + self.parents[i]
-		return tot
-
-	def set_id(self, new_id):
-		self.id = new_id
-
-	def set_parent_ids(self, new_parent):
-		self.parents = new_parent
-
-	def set_childen_ids(self, new_ids):
-		self.children = new_ids
-	
-	def set_label(self, new_label):
-		self.label = new_label
-
-	def add_parent_id(self, parent_id, mult = 1):
-		if self.parents.get(parent_id) == None:
-			self.parents[parent_id] = mult
-		else:
-			self.parents[parent_id] += mult
-
-	def add_children_id(self, child_id, mult = 1):
-		if self.children.get(child_id) == None:
-			self.children[child_id] = mult
-		else:
-			self.children[child_id] += mult
-
-	def remove_parent_once(self, id):
-		if id in self.parents:
-			self.parents[id] -= 1
-			if self.parents[id] == 0:
-				self.parents.pop(id)
-
-	def remove_child_once(self, id):
-		if id in self.children:
-			self.children[id] -= 1
-			if self.children[id] == 0:
-				self.children.pop(id)
-
-	def remove_parent_id(self, id):
-		self.parents.pop(id)
-
-	def remove_child_id(self, id):
-		self.children.pop(id)
-	
-	def indegree(self):
-		return sum(self.parents.values())
-		
-	def outdegree(self):
-		return sum(self.children.values())
-	
-	def degree(self):
-		return self.indegree + self.outdegree
-	
-	def shift_indice(self, shiftInd):
-		pc = {}
-		cc = {}
-		for id in self.parents.keys():
-			pc[id+shiftInd] = self.parents[id]
-		for id in self.children.keys():
-			cc[id+shiftInd] = self.children[id]
-		self.parents=pc
-		self.children=cc
-
-class open_digraph:  # for open directed graph
+class open_digraph:
 	def __init__(self, inputs=[], outputs=[], nodes=[]):
 		'''
 		inputs: int list; the ids of the input nodes
@@ -250,8 +119,8 @@ class open_digraph:  # for open directed graph
 
 	def add_input_node(self, id, id_added=0):
 		'''
-		id			: L'id sur laquelle greffer une nouvelle node qui sera une input node liée par une arrête a cette première.
-		id_added	: L'id de l'input qu'on va ajouter. Si aucune valeur n'est spécifiée ou si la valeur est >= 0, on va attribuer une valeur aléatoire.
+		id			: int, L'id sur laquelle greffer une nouvelle node qui sera une input node liée par une arrête a cette première.
+		id_added	: int, L'id de l'input qu'on va ajouter. Si aucune valeur n'est spécifiée ou si la valeur est >= 0, on va attribuer une valeur aléatoire.
 		Throw une exception si la node sur laquelle on doit se greffer est elle même une input node, afin que le graphe reste bien formé.
 		'''
 		# Pour garder un graphe bien formé en toute circonstance, on vérifie que on n'ajoute pas un input devant un autre input.
@@ -266,8 +135,8 @@ class open_digraph:  # for open directed graph
 
 	def add_output_node(self, id, id_added=0):
 		'''
-		id			: L'id sur laquelle greffer une nouvelle node qui sera une output node liée par une arrête a cette première.
-		id_added	: L'id de l'input qu'on va ajouter. Si aucune valeur n'est spécifiée ou si la valeur est >= 0, on va attribuer une valeur aléatoire.
+		id			: int, L'id sur laquelle greffer une nouvelle node qui sera une output node liée par une arrête a cette première.
+		id_added	: int, L'id de l'input qu'on va ajouter. Si aucune valeur n'est spécifiée ou si la valeur est >= 0, on va attribuer une valeur aléatoire.
 		Throw une exception si la node sur laquelle on doit se greffer est elle même une output node, afin que le graphe reste bien formé.
 		'''
 		# Pour garder un graphe bien formé en toute circonstance, on vérifie que on n'ajoute pas un output derrière un autre output.
@@ -298,7 +167,7 @@ class open_digraph:  # for open directed graph
 
 	def remove_node_by_id(self, id):
 		''' 
-		id	: L'id d'une node du graph
+		id	: int, L'id d'une node du graph
 		Supprime la node du graphe, ainsi que les arrête qui y passent
 		'''
 		n = self.nodes.pop(id)
@@ -328,7 +197,7 @@ class open_digraph:  # for open directed graph
 				return False 
 			if len(self.get_node_by_id(n).get_parents_ids()) > 0: # Vérifier que les inputs n'ont pas de parents
 				return False 
-			if self.get_node_by_id(n).get_childrens_mult() != 1:
+			if self.get_node_by_id(n).outdegree() != 1:
 				return False
 		for n in self.outputs:
 			if not (n in self.nodes): 
@@ -337,7 +206,7 @@ class open_digraph:  # for open directed graph
 				return False 
 			if len(self.get_node_by_id(n).get_children_ids()) > 0: # Vérifier que les outputs n'ont pas d'enfants
 				return False
-			if self.get_node_by_id(n).get_parents_mult() != 1:
+			if self.get_node_by_id(n).indegree() != 1:
 				return False
 		for key in self.nodes.keys():
 			if(self.get_node_by_id(key).get_id() != key): # Vérifier que les cléfs de nodes correspondent a l'id.
@@ -361,14 +230,20 @@ class open_digraph:  # for open directed graph
 		return True
 	
 	def min_id(self):
+		'''
+		return	: int, le plus petit indice d'id du graph
+		'''
 		return min(self.nodes.keys())
 		
 	def max_id(self):
+		'''
+		return	: int, le plus grand indice d'id du graph
+		'''
 		return max(self.nodes.keys())
 
 	def shift_indices (self,n):
 		'''
-		n : Un entier quelconque. (n=0 n'aura aucun effet sur le graphe)
+		n : int, Un entier quelconque. (n=0 n'aura aucun effet sur le graphe)
 		'Shift les indice' de toutes les nodes du graph, i.e déplace tout les ids des nodes de 'n'.
 		'''
 		old_new = []
@@ -393,7 +268,7 @@ class open_digraph:  # for open directed graph
 	   
 	def iparallel(self, g):
 		'''
-		Modifie le graph pour l'ajouter en parallèle de g
+		Modifie le graph pour y ajouter g en parallèle, i.e. les deux parties seront dans le même open digraph mais ne seront pas connexe.
 		'''
 		M = self.max_id()
 		m = g.max_id()
@@ -411,10 +286,13 @@ class open_digraph:  # for open directed graph
 		return cls
 
 	def icompose(self, g):
+		''' 
+		Modifie self pour y ajouter g en composition, i.e. on va connecter tout les output de g aux inputs de self
+		Throw une exception si g n'a pas autant d'output que self a d'inputs (Car on ne peut pas les composer dans cette configuration)
+		'''
 		if len(self.inputs) != len(g.outputs):
 			raise ValueError(f"Erreur: Tentative de composition entre deux graphe qui n'ont pas la même taille (inp : {len(self.inputs)} oup : {len(g.outputs)}")
-		# Connected tout les outputs de g aux inputs de l
-		self.iparallel(g)
+		self.iparallel(g) # On va simplement les ajouter en parallel, puis relier les inputs et outputs qui doivent être relié.
 		for inp in self.inputs:
 			oup = g.inputs.pop(0)
 			self.outputs.pop(oup)
@@ -430,7 +308,7 @@ class open_digraph:  # for open directed graph
 
 	def connected_components(self):
 		''' 
-		renvoie les différentes parties connecté du graphe
+		return	: (int, int list list) les différentes parties connecté du graphe
 		'''
 		compte = 0
 		closed = []
@@ -469,8 +347,8 @@ class open_digraph:  # for open directed graph
 	@classmethod
 	def graph_from_adjacency_matrix(cls, mat):
 		'''
-		mat : int list list
-		Return an open digraph formed with the input matrix (See sujets/TD3.pdf).
+		mat 	: int list list
+		return	: open_digraph, open_digraph formed with the input matrix (See sujets/TD3.pdf).
 		'''
 		o = open_digraph.empty()
 		for i in range(len(mat)):
@@ -485,17 +363,18 @@ class open_digraph:  # for open directed graph
 	def random(cls, n, bound, inputs=0, outputs=0, form = "free"):
 		'''
 		Doc
-		n       : Nombre de noeuds dans le graphe
-		bound   : Nombre maximal de multiplicité pour une arrête
-		inputs  : Nombre d'input a générer dans le graphe
-		outputs : Nombre d'outputs a générer dans le graphe
-		form :
+		n       : int, Nombre de noeuds dans le graphe
+		bound   : int,  Nombre maximal de multiplicité pour une arrête
+		inputs  : int, Nombre d'input a générer dans le graphe
+		outputs : int, Nombre d'outputs a générer dans le graphe
+		form : str,
 			free                    : La matrice générée n'aura pas de contraintes.
 			DAG                     : La matrice générée sera acyclique dirigé
 			oriented                : La matrice générée sera orienté
 			loop-free               : Un noeud ne pourra pas pointer sur lui même (Donc la diagonale de la matrice générée sera nulle)
 			undirected              : La matrice sera symmétrique.
 			loop-free undirected    : Combinaison de loop free et undirected
+		Throw une ValueError si form n'est pas un str de la liste ci dessus.
 		'''
 
 		if form=="free":
@@ -525,7 +404,7 @@ class open_digraph:  # for open directed graph
 
 	def get_dic(self):
 		'''
-		return dictionnaire int -> int, associant a chaque id de noeud un unique entier 0 ≤ i < n
+		return	: dictionnaire int -> int, associant a chaque id de noeud un unique entier 0 ≤ i < n
 		'''
 		dic = {}
 		count = 0
@@ -536,7 +415,7 @@ class open_digraph:  # for open directed graph
 
 	def adjacency_matrix(self):
 		'''
-		return : La matrice d'adjacence associé au graph
+		return : matrice, La matrice d'adjacence associé au graph
 		'''
 
 		mat = []
@@ -551,6 +430,8 @@ class open_digraph:  # for open directed graph
 	
 	def save_as_dot_file(self, path = 'Out.dot', verbose=False):
 		''' 
+		path	: str
+		verbose	: boolean
 		Enregistre le graph en tant que fichier .dot. path est le chemin + nom ou sera enregistré le fichier. 
 		path devrait préférablement finir par '.dot'
 		Les inputs seront représentés par des boîtes, tandis que les outputs seront représentée par de jolies étoiles.
@@ -583,8 +464,8 @@ class open_digraph:  # for open directed graph
 	@classmethod
 	def from_dot_file(cls, path):
 		''' 
-		path	: str, mene vers un fichier .dot
-		Construit et renvoie un graphe depuis un fichier .dot
+		path	: str, doit mener vers un fichier .dot
+		return	: open_digraph, construit depuis le fichier .dot se trouvant a 'path'.
 		'''
 		cls = open_digraph.empty()
 		with open(path, 'r') as f:
@@ -642,7 +523,7 @@ class open_digraph:  # for open directed graph
 
 	def is_cyclic(self):
 		'''
-		renvoie vrai si le graphe est cyclique, faux sinon
+		return	: boolean, vrai si le graphe est cyclique, faux sinon
 		'''
 		if self.get_nodes() == []:
 			return False
@@ -659,11 +540,13 @@ class open_digraph:  # for open directed graph
 	def dijkstra(self, src, direction = None, tgt = None):
 		'''
 		Doc
-		src : L'id de la node de départ
-		direction :
-			1 pour aller de parents vers enfant
-			-1 pour aller d'enfant a parent
+		src : int, L'id de la node de départ
+		direction : int,
+			1		: Relation de parents vers enfant uniquement
+			-1 		: Relation d'enfant a parent uniquement
+			None	: Qu'importe le sens de la relation
 		tgt : Si on recherche un chemin en particulier, une fois trouver, arrête la recherche de chemin.
+		Throw une ValueError si la source n'est pas dans le graphe
 		'''
 		if src not in self.nodes.keys():
 			raise ValueError("L'entrée n'est pas dans le graphe.")
@@ -695,10 +578,12 @@ class open_digraph:  # for open directed graph
 	def shortest_path(self, src, tgt, direction = None):
 		'''
 		Doc
-		src : L'id du node de départ
-		tgt : L'id de la node d'arrivée
-		Renvoie le plus court chemin de src vers tgt.
+		src 	: L'id du node de départ
+		tgt 	: L'id de la node d'arrivée
+		return	: int list, le plus court chemin de src vers tgt.
+		Throw une exception si la chemin n'existe pas, ou encore que src ou tgt n'est pas dans le graph. 
 		'''
+		# L'exception levée quand src n'est pas dans le graphe est en réalité levée par dijkstra et pas par shortest_path
 		if src == tgt:
 			return []
 		dij = self.dijkstra(src, direction, tgt)[1] # On appelle dijkstra
@@ -715,9 +600,9 @@ class open_digraph:  # for open directed graph
 	def ancetre_commun(self, a,b):
 		'''
 		Doc
-		a : Une id de node
-		b : Une id de node
-		renvoie un dictionnaire qui associe a chaque ancêtre commun des deux noeuds sa
+		a 		: int, Une id de node
+		b 		: int, Une id de node
+		return 	: dict (int, int), Un dictionnaire qui associe a chaque ancêtre commun des deux noeuds sa
 		distance à chacun des deux noeuds
 		'''
 		dija = self.dijkstra(a, direction=-1)[0]
@@ -730,7 +615,7 @@ class open_digraph:  # for open directed graph
 
 	def tri_topologique(self):
 		'''
-		retourne le tri topologique du graphe. 
+		return	: int list list, le tri topologique du graphe. 
 		(Regarder TP7 exercice 4)
 		'''
 		def tri_annexe(graph, depth, prev=[]): 				# On va ici utiliser une méthode récursive avec une sous fonction.
@@ -757,8 +642,8 @@ class open_digraph:  # for open directed graph
 
 	def profondeur_node(self, id_node):
 		'''
-		id_node : L'id d'une node du graph
-		Retourne la profondeur de la node d'id 'id_graphe' ou -1 si id_node n'est pas dans le graphe.
+		id_node : int, l'id d'une node du graph
+		return	: int, la profondeur de la node d'id 'id_graphe' ou -1 si id_node n'est pas dans le graphe.
 		'''
 		tt = self.tri_topologique()
 		for d in range(len(tt)):
@@ -768,7 +653,7 @@ class open_digraph:  # for open directed graph
 	
 	def profondeur_graph(self):
 		'''
-		retourne la profondeur du graphe, i.e. la profondeur maximale atteint par une node du graph
+		return	: int, la profondeur du graphe, i.e. la profondeur maximale atteint par une node du graph
 		'''
 		tt = self.tri_topologique()
 		return len(tt)
@@ -788,16 +673,16 @@ class bool_circ(open_digraph):
 	def is_well_formed(self):
 		if not self.is_cyclic():
 			return False
-		
+
 		for node in self.nodes:
 			lab = node.get_label()
-			if not (lab == '&' or lab == '|' or lab == '~' or lab == '0' or lab == '1' or lab == '^'): # Vérification que le label est valide
+			if not (lab == '&' or lab == '|' or lab == '~' or lab == '0' or lab == '1' or lab == '^'): 	# Vérification que le label est valide
 				return False
-			if lab == ' ' and (node.indegree() != 1 ): # Les portes de copies doivent avoir une seule entrée
+			if lab == ' ' and (node.indegree() != 1 ): 													# Les portes de copies doivent avoir une seule entrée
 				return False
-			if (lab == '&' or lab=='|') and (node.outdegree() != 1): # Les portes 'Et' et 'Ou' doivent avoir éxactement une sortie.
+			if (lab == '&' or lab=='|') and (node.outdegree() != 1): 									# Les portes 'Et' et 'Ou' doivent avoir éxactement une sortie.
 				return False      
-			if (lab == '~') and (node.outdegree() != 1 or node.indegree() != 1): # Les portes 'Non' doivent avoir une entrée et une sortie.
+			if (lab == '~') and (node.outdegree() != 1 or node.indegree() != 1): 						# Les portes 'Non' doivent avoir une entrée et une sortie.
 				return False
 
 		return True
