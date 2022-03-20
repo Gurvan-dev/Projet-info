@@ -225,9 +225,9 @@ class open_digraph:  # for open directed graph
 	
 	def add_node(self, label='', parents={}, children={}, id = 0):
 		'''
-		label: Le nom de la node
-		parents: Les parents de la node
-		childrens : Les childrens de la node
+		label		: Le nom de la node
+		parents		: Les parents de la node
+		childrens 	: Les childrens de la node
 		Ici les paramètres possèdent des noms plutôt explicite quant a leurs fonctions.
 		Les parents ne seront pas directement ajouté a la node,
 		mais seront plutôt utilisé comme argument pour faire des add_edge.
@@ -250,11 +250,11 @@ class open_digraph:  # for open directed graph
 
 	def add_input_node(self, id, id_added=0):
 		'''
-		id: L'id sur laquelle greffer une nouvelle node qui sera une input node liée par une arrête a cette première.
-		id_added : L'id de l'input qu'on va ajouter. Si aucune valeur n'est spécifiée ou si la valeur est >= 0, on va attribuer une valeur aléatoire.
+		id			: L'id sur laquelle greffer une nouvelle node qui sera une input node liée par une arrête a cette première.
+		id_added	: L'id de l'input qu'on va ajouter. Si aucune valeur n'est spécifiée ou si la valeur est >= 0, on va attribuer une valeur aléatoire.
 		Throw une exception si la node sur laquelle on doit se greffer est elle même une input node, afin que le graphe reste bien formé.
 		'''
-		# Vérifier que id n'est pas un input !
+		# Pour garder un graphe bien formé en toute circonstance, on vérifie que on n'ajoute pas un input devant un autre input.
 		if id in self.inputs:
 			raise Exception('Tentative d\'ajouter un input sur un input.')
 		if id_added <= 0:
@@ -266,11 +266,11 @@ class open_digraph:  # for open directed graph
 
 	def add_output_node(self, id, id_added=0):
 		'''
-		id: L'id sur laquelle greffer une nouvelle node qui sera une output node liée par une arrête a cette première.
-		id_added : L'id de l'input qu'on va ajouter. Si aucune valeur n'est spécifiée ou si la valeur est >= 0, on va attribuer une valeur aléatoire.
+		id			: L'id sur laquelle greffer une nouvelle node qui sera une output node liée par une arrête a cette première.
+		id_added	: L'id de l'input qu'on va ajouter. Si aucune valeur n'est spécifiée ou si la valeur est >= 0, on va attribuer une valeur aléatoire.
 		Throw une exception si la node sur laquelle on doit se greffer est elle même une output node, afin que le graphe reste bien formé.
 		'''
-		# Vérifier que id n'est pas un output !
+		# Pour garder un graphe bien formé en toute circonstance, on vérifie que on n'ajoute pas un output derrière un autre output.
 		if id in self.outputs:
 			raise Exception('Tentative d\'ajouter un output derrière un output.')
 		if id_added <= 0:
@@ -288,15 +288,6 @@ class open_digraph:  # for open directed graph
 		self.get_node_by_id(trg).remove_parent_id(src)
 		self.get_node_by_id(src).remove_child_id(trg)
 
-	def remove_node_by_id(self, id):
-		n = self.nodes.pop(id)
-		for p in n.get_parents_ids():
-			if p in self.nodes:
-				self.get_node_by_id(p).remove_child_id(n.get_id())
-		for c in n.get_children_ids():
-			if c in self.nodes:
-				self.get_node_by_id(c).remove_parent_id(n.get_id())
-
 	def remove_edges(self, listEdge):
 		for (src, trg) in listEdge:
 			self.remove_edge(src, trg)
@@ -305,11 +296,31 @@ class open_digraph:  # for open directed graph
 		for (src, trg) in listEdge:
 			self.remove_parallel_edge(src, trg)
 
+	def remove_node_by_id(self, id):
+		''' 
+		id	: L'id d'une node du graph
+		Supprime la node du graphe, ainsi que les arrête qui y passent
+		'''
+		n = self.nodes.pop(id)
+		for p in n.get_parents_ids():
+			if p in self.nodes:
+				self.get_node_by_id(p).remove_child_id(n.get_id())
+		for c in n.get_children_ids():
+			if c in self.nodes:
+				self.get_node_by_id(c).remove_parent_id(n.get_id())
+
 	def remove_nodes_by_id(self, ids):
 		for id in ids:
 			self.remove_node_by_id(id)
 
 	def is_well_formed(self):
+		''' 
+		Renvoie vrai si le graph est bien formé, i.e. :
+		- Que tout les inputs sont bien présents dans le graphe (resp output)
+		- Que les inputs n'ont pas de parents (resp output, children)
+		- Que la multiplicité est toujours égale dans une relation parents enfants 
+		- Que les clés des node dans le graph sont bien les id des nodes
+		'''
 		for n in self.inputs:
 			if not (n in self.nodes): # Vérifier que tout les éléments d'input sont dans le graphe.
 				return False
@@ -356,6 +367,10 @@ class open_digraph:  # for open directed graph
 		return max(self.nodes.keys())
 
 	def shift_indices (self,n):
+		'''
+		n : Un entier quelconque. (n=0 n'aura aucun effet sur le graphe)
+		'Shift les indice' de toutes les nodes du graph, i.e déplace tout les ids des nodes de 'n'.
+		'''
 		old_new = []
 		key_inv = sorted(self.nodes.keys())
 		if n > 0: # Si on doit faire un shift positif, on va d'abord décaler les plus grands nombre puis les plus petits, afin de ne pas écraser de donnée.
@@ -377,9 +392,12 @@ class open_digraph:  # for open directed graph
 			o.set_id(n)
 	   
 	def iparallel(self, g):
+		'''
+		Modifie le graph pour l'ajouter en parallèle de g
+		'''
 		M = self.max_id()
 		m = g.max_id()
-		id_max = max(m, M)
+		id_max = max(m, M) # Pour empêcher un chevauchement des ID ou des IDs qui sont les même dans les deux graph, on effectue un shife indice
 		self.shift_indices(id_max)
 		for n in g.get_nodes():
 			n = n.copy()
@@ -411,6 +429,9 @@ class open_digraph:  # for open directed graph
 		return cls
 
 	def connected_components(self):
+		''' 
+		renvoie les différentes parties connecté du graphe
+		'''
 		compte = 0
 		closed = []
 		dic_connexe = {}
@@ -420,9 +441,9 @@ class open_digraph:  # for open directed graph
 			start = open.pop(0)
 			
 			if start not in closed:
-				start_node = self.get_node_by_id(start)
-				closed.append(start)
-				connexe_open = list(start_node.children.keys()).copy()
+				start_node = self.get_node_by_id(start) 
+				closed.append(start) # La liste des fermés contient toutes les node qu'on a déjà vérifié. (Pour éviter récursion infinie)
+				connexe_open = list(start_node.children.keys()).copy() # Connexe_open est une liste de tout les éléments relié a start_node d'une façon ou d'une autre (En tant que parents ou enfant)
 				for p in start_node.parents:
 					connexe_open.append(p)
 			
@@ -529,6 +550,11 @@ class open_digraph:  # for open directed graph
 		return mat
 	
 	def save_as_dot_file(self, path = 'Out.dot', verbose=False):
+		''' 
+		Enregistre le graph en tant que fichier .dot. path est le chemin + nom ou sera enregistré le fichier. 
+		path devrait préférablement finir par '.dot'
+		Les inputs seront représentés par des boîtes, tandis que les outputs seront représentée par de jolies étoiles.
+		'''
 
 		with open(path, 'w') as f:
 			f.writelines("digraph G {\n")
@@ -556,6 +582,10 @@ class open_digraph:  # for open directed graph
 
 	@classmethod
 	def from_dot_file(cls, path):
+		''' 
+		path	: str, mene vers un fichier .dot
+		Construit et renvoie un graphe depuis un fichier .dot
+		'''
 		cls = open_digraph.empty()
 		with open(path, 'r') as f:
 			s = f.readline() # On enlève la première ligne inutile ici
@@ -582,15 +612,14 @@ class open_digraph:  # for open directed graph
 								cls.add_node(id = chi)
 							cls.add_edge(par, chi)
 				
-				elif 'star' in s: # 'star' est utilisé pour les inputs.
+				elif 'star' in s: 	# 'star' est utilisé pour les inputs.
 					oup.append(par)
-				elif 'box' in s: # 'box' est utilisé pour définir un output.
+				elif 'box' in s: 	# 'box' est utilisé pour définir un output.
 					inp.append(par)
 				if 'label' in s:
-					b,c,lab = s.partition('label') # On partitionne ici pour avoir tout ce qui est après le label. On doit pouvoir l'intégrér a l'expression regex qui suit mais je sais pas faire j'avoue
-					lab = re.findall('.*"(.*?)".*', lab)[0] # C'est du regex j'avoue je comprend pas
-					# On regarde tout ce qu'il y a après le label entre guillemets,
-					# et on prend le premier mot.
+					b,c,lab = s.partition('label') 			# On partitionne ici pour avoir tout ce qui est après le label. On doit peut être pouvoir l'intégrér a l'expression regex qui suit mais mes connaissances regex sont trop limitées.
+					lab = re.findall('.*"(.*?)".*', lab)[0] # On regarde tout ce qu'il y a après le label entre guillemets,
+															# et on prend le premier mot.			
 					if par not in cls.nodes.keys():
 						cls.add_node(id=par, label=lab)
 					else:
@@ -598,6 +627,10 @@ class open_digraph:  # for open directed graph
 		return cls
 
 	def display(self):
+		'''
+		affiche le graphe.
+		Note : firefox doit être installé.
+		'''
 		self.save_as_dot_file('tmp.dot')
 		with open('tmp.dot', 'r') as f:
 			t = f.read()
@@ -608,6 +641,9 @@ class open_digraph:  # for open directed graph
 			os.system("firefox -url 'https://dreampuf.github.io/GraphvizOnline#" + t + "'")
 
 	def is_cyclic(self):
+		'''
+		renvoie vrai si le graphe est cyclique, faux sinon
+		'''
 		if self.get_nodes() == []:
 			return False
 		
@@ -694,7 +730,7 @@ class open_digraph:  # for open directed graph
 
 	def tri_topologique(self):
 		'''
-		Retourne le tri topologique du graphe. 
+		retourne le tri topologique du graphe. 
 		(Regarder TP7 exercice 4)
 		'''
 		def tri_annexe(graph, depth, prev=[]): 				# On va ici utiliser une méthode récursive avec une sous fonction.
@@ -711,7 +747,7 @@ class open_digraph:  # for open directed graph
 				return prev
 			return tri_annexe(graph, depth+1, prev)
 
-		graph = self.copy()
+		graph = self.copy() # On va faire une copie que l'on va utilisé pour le test, duquel on va retirer input et output (Ici on ignore les inputs et outputs.)
 		for i in self.inputs:
 			graph.remove_node_by_id(i)
 		for o in self.outputs:
@@ -731,6 +767,9 @@ class open_digraph:  # for open directed graph
 		return -1
 	
 	def profondeur_graph(self):
+		'''
+		retourne la profondeur du graphe, i.e. la profondeur maximale atteint par une node du graph
+		'''
 		tt = self.tri_topologique()
 		return len(tt)
 				
