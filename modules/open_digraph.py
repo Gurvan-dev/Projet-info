@@ -49,10 +49,31 @@ class node:
 		return self.children
 
 	def get_children_mult(self, id):
+		'''
+		Retourne la multiplicité de id
+		'''
 		return self.children[id]
-	
+
+	def get_childrens_mult(self):
+		'''
+		Retourne la multiplicité totale de tout les enfants
+		'''
+		tot = 0
+		for i in self.children.keys():
+			tot = tot + self.children[i]
+		return tot
+
 	def get_parent_mult(self, id):
 		return self.parents[id]
+
+	def get_parents_mult(self):
+		'''
+		Retourne la multiplicité totale de tout les parents
+		'''
+		tot = 0
+		for i in self.parents.keys():
+			tot = tot + self.parents[i]
+		return tot
 
 	def set_id(self, new_id):
 		self.id = new_id
@@ -133,7 +154,7 @@ class open_digraph:  # for open directed graph
 	def __str__(self) -> str:
 		return f"Input : {self.inputs}   Output : {self.outputs}   Nodes : {[node for node in self.nodes]}"
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return f" Digraph({self})"
 
 	def copy(self):
@@ -295,8 +316,10 @@ class open_digraph:  # for open directed graph
 				return False
 			if len(self.get_node_by_id(n).get_children_ids()) != 1: # Vérifier que les inputs n'ont qu'un enfant
 				return False 
-			if len(self.get_node_by_id(n).get_parents_ids()) > 1: # Vérifier que les inputs n'ont pas de parents
+			if len(self.get_node_by_id(n).get_parents_ids()) > 0: # Vérifier que les inputs n'ont pas de parents
 				return False 
+			if self.get_node_by_id(n).get_childrens_mult() != 1:
+				return False
 		for n in self.outputs:
 			if not (n in self.nodes): 
 				return False
@@ -304,9 +327,12 @@ class open_digraph:  # for open directed graph
 				return False 
 			if len(self.get_node_by_id(n).get_children_ids()) > 0: # Vérifier que les outputs n'ont pas d'enfants
 				return False
+			if self.get_node_by_id(n).get_parents_mult() != 1:
+				return False
 		for key in self.nodes.keys():
 			if(self.get_node_by_id(key).get_id() != key): # Vérifier que les cléfs de nodes correspondent a l'id.
 				return False
+
 		# Vérifier que la multiplicité est bien la même pour un parent et un enfant.
 		for j in self.nodes.values():
 			for i in j.get_children_ids().keys():
@@ -314,6 +340,12 @@ class open_digraph:  # for open directed graph
 					return False
 				n = self.get_node_by_id(i)
 				if not (j.get_id() in n.get_parents_ids()) or j.get_children_ids()[i] != n.get_parents_ids()[j.get_id()]:
+					return False
+			for i in j.get_parents_ids().keys():
+				if not i in self.nodes.keys():
+					return False
+				n = self.get_node_by_id(i)
+				if not (j.get_id() in n.get_children_ids()) or j.get_parents_ids()[i] != n.get_children_ids()[j.get_id()]:
 					return False
 		
 		return True
@@ -604,14 +636,15 @@ class open_digraph:  # for open directed graph
 		dist = {src:0}
 		prev = {}
 		while opened != []:
+			
 			current = min(opened, key=dist.get)
 			opened.remove(current)
 			if direction == -1:
-				neighbours = self.get_node_by_id(current).parents
+				neighbours = self.get_node_by_id(current).parents.copy() # On fait une copy pour ne pas modifier les parents en même temps que l'on fait dijkstra (Problème révélé par des tests)
 			elif direction == 1:
-				neighbours = self.get_node_by_id(current).children
+				neighbours = self.get_node_by_id(current).children.copy()
 			else:
-				neighbours = self.get_node_by_id(current).parents
+				neighbours = self.get_node_by_id(current).parents.copy()
 				for a in self.get_node_by_id(current).children.keys():
 					neighbours[a] = self.get_node_by_id(current).children[a]
 			for neigh in neighbours:
@@ -649,16 +682,20 @@ class open_digraph:  # for open directed graph
 		Doc
 		a : Une id de node
 		b : Une id de node
+		renvoie un dictionnaire qui associe a chaque ancêtre commun des deux noeuds sa
+		distance à chacun des deux noeuds
 		'''
-		dija = self.dijkstra(a, -1)[0]
-		dijb = self.dijkstra(b, -1)[0]
+		dija = self.dijkstra(a, direction=-1)[0]
+		dijb = self.dijkstra(b, direction=-1)[0]
 		res = {}
-		for (id_n, dist) in dija:
+		for id_n in dija:
 			if id_n in dijb:
 				res[id_n] = (dija[id_n], dijb[id_n])
 		return res
 
-
+	def tri_topologique(self):
+		# TODO
+		...
 				
 class bool_circ(open_digraph):
 

@@ -173,18 +173,24 @@ class InitTest(unittest.TestCase):
         o1.add_edge(3, 4)
         o1.add_edge(2, 1)
         o1.add_edge(1, 5)
-
         # o1.display() # On a utilisé ici un display pour réaliser le test
         with self.assertRaises(ValueError):
             o1.dijkstra(6)                                                                  # 6 n'étant pas dans le graphe, on attend évidamment une erreur.
+       
         self.assertEqual(o1.dijkstra(1), ({1:0, 2:1, 5:1, 4:2, 3:3}, {2:1, 5:1, 4:2, 3:4})) # Le test a été réalisé a la main avec un display.
+        
+        self.assertEqual(o1.dijkstra(1, direction=-1), ({1:0, 2:1}, {2:1}))
         self.assertEqual(o1.dijkstra(3, direction=1), ({3:0, 4:1}, {4:3}))                  # Test également réalisé a la main pour vérifier que direction=1 fonctionne.        
-        self.assertEqual(o1.dijkstra(3, direction=-1), ({3:0, 4:1, 2:2, 1:3, 5:4}, {4:3, 2:4, 1:2, 5:1}))                  # Test également réalisé a la main pour vérifier que direction=1 fonctionne.        
+        self.assertEqual(o1.dijkstra(3, direction=-1), ({3:0, 4:1, 2:2, 1:3}, {4:3, 2:4, 1:2}))                  # Test également réalisé a la main pour vérifier que direction=1 fonctionne.        
         self.assertEqual(o1.dijkstra(1, tgt=2), ({1:0, 2:1}, {2:1}))    # Test de l'argument tgt pour vérifier que l'algorithme s'arrête bien quand il est trouvé
 
         # En se basant sur les test ci dessus, on peut facilement élaborer des test pour shortest path
         self.assertEqual(o1.shortest_path(1, 1), []) # Edge case évident : La node d'arrivée est égale a la node de départ
         self.assertEqual(o1.shortest_path(1, 3), [2,4])
+
+        # Quelques tests de ancetre commun
+        self.assertEqual(o1.ancetre_commun(1, 1), {1:(0,0), 2:(1,1)})
+        self.assertEqual(o1.ancetre_commun(2, 5), {1:(1,1), 2:(0,2)})
         
     def test_matrix_digraph(self):
         n = 5
