@@ -695,7 +695,44 @@ class open_digraph:  # for open directed graph
 
 	def tri_topologique(self):
 		# TODO
-		...
+
+		if self.is_cyclic():
+			raise ValueError("Graphe cyclique")
+		
+		t = []
+		a = 0
+
+		self.tri_annexe(self, t)
+
+		return t
+	#	
+	#	for i in self.get_nodes():
+	#		comp = {}
+	#		comp[a] = []
+	#		if i.parents.values() == []:		
+	#			o = self.copy()
+	#			comp[a].append(i.get_id())
+	#			o.remove_node_by_id(i.get_id())
+	#		t.append(comp)
+	#		a+=1
+	#	...
+			# Regarder tri annexe, fonction annexe
+	def tri_annexe(self, t):
+		a = 0
+		for i in self.get_nodes():
+			comp = {}
+			comp[a] = []
+			if i.parents.values() == []:
+				o = self.copy()
+				comp[a].append(i.get_id())
+				o.remove_node_by_id(i.get_id())
+				
+				o.tri_annexe(self, t)
+			t.append(comp[a])
+
+			# A FINIR
+
+		
 				
 class bool_circ(open_digraph):
 
