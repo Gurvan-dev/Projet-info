@@ -161,7 +161,6 @@ class open_digraph:  # for open directed graph
 		return open_digraph(self.inputs, self.outputs, self.nodes.values()) # On peut juste renvoyer un nouveau digraph avec comme paramètre les valeurs des variables actuels, car un copy est des le constructeur.
 
 	def __eq__(self, other) -> bool:
-		# TODO : Trouver une méthode plus optimisée. Ici le sorted fonctionne, mais on perd beaucoup en éfficacitée. On pourrait considérér que on sort une fois a la création peut être ?
 		return self.inputs == other.inputs and other.outputs == other.outputs and self.nodes == other.nodes
 
 	def sort(self):
@@ -481,7 +480,7 @@ class open_digraph:  # for open directed graph
 		if form=="free":
 			mat = random_matrix(n, bound)
 		elif form=="DAG":
-			mat = random_matrix(n, bound, triangular=True)
+			mat = random_matrix(n, bound, triangular=True, null_diag=True)
 		elif form=="oriented":
 			mat = random_matrix(n, bound, oriented=True)
 		elif form=="loop-free":
@@ -694,45 +693,46 @@ class open_digraph:  # for open directed graph
 		return res
 
 	def tri_topologique(self):
-		# TODO
+		'''
+		Retourne le tri topologique du graphe. 
+		(Regarder TP7 exercice 4)
+		'''
+		def tri_annexe(graph, depth, prev=[]): 				# On va ici utiliser une méthode récursive avec une sous fonction.
+			prev.append([])									# On rajoute un étage de 'Pronfondeur'
+			to_be_removed = []
+			for i in graph.nodes.values():
+				if len(i.parents) == 0: 					# On regarde si le graph d'id i est une co-feuilles i.e qu'il n'a pas de parents
+					prev[depth].append(i.get_id()) 
+			if prev[depth] == [] and len(graph.nodes) > 0: 	# Si il n'y a plus de co-feuilles et le graph est non vide, alors il est acyclique, donc on raise une erreur.
+				raise Exception("Le graphe est acyclique.")
+			for id in prev[depth]:							# On enlève toute les co-feuilles a l'instance de graphe actuelle
+				graph.remove_node_by_id(id)
+			if len(graph.nodes) == 0:						# Si le graph est vide ici, on a trouvé toutes les co-feuilles
+				return prev
+			return tri_annexe(graph, depth+1, prev)
 
-		if self.is_cyclic():
-			raise ValueError("Graphe cyclique")
+		graph = self.copy()
+		for i in self.inputs:
+			graph.remove_node_by_id(i)
+		for o in self.outputs:
+			graph.remove_node_by_id(o)
 		
-		t = []
-		a = 0
+		return tri_annexe(graph, 0)
 
-		self.tri_annexe(self, t)
-
-		return t
-	#	
-	#	for i in self.get_nodes():
-	#		comp = {}
-	#		comp[a] = []
-	#		if i.parents.values() == []:		
-	#			o = self.copy()
-	#			comp[a].append(i.get_id())
-	#			o.remove_node_by_id(i.get_id())
-	#		t.append(comp)
-	#		a+=1
-	#	...
-			# Regarder tri annexe, fonction annexe
-	def tri_annexe(self, t):
-		a = 0
-		for i in self.get_nodes():
-			comp = {}
-			comp[a] = []
-			if i.parents.values() == []:
-				o = self.copy()
-				comp[a].append(i.get_id())
-				o.remove_node_by_id(i.get_id())
-				
-				o.tri_annexe(self, t)
-			t.append(comp[a])
-
-			# A FINIR
-
-		
+	def profondeur_node(self, id_node):
+		'''
+		id_node : L'id d'une node du graph
+		Retourne la profondeur de la node d'id 'id_graphe' ou -1 si id_node n'est pas dans le graphe.
+		'''
+		tt = self.tri_topologique()
+		for d in range(len(tt)):
+			if i in tt[d]:
+				return d
+		return -1
+	
+	def profondeur_graph(self):
+		tt = self.tri_topologique()
+		return len(tt)
 				
 class bool_circ(open_digraph):
 

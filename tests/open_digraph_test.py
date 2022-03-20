@@ -191,7 +191,37 @@ class InitTest(unittest.TestCase):
         # Quelques tests de ancetre commun
         self.assertEqual(o1.ancetre_commun(1, 1), {1:(0,0), 2:(1,1)})
         self.assertEqual(o1.ancetre_commun(2, 5), {1:(1,1), 2:(0,2)})
-        
+
+    def test_tri_topologique(self):
+        o = open_digraph.random(5, 6, form='undirected')
+        with self.assertRaises(Exception): # On vérifie ici que un graph acyclique lève bien une erreur
+            o.tri_topologique()
+        o2 = open_digraph.empty()
+        for i in range(5):
+            o2.add_node(i)
+        for i in range(4):
+            o2.add_edge(i+1, i+2)
+        self.assertEqual(o2.tri_topologique(), [[1], [2], [3], [4], [5]]) # Un petit test simple de tri_topologique
+
+        # Le même test que dans le sujet sujet:
+        o3 = open_digraph.empty()
+        for i in range(10):
+            o3.add_node()
+        o3.add_edge(1, 4)
+        o3.add_edge(2, 5)
+        o3.add_edge(2, 6)
+        o3.add_edge(2, 9)
+        o3.add_edge(3, 5)
+        o3.add_edge(4, 6)
+        o3.add_edge(4, 7)
+        o3.add_edge(4, 8)
+        o3.add_edge(5, 7)
+        o3.add_edge(6, 8)
+        o3.add_edge(7, 9)
+        o3.add_edge(7, 10)
+
+        self.assertEqual(o3.tri_topologique(), [[1,2,3], [4,5], [6,7], [8,9,10]])
+
     def test_matrix_digraph(self):
         n = 5
         bound = 25
