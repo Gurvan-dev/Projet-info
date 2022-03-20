@@ -329,12 +329,20 @@ class open_digraph:  # for open directed graph
 		key_inv = sorted(self.nodes.keys())
 		if n > 0: # Si on doit faire un shift positif, on va d'abord décaler les plus grands nombre puis les plus petits, afin de ne pas écraser de donnée.
 			kev_inv = key_inv.reverse()
+		
 		for key in key_inv:
 			self.nodes[key].shift_indice(n)
 			old_new.append((self.nodes[key], key+n))
 		for (o,n) in old_new:
 			self.nodes[n] = o
 			self.nodes.pop(o.get_id())
+			if o.get_id() in self.inputs:
+				self.inputs.remove(o.get_id())
+				self.inputs.append(n)
+			if o.get_id() in self.outputs:
+				self.outputs.remove(o.get_id())
+				self.inputs.append(n)
+
 			o.set_id(n)
 	   
 	def iparallel(self, g):
@@ -588,9 +596,10 @@ class open_digraph:  # for open directed graph
 		direction :
 			1 pour aller de parents vers enfant
 			-1 pour aller d'enfant a parent
-			None pour avoir les deux directions (TODO)
 		tgt : Si on recherche un chemin en particulier, une fois trouver, arrête la recherche de chemin.
 		'''
+		if src not in self.nodes.keys():
+			raise ValueError("L'entrée n'est pas dans le graphe.")
 		opened = [src]
 		dist = {src:0}
 		prev = {}
@@ -599,12 +608,16 @@ class open_digraph:  # for open directed graph
 			opened.remove(current)
 			if direction == -1:
 				neighbours = self.get_node_by_id(current).parents
-			else:
+			elif direction == 1:
 				neighbours = self.get_node_by_id(current).children
+			else:
+				neighbours = self.get_node_by_id(current).parents
+				for a in self.get_node_by_id(current).children.keys():
+					neighbours[a] = self.get_node_by_id(current).children[a]
 			for neigh in neighbours:
 				if neigh not in dist:
 					opened.append(neigh)
-				if neigh not in dist or dist[neigh.get_id()] < (dist[current] + 1):
+				if neigh not in dist or dist[neigh] > (dist[current] + 1):
 					dist[neigh] = dist[current] + 1
 					prev[neigh] = current
 					if  tgt == neigh:
@@ -618,14 +631,17 @@ class open_digraph:  # for open directed graph
 		tgt : L'id de la node d'arrivée
 		Renvoie le plus court chemin de src vers tgt.
 		'''
+		if src == tgt:
+			return []
 		dij = self.dijkstra(src, direction, tgt)[1] # On appelle dijkstra
-		if tgt not in dij: # Si l'arrivée n'est pas dans le tableau, il n'y a aucun chemin qui va de a vers b avec la direction demandée.
-			raise "Path not found."
+		if tgt not in dij: 							# Si l'arrivée n'est pas dans le tableau, il n'y a aucun chemin qui va de a vers b avec la direction demandée.
+			raise Exception("Path not found.")
 		path = []
-		cur = [dij][tgt]
-		while(cur != src): # On rebrousse chemin dans la liste des prev
+		cur = dij[tgt]
+		while(cur != src): 		# On rebrousse chemin dans la liste des prev
 			path.append(cur)
 			cur = dij[cur]
+		path = path[::-1]		# Comme on a rebroussé chemin, on doit inverser le chemin trouvé
 		return path
 
 	def ancetre_commun(self, a,b):

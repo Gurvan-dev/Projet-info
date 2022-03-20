@@ -38,7 +38,6 @@ class InitTest(unittest.TestCase):
         o2.add_node()
         self.assertEqual(o2.nodes[1], node(1, '', {}, {}))
 
-
         # Tests TD2
 
         # Exercice 1
@@ -130,38 +129,62 @@ class InitTest(unittest.TestCase):
         o5.add_edges([(4,5), (4,1), (5,1)])     # Ajout d'arêtes qui laissent le graphe bien formé 
         self.assertTrue(o5.is_well_formed())
 
-        o5.get_node_by_id(5).add_children_id(1)                                # Action plus ou moins illégale, on devrait moralement faire ici un add edge.
+        o5.get_node_by_id(5).add_children_id(1) # Action plus ou moins 'illégale', on devrait moralement faire ici un add edge.
         self.assertFalse(o5.is_well_formed())   # On vérifie ici que si la multiplicité ne correspond pas entre deux noeuds, le graph n'est pas bien formé.
         o5.get_node_by_id(5).remove_child_once(1)
         o5.get_node_by_id(5).add_parent_id(4)
         self.assertFalse(o5.is_well_formed())   # De même que ci dessus, on vérifie ici l'inverse, c'est a dire si la multiplicité d'un enfant ne correspond pas a celui de son parent.
         
-        o4 = o3.copy()
-        #print(f"\no3 = {o3.get_node(s()}\n")
-        #print(f"min o2 = {o2.min_id()}")
-        #print(f"max o2 = {o2.max_id()}")
-        for i in o3.get_nodes():
-            print(i)
-        o3.shift_indices(2)
-        #print(f"\no3 = {o3.get_nodes()}\n")
-        #print(f"o2.nodes = {o2.get_nodes()}")
-        self.assertEqual(sorted(list(o3.nodes.keys())), [3, 4, 5])
-        for i in o3.get_nodes_ids():
-            self.assertEqual(o3.get_node_by_id(i).get_children_ids().keys(), o3.get_node_by_id(i).get_children_ids().keys())
-        o3.shift_indices(-2)
-        self.assertEqual(sorted(list(o3.nodes.keys())), [1, 2, 3])
-        print('\n')
-        print(f"\no3 = {o3.get_nodes()}\n ")
-        #n0 = node(0, 'i', {}, {1: 1})
-        self.assertEqual(o3.dijkstra(2), ({2: 0, 1: 1}, {1: 2}))
-        self.assertEqual(o3.dijkstra(1), ({1: 0}, {}))
-        self.assertEqual(o3.dijkstra(3), ({3: 0, 1: 1}, {1: 3}))
 
-        #print(o3.dijkstra(3))
+    def test_shift_indice(self):
+        o1 = open_digraph().empty()
+        o2 = o1.copy()
+        o1.shift_indices(2)
+        self.assertEqual(o1, o2) # Edge case : Shift l'indice sur un graphe vide ne devrait pas avoir d'effet.
+
+        for _ in range(10):
+            o1.add_node()
+        for i in range(5):
+            o1.add_edge(i+1, i+2) # On va vérifier que le shift indice fonctionne aussi en testant avec des edges
+        
+        o1.add_input_node(2)
+        o1.add_input_node(3)
+
+        o2 = o1.copy()
+        
+        self.assertTrue(o1.is_well_formed()) # Ce assert ne vérifie pas si shiftIndice fonctionne mais vérifie que le test est cohérent
 
 
-        #o2.shift_indices(4)
-        #self.assertEqual(o2.get_nodes(), {9, 10, 11, 12, 13})
+        o2.shift_indices(2)
+        self.assertTrue(o1.is_well_formed()) # On vérifie ici que le shift indice a gardé la cohérence de o1
+        o2.shift_indices(-2)
+        self.assertTrue(o1.is_well_formed()) # On va vérifier que les deux shift se sont équilibrés, et que l'on n'a pas perdu de données entre temps.
+        self.assertEqual(o1, o2)
+
+    def test_djikstra(self):
+
+        o1 = open_digraph.empty()
+        for _ in range(5):
+            o1.add_node()
+
+        o1.add_edge(1, 2)
+        o1.add_edge(2, 4)
+        o1.add_edge(4, 3)
+        o1.add_edge(3, 4)
+        o1.add_edge(2, 1)
+        o1.add_edge(1, 5)
+
+        # o1.display() # On a utilisé ici un display pour réaliser le test
+        with self.assertRaises(ValueError):
+            o1.dijkstra(6)                                                                  # 6 n'étant pas dans le graphe, on attend évidamment une erreur.
+        self.assertEqual(o1.dijkstra(1), ({1:0, 2:1, 5:1, 4:2, 3:3}, {2:1, 5:1, 4:2, 3:4})) # Le test a été réalisé a la main avec un display.
+        self.assertEqual(o1.dijkstra(3, direction=1), ({3:0, 4:1}, {4:3}))                  # Test également réalisé a la main pour vérifier que direction=1 fonctionne.        
+        self.assertEqual(o1.dijkstra(3, direction=-1), ({3:0, 4:1, 2:2, 1:3, 5:4}, {4:3, 2:4, 1:2, 5:1}))                  # Test également réalisé a la main pour vérifier que direction=1 fonctionne.        
+        self.assertEqual(o1.dijkstra(1, tgt=2), ({1:0, 2:1}, {2:1}))    # Test de l'argument tgt pour vérifier que l'algorithme s'arrête bien quand il est trouvé
+
+        # En se basant sur les test ci dessus, on peut facilement élaborer des test pour shortest path
+        self.assertEqual(o1.shortest_path(1, 1), []) # Edge case évident : La node d'arrivée est égale a la node de départ
+        self.assertEqual(o1.shortest_path(1, 3), [2,4])
         
     def test_matrix_digraph(self):
         n = 5
@@ -207,16 +230,8 @@ class InitTest(unittest.TestCase):
         m = open_digraph.random(5, 5, 3, 3)
         m.save_as_dot_file()
         m2 = open_digraph.from_dot_file("Out.dot")
-        #print(m.get_nodes())
-        #print(m2.get_nodes())
-        #m.display()
 
         self.assertEqual(m, m2)
-
-
-    
-
-
 
 if __name__ == '__main__':  # the following code is called only when
     unittest.main()         # precisely this file is run
