@@ -532,7 +532,6 @@ class open_digraph:
 			if len(i.children) == 0:
 				o = self.copy()
 				o.remove_node_by_id(i.get_id())
-				o.display()
 				return o.is_cyclic()
 
 		self.display()
