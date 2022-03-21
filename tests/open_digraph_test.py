@@ -230,6 +230,9 @@ class InitTest(unittest.TestCase):
             o3.longest_path(11, 1)
 
         self.assertEqual(o3.longest_path(1, 8), ([4,6], 3))
+    def test_open_digraph_from_string(self):
+        g = bool_circ.from_string('((x0)&((x1)&(x2)))|((x1)&(~(x2)))')
+        g.display()
 
 
     def test_matrix_digraph(self):

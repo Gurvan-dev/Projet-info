@@ -664,7 +664,7 @@ class open_digraph:
 		self	: open_digraph acyclique
 		src		: int, id de node de départ
 		trg		: int, id de node d'arrivée
-		return	: ([int], int) le plus long chemin allant de src vers trg, ainsi que la longueur de ce chemin
+		return	: ([int], int), le plus long chemin allant de src vers trg, ainsi que la longueur de ce chemin
 		'''
 		tt = self.tri_topologique()
 		k = self.profondeur_node(src)	# Profondeur de la node d'arrivée.
@@ -697,6 +697,46 @@ class open_digraph:
 		raise Exception("Aucun chemin n'existe entre src et tgt.")
 		return ([], -1) # Aucun chemin n'a été trouvé.
 
+	def fusionne_node(self, a, b, new_label=''):
+		''' 
+		a			: int, l'id du premier noeud de la fusion
+		b			: int, l'id du second noeud de la fsion
+		new_label	: le label du noeud crée par la fusion
+		return		: int, l'id du noeud crée par la fusion
+		Fusionne les deux noeuds dont les ids sont donnés en paramètre
+		'''
+		an = self.get_node_by_id(a)
+		bn = self.get_node_by_id(b)
+		par = an.get_parents_ids()
+		chi = an.get_children_ids()
+		for (un, deux) in bn.get_parents_ids().items():
+			if un not in par:
+				par[un] = deux
+			else:
+				par[un] = par[un] + deux
+		
+		for (un, deux) in bn.get_children_ids().items():
+			if un not in par:
+				chi[un] = deux
+			else:
+				chi[un] = chi[un] + deux
+
+		if new_label == '':
+			new_label = an.get_label()
+
+		fusion = self.add_node(new_label, par, chi)
+		print(a)
+		print(b)
+		print(self)
+		print(an.get_parents_ids())
+		print(an.get_children_id())
+		self.remove_node_by_id(a)
+		self.remove_node_by_id(b)
+		
+		return fusion
+
+
+
 class bool_circ(open_digraph):
 
 	def __init__(self, g):
@@ -725,3 +765,40 @@ class bool_circ(open_digraph):
 				return False
 
 		return True
+
+	@classmethod
+	def from_string(cls, s):
+		''' 
+		s		: str, une formule propositionnelle de circuit booléen
+
+		return	:	bool_circ, Renvoie le circuit booléen formé par la formule propositionelle 's'
+		'''
+		cls = open_digraph.empty()
+		current_node = cls.add_node()
+		cls.add_output_node(current_node)
+		
+		s2 = ''
+		for c in s:
+			cn = cls.get_node_by_id(current_node)
+			if c == '(':
+				cn.set_label(cn.get_label() + s2)
+				current_node = cls.add_node('', '', [current_node])
+				s2 = ''
+			elif c == ')':
+				
+				cn.set_label(cn.get_label() + s2)
+				child = list(cls.get_node_by_id(current_node).get_children_ids().keys())
+				current_node = child[0]
+				
+				s2 = ''
+			else :
+				s2 += c
+		feuilles = []
+		for (id, n) in cls.nodes.items():
+			if len(n.get_parents_ids()) == 0:
+				feuilles.append(id)
+		for a in feuilles:
+			for b in feuilles:
+				if a != b and cls.get_node_by_id(a).get_label() == cls.get_node_by_id(b).get_label():
+					cls.fusionne_node(a,b) 
+		return cls
