@@ -191,7 +191,7 @@ class InitTest(unittest.TestCase):
         # Quelques tests de ancetre commun
         self.assertEqual(o1.ancetre_commun(1, 1), {1:(0,0), 2:(1,1)})
         self.assertEqual(o1.ancetre_commun(2, 5), {1:(1,1), 2:(0,2)})
-        print(type(o1.ancetre_commun(1, 1)))
+
 
     def test_tri_topologique(self):
         o = open_digraph.random(5, 6, form='undirected')
@@ -223,6 +223,15 @@ class InitTest(unittest.TestCase):
 
         self.assertEqual(o3.tri_topologique(), [[1,2,3], [4,5], [6,7], [8,9,10]])
 
+        self.assertEqual(o3.longest_path(1, 1), ([], 0))
+        with self.assertRaises(Exception): # On vérifie que l'exception quand l'entrée n'est pas dans le graphe fonctionne
+            o3.longest_path(-1, 1)
+        with self.assertRaises(Exception): # On vérifie que l'exception quand l'arrivée n'est pas dans le graphe fonctionne
+            o3.longest_path(11, 1)
+
+        self.assertEqual(o3.longest_path(1, 8), ([4,6], 3))
+
+
     def test_matrix_digraph(self):
         n = 5
         bound = 25
@@ -235,13 +244,11 @@ class InitTest(unittest.TestCase):
                 if m[i][j] > 0:
                     self.assertEqual(m[i][j], o2.get_node_by_id(i+1).children[j+1])
         
+        o2 = open_digraph.random(n, bound, form="free") # On vérifie ici simplement que la forme ne génère pas d'erreur
         
-        o2 = open_digraph.random(n, bound, form="free")
-        # TODO : Rien a tester réellement ici (a vérifier)
-
         o2 = open_digraph.random(n, bound, form="DAG")
-        # TODO : Trouver test ici
-
+        self.assertFalse(o2.is_cyclic())
+        
         o2 = open_digraph.random(n, bound, form="oriented")
         # On vérifie ici que o2 n'a aucune arrête qui va dans les deux sens 
         # i.e que si une node d'id a a un child d'id b, alors b n'a pas de child d'id a.

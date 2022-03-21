@@ -529,11 +529,13 @@ class open_digraph:
 			return False
 		
 		for i in self.get_nodes():
-			if i.children.values() == []:
+			if len(i.children) == 0:
 				o = self.copy()
 				o.remove_node_by_id(i.get_id())
+				o.display()
 				return o.is_cyclic()
-				
+
+		self.display()
 		return True
 
 	
@@ -647,7 +649,7 @@ class open_digraph:
 		'''
 		tt = self.tri_topologique()
 		for d in range(len(tt)):
-			if i in tt[d]:
+			if id_node in tt[d]:
 				return d
 		return -1
 	
@@ -657,7 +659,45 @@ class open_digraph:
 		'''
 		tt = self.tri_topologique()
 		return len(tt)
-				
+
+	def longest_path(self, src, trg):
+		''' 
+		self	: open_digraph acyclique
+		src		: int, id de node de départ
+		trg		: int, id de node d'arrivée
+		return	: ([int], int) le plus long chemin allant de src vers trg, ainsi que la longueur de ce chemin
+		'''
+		tt = self.tri_topologique()
+		k = self.profondeur_node(src)	# Profondeur de la node d'arrivée.
+										# Plus rapide de la recalculer directement que de passer par profondeur_node pour éviter a refaire le tri_topologique.
+		if src not in self.nodes.keys():
+			raise ValueError("Le départ n'est pas dans le graphe.")
+		if trg not in self.nodes.keys():
+			raise ValueError("L'arrivée n'est pas dans le graphe")
+
+		dist = {src:0}
+		prev = {}
+		while k < len(tt):	# On va regarder toutes les profondeurs du tri topologique une a une, jusqu'a arriver a la dernière (len(tt))
+			for w in tt[k]:
+				for par in self.get_node_by_id(w).parents:
+					if par in dist and ((w not in dist) or (w in dist and dist[w] < dist[par] + 1)): # Si aucun ancêtre de w est dans dist, src n'est pas ancêtre de w.
+						dist[w] = dist[par] + 1
+						prev[w] = par
+				if w == trg: 	# On a trouvé le chemin le plus grand
+					path = []	# De la même façon que pour shortest_path, on va venir rebrousser chemin
+					cur = trg
+					while cur != src:
+						cur = prev[cur]
+						path.append(cur)
+					if cur in path:
+						path.remove(cur)		# On considère que le chemin ne devrait pas contenir la src, donc on l'enlèvé ici.
+					path = path[::-1] 			# Comme on a rebroussé chemin, le chemin trouvé est a l'envers donc on doit l'inverser.
+					return (path, dist[trg]) 	# On a trouvé le résultat final dans cet étage
+			k = k + 1	# On va a l'étage d'après
+
+		raise Exception("Aucun chemin n'existe entre src et tgt.")
+		return ([], -1) # Aucun chemin n'a été trouvé.
+
 class bool_circ(open_digraph):
 
 	def __init__(self, g):
