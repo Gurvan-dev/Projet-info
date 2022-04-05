@@ -1,4 +1,5 @@
 from modules.open_digraph import *
+from modules.bool_circ import *
 import inspect
 
 #print(dir(node))
@@ -23,6 +24,13 @@ import inspect
 #print(m2.connected_components())
 
 
+s = '1100000001010111'
+a = bool_circ.from_table(s)
 
-a = bool_circ.from_table('1110001110101010')
-a.display()
+
+
+print(bool_circ.code_gray(1))
+print(bool_circ.code_gray(2))
+print(bool_circ.code_gray(3))
+
+print(bool_circ.K_map(s))

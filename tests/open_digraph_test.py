@@ -5,6 +5,7 @@ root = os.path.normpath(os.path.join(__file__, './../..'))
 sys.path.append(root)  # allows us to fetch files from the project root
 from modules.open_digraph import *
 from modules.matrice import *
+from modules.bool_circ import *
 
 
 class InitTest(unittest.TestCase):
