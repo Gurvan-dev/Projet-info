@@ -1,6 +1,7 @@
 from modules.matrice import *
 from modules.node import *
 from random import randint
+from math import log
 import os
 import re
 import sys
@@ -124,6 +125,7 @@ class open_digraph:
 		Throw une exception si la node sur laquelle on doit se greffer est elle même une input node, afin que le graphe reste bien formé.
 		'''
 		# Pour garder un graphe bien formé en toute circonstance, on vérifie que on n'ajoute pas un input devant un autre input.
+
 		if id in self.inputs:
 			raise Exception('Tentative d\'ajouter un input sur un input.')
 		if id_added <= 0:
@@ -734,8 +736,6 @@ class open_digraph:
 		
 		return fusion
 
-
-
 class bool_circ(open_digraph):
 
 	def __init__(self, g):
@@ -835,3 +835,43 @@ class bool_circ(open_digraph):
 			for b in bs:
 				cls.fusionne_node(a, b)
 		return bool_circ(cls)
+	
+	@classmethod
+	def from_table(cls, strinput):
+		"""
+		strinput		: str, '0000110', dernière colonne du tableau. La taille du string doit être une puissance de 2.
+		"""
+		nombre_input = log(len(strinput), 2) 
+		if nombre_input != int(nombre_input):
+			raise ValueError("L'entrée n'est pas valide.")
+		nombre_input = int(nombre_input)
+		cls = bool_circ.empty()
+		for i in range(nombre_input):
+			an = cls.add_node()
+			cls.add_input_id(an)
+		
+		f_list = []
+		for i in range(len(strinput)): 					# Chaque ligne du tableau
+			if(int(strinput[i]) != 0):
+				table_a_ajouter = bin(i)[2:] 			# Correspond a la ligne du tableau associé a l'output
+				etage = []
+				for a in range(nombre_input): 			# Pour chaque colonne du tableau (Sauf output)
+					if (a < len(table_a_ajouter) and table_a_ajouter[a] == 0) or a >= len(table_a_ajouter): # Si la table a la ligne i et colonne a est 0, alors on met la négation
+						e = cls.add_node('~')																# Note : 0 également si out of bounds donc on le vérifie
+						cls.add_edge(a, e)
+						etage.append(e)
+						
+				f = cls.add_node('&')
+				for e in etage:
+					cls.add_edge(e, f)
+				for inp in cls.get_input_ids():
+					if inp not in etage:
+						cls.add_edge(inp, f)
+				f_list.append(f)
+		
+		big_ou = cls.add_node('|') # Le ou final
+		out = cls.add_output_node(big_ou)
+		for f in f_list:
+			cls.add_edge(f, big_ou)
+		
+		return cls
