@@ -12,3 +12,9 @@ utilisé (dans la méthode, donc), ce qui évite de potentiellement l’oublier.
 - [.] Doc : c’est bien mais il manque quelques docstrings. Début de typage, c’est une bonne idée, il aurait fallu poursuivre.
 - [.] Tests : essayez de les séparer en plusieurs méthodes de tests.
 - [.] Utiliser mixins
+
+
+## Bool_Circ
+
+- [.] Finir random_bool
+- [.] Finir TP10
