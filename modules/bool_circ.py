@@ -1,7 +1,7 @@
 from modules.matrice import *
 from modules.node import *
 from modules.open_digraph import *
-from random import randint, random
+from random import randint, random, choice
 from math import log
 import os
 import re
@@ -192,11 +192,38 @@ class bool_circ(open_digraph):
 		return cls
 
 	@classmethod
-	 def random_bool(cls, n):
-		 mat = random_matrix(n, 1, triangular=True, null_diag=True)
-		 o = open_digraph.graph_from_adjacency_matrix(mat) # Generer un graphe dirige acyclique sans inputs ni outputs
+	def random_bool(cls, n):
+	
+		mat = random_matrix(n, 1, triangular=True, null_diag=True)
+		o = open_digraph.graph_from_adjacency_matrix(mat) # Generer un graphe dirige acyclique sans inputs ni outputs
 
-		 for i in o.get_nodes():
-			 o.add_input_node(randint(1, n))
+		for i in o.get_nodes():
+			if i.get_parents_ids() == {}:
+				o.add_input_node(i.get_id())
+
+			if i.get_children_ids() == {}:
+				o.add_output_node(i.get_id())
+
+		for i in o.get_nodes():
+			if i.indegree == 1 and i.outdegree == 1:
+				i.set_label('~')
+			elif i.indegree == 1 and i.outdegree > 1:
+				pass
+			elif i.indegree > 1 and i.outdegree == 1:
+				i.set_label(choice(['&', '|']))
+			else:
+				uop = 
+				uop.set_parent_ids(i.get_parents_ids)
+				
+				ucp = 
+				ucp.set_childen_ids(i.get_children_ids)
+
+				uop.add_children_id(ucp.get_id())
+				ucp.add_parent_id(uop.get_id())
+
+				# Quels id donner a la création de uop et ucp ?		
+				# Integrer uop et ucp dans le digraph o a la place de i
+			
+
 
 		 return o # A FINIR
