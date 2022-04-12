@@ -212,10 +212,10 @@ class bool_circ(open_digraph):
 			elif i.indegree > 1 and i.outdegree == 1:
 				i.set_label(choice(['&', '|']))
 			else:
-				uop = 
+				uop = # COMPLETER
 				uop.set_parent_ids(i.get_parents_ids)
 				
-				ucp = 
+				ucp = # COMPLETER
 				ucp.set_childen_ids(i.get_children_ids)
 
 				uop.add_children_id(ucp.get_id())
