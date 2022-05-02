@@ -193,37 +193,38 @@ class bool_circ(open_digraph):
 
 	@classmethod
 	def random_bool(cls, n):
-	
-		mat = random_matrix(n, 1, triangular=True, null_diag=True)
-		o = open_digraph.graph_from_adjacency_matrix(mat) # Generer un graphe dirige acyclique sans inputs ni outputs
+		# TODO : Implémenter nombre input et output voulu
+		cls = open_digraph.random(n, 1, form="DAG")
 
-		for i in o.get_nodes():
-			if i.get_parents_ids() == {}:
-				o.add_input_node(i.get_id())
+		for node in cls.get_nodes():
+			if node.indegree() == 0:
+				cls.add_input_node(node.get_id())
 
-			if i.get_children_ids() == {}:
-				o.add_output_node(i.get_id())
+			if node.outdegree() == 0:
+				cls.add_output_node(node.get_id())
 
-		for i in o.get_nodes():
-			if i.indegree == 1 and i.outdegree == 1:
-				i.set_label('~')
-			elif i.indegree == 1 and i.outdegree > 1:
+		for node in cls.get_nodes():
+			if node.get_id() in cls.get_input_ids() or node.get_id() in cls.get_output_ids():
+				continue
+			if node.indegree() == 1 and node.outdegree() == 1:
+				node.set_label('~')
+			elif node.indegree() == 1 and node.outdegree() > 1:
 				pass
-			elif i.indegree > 1 and i.outdegree == 1:
-				i.set_label(choice(['&', '|']))
+			elif node.indegree() > 1 and node.outdegree() == 1:
+				node.set_label(choice(['&', '|']))
 			else:
-				uop = # COMPLETER
-				uop.set_parent_ids(i.get_parents_ids)
-				
-				ucp = # COMPLETER
-				ucp.set_childen_ids(i.get_children_ids)
+				uop = cls.add_node()
+				ucp = cls.add_node()
 
-				uop.add_children_id(ucp.get_id())
-				ucp.add_parent_id(uop.get_id())
-
-				# Quels id donner a la création de uop et ucp ?		
-				# Integrer uop et ucp dans le digraph o a la place de i
-			
-
-
-		 return o # A FINIR
+				cls.add_edge(uop, ucp) 			# Il y ait une flêche de uop vers ucp
+				for p in node.get_parents_ids(): 	# uop est pointé par tout les parents de u		
+					cls.add_edge(p, uop)
+				for c in node.get_children_ids():
+					cls.add_edge(ucp, c)
+				cls.remove_node_by_id(node.get_id())
+				cls.get_node_by_id(uop).set_label(choice(['&', '|']))
+					
+		print(cls.inputs)
+		print(cls.outputs)
+		
+		return cls

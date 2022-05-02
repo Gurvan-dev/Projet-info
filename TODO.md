@@ -13,8 +13,9 @@ utilisé (dans la méthode, donc), ce qui évite de potentiellement l’oublier.
 - [.] Tests : essayez de les séparer en plusieurs méthodes de tests.
 - [.] Utiliser mixins
 
-
 ## Bool_Circ
 
 - [.] Finir random_bool
-- [.] Finir TP10
+- [.] Finir TD9: Vérifier K-Map puis question d'après
+- [.] TD10 en entier
+- [.] TD11 en entier

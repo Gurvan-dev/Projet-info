@@ -46,7 +46,3 @@ class InitTest(unittest.TestCase):
 
 if __name__ == '__main__':  # the following code is called only when
     unittest.main()         # precisely this file is run
-
-
-
-#symetrique et null_diag
