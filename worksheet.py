@@ -35,4 +35,4 @@ print(bool_circ.code_gray(3))
 
 print(bool_circ.K_map(s))
 
-bool_circ.random_bool(10).display()
+bool_circ.random_bool(10, inputs=11, outputs=24).display()

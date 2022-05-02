@@ -199,7 +199,11 @@ class bool_circ(open_digraph):
 		outputs	: int,	/ pour le nombre d'outputs
 		return	: bool_circ, un circuit booléen aléatoire avec les paramètres données
 		"""
-		# TODO : Implémenter nombre input et output voulu
+		if inputs < 1:
+			raise(ValueError("Le nombre d'éntrée ne peut pas être inférieur à 1"))
+		if outputs < 1:
+			raise(ValueError("Le nombre de sortie ne peut pas être inférieur à 1"))
+	
 		cls = open_digraph.random(n, 1, form="DAG")
 
 		for node in cls.get_nodes():
@@ -209,28 +213,76 @@ class bool_circ(open_digraph):
 			if node.outdegree() == 0:
 				cls.add_output_node(node.get_id())
 
+		# Ajouter input ou output si nécéssaire
+		diff_in = len(cls.get_input_ids()) - inputs
+		diff_out = len(cls.get_output_ids()) - outputs		
+		if diff_in > 0: # On a trop d'input
+			# On remove un input diff_in fois, et on remplace l'input par un noeud de copie depuis un autre input
+			# Comme le graphe est déjà aléatoire, en réalité on peut simplement retirer les diff_in premiers noeuds
+			for i in range(diff_in):
+				id = cls.inputs[0]
+				rand = randint(diff_in - i, len(cls.inputs)-1)
+				print(f"in : {rand} {len(cls.inputs)} {diff_out} {i}")
+				rand_id = cls.inputs[rand]
+				cls.inputs.remove(id)
+				cls.add_edge(rand_id, id)
+				
+		elif diff_in < 0: # Il nous manque des inputs!
+			diff_in = -diff_in
+			for i in range(diff_in):
+				rand = randint(0,len(cls.nodes) - 1)
+				rand_id = list(cls.nodes.keys())[rand]
+				while rand_id in cls.get_input_ids() or rand_id in cls.get_output_ids():
+					rand = randint(0,len(cls.nodes) - 1)
+					rand_id = list(cls.nodes.keys())[rand]
+				cls.add_input_node(rand_id)
+		if diff_out > 0: # On a trop d'output
+			# On remove un input diff_in fois, et on remplace l'input par un noeud de copie depuis un autre input
+			# Comme le graphe est déjà aléatoire, en réalité on peut simplement retirer les diff_in premiers noeuds
+			for i in range(diff_out):
+				id = cls.outputs[0]
+				rand = randint(diff_out - i, len(cls.outputs)-1)
+				print(f"out : {rand} {len(cls.outputs)} {diff_out} {i}")
+				rand_id = cls.outputs[rand]
+
+				cls.outputs.remove(id)
+				cls.outputs.remove(rand_id)
+
+				cls.add_edge(id, rand_id)
+				cls.add_output_node(rand_id)
+				
+				
+		elif diff_out < 0: # Il nous manque des outputs !
+			diff_out = -diff_out
+			for i in range(diff_out):
+				rand = randint(0,len(cls.nodes) - 1)
+				rand_id = list(cls.nodes.keys())[rand]
+				while rand_id in cls.get_input_ids() or rand_id in cls.get_output_ids():
+					rand = randint(0,len(cls.nodes) - 1)
+					rand_id = list(cls.nodes.keys())[rand]
+				cls.add_output_node(rand_id)
+			
+
 		for node in cls.get_nodes():
 			if node.get_id() in cls.get_input_ids() or node.get_id() in cls.get_output_ids():
 				continue
-			if node.indegree() == 1 and node.outdegree() == 1:
+			if node.indegree() == 1 and node.outdegree() == 1: # Opérateur unaire
 				node.set_label('~')
-			elif node.indegree() == 1 and node.outdegree() > 1:
+			elif node.indegree() == 1 and node.outdegree() > 1: # Noeud de copie
 				pass
-			elif node.indegree() > 1 and node.outdegree() == 1:
+			elif node.indegree() > 1 and node.outdegree() == 1: # Opérateur binaire
 				node.set_label(choice(['&', '|']))
 			else:
 				uop = cls.add_node()
 				ucp = cls.add_node()
 
-				cls.add_edge(uop, ucp) 			# Il y ait une flêche de uop vers ucp
+				cls.add_edge(uop, ucp) 				# Il y ait une flêche de uop vers ucp
 				for p in node.get_parents_ids(): 	# uop est pointé par tout les parents de u		
 					cls.add_edge(p, uop)
 				for c in node.get_children_ids():
 					cls.add_edge(ucp, c)
 				cls.remove_node_by_id(node.get_id())
 				cls.get_node_by_id(uop).set_label(choice(['&', '|']))
-					
-		print(cls.inputs)
-		print(cls.outputs)
-		
+
+
 		return cls
