@@ -23,7 +23,7 @@ class bool_circ(open_digraph):
 	def __repr__(self) -> str:
 		return f" BoolCirc({self})"
 
-	def is_well_formed(self):
+	def is_well_formed(self) -> bool:
 		if self.is_cyclic():
 			return False
 
@@ -108,7 +108,7 @@ class bool_circ(open_digraph):
 		return bool_circ(cls)
 	
 	@classmethod
-	def from_table(cls, strinput):
+	def from_table(cls, strinput : str):
 		"""
 		strinput		: str, '0000110', dernière colonne du tableau. La taille du string doit être une puissance de 2.
 		"""
@@ -148,7 +148,7 @@ class bool_circ(open_digraph):
 		return cls
 	
 	@classmethod
-	def code_gray(cls, n):
+	def code_gray(cls, n : int):
 		"""
 		n		: int, > 1, le nombre de bit du code_gray
 		return	: list(str), tout les nombre du code_gray codé sur n bit.
@@ -170,7 +170,7 @@ class bool_circ(open_digraph):
 		return cls
 	
 	@classmethod
-	def K_map(cls, strinput):
+	def K_map(cls, strinput : str):
 		nb_input = int(log(len(strinput), 2))
 		top = [i for i in range(0, int(nb_input /2))]
 		bot = [i for i in range(int(nb_input/2), nb_input)] # bot peut contenir un élément de + que top si c'est impaire
@@ -288,7 +288,7 @@ class bool_circ(open_digraph):
 		return cls
 
 	@classmethod
-	def adder(cls,taille):
+	def adder(cls,taille : int):
 		if(taille < 0):
 			raise ValueError("La taille de l'Adder ne peut être négative.")
 		elif(taille == 0):
@@ -364,7 +364,7 @@ class bool_circ(open_digraph):
 		return cls
 
 	@classmethod
-	def hald_adder(cls, taille):
+	def hald_adder(cls, taille : int):
 		cls = bool_circ.adder(taille)
 		added = cls.add_node("0")
 		retenue_id = cls.inputs[len(cls.inputs) -1]
@@ -372,3 +372,4 @@ class bool_circ(open_digraph):
 			for _ in range(mult):
 				cls.add_edge(added, child)
 		cls.inputs.remove(retenue_id)
+

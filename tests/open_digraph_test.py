@@ -154,11 +154,12 @@ class InitTest(unittest.TestCase):
         o2 = o1.copy()
         
         self.assertTrue(o1.is_well_formed()) # Ce assert ne vérifie pas si shiftIndice fonctionne mais vérifie que le test est cohérent
-
-
+        print(o2)
         o2.shift_indices(2)
         self.assertTrue(o1.is_well_formed()) # On vérifie ici que le shift indice a gardé la cohérence de o1
+        print(o2)
         o2.shift_indices(-2)
+        print(o2)
         self.assertTrue(o1.is_well_formed()) # On va vérifier que les deux shift se sont équilibrés, et que l'on n'a pas perdu de données entre temps.
         self.assertEqual(o1, o2)
 

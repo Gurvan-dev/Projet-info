@@ -15,7 +15,10 @@ utilisé (dans la méthode, donc), ce qui évite de potentiellement l’oublier.
 
 ## Bool_Circ
 
-- [.] Finir random_bool
 - [.] Finir TD9: Vérifier K-Map puis question d'après
-- [.] TD10 à partir de la question 2
+- [.] TD10 question 4 et 5
 - [.] TD11 en entier
+
+## Possibles bugs & Questions
+
+-[.] La fonctions fusionne node garde-t-elle les inputs outputs ? Comment les gère t-elles ?

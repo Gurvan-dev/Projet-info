@@ -61,10 +61,17 @@ class open_digraph:
 	def get_nodes_ids(self):
 		return list(self.nodes.keys())
 	
-	def get_node_by_id(self, i):
+	def get_node_by_id(self, i : int):
+		''' 
+		i	: int, un id du graphe
+		'''
 		return self.nodes[i]
 
 	def get_nodes_by_ids(self, t):
+		''' 
+		t		: int list, une liste d'id du graphe
+		return	: node list, la liste de node avec les ids correspondant a ceux présents dans t
+		'''
 		res = []
 		for i in t:
 			res.append(self.nodes[i])
@@ -76,16 +83,16 @@ class open_digraph:
 	def set_output_ids(self, ids):
 		self.outputs = ids
 
-	def add_input_id(self, id):
+	def add_input_id(self, id : int):
 		self.inputs.append(id)
 
-	def add_outputs_id(self, id):
+	def add_outputs_id(self, id : int):
 		self.outputs.append(id)
 
 	def new_id(self):
 		return self.c + 1
 
-	def add_edge(self, src, trg):
+	def add_edge(self, src : int, trg : int):
 		self.get_node_by_id(src).add_children_id(trg)
 		self.get_node_by_id(trg).add_parent_id(src)
 	
@@ -93,11 +100,13 @@ class open_digraph:
 		for (src, trg) in edgeList:
 			self.add_edge(src,trg)
 	
-	def add_node(self, label='', parents={}, children={}, id = 0):
+	def add_node(self, label='', parents={}, children={}, id = 0) -> int:
 		'''
-		label		: Le nom de la node
-		parents		: Les parents de la node
-		childrens 	: Les childrens de la node
+		label		: str, Le nom de la node
+		parents		: dic : int -> int, Les parents de la node avec leurs multiplicité
+		childrens 	: dic : int -> int, Les childrens de la node avec leurs multiplicité
+		id			: [Optional] int positif, l'id de la node a ajouter. Aucune vérification ne sera faite si l'id est déjà présent dans le graphe
+		return		: int, l'id de la node ajouté. égal a id si précisé.
 		Ici les paramètres possèdent des noms plutôt explicite quant a leurs fonctions.
 		Les parents ne seront pas directement ajouté a la node,
 		mais seront plutôt utilisé comme argument pour faire des add_edge.
@@ -118,7 +127,7 @@ class open_digraph:
 			self.add_edge(id, c)
 		return id
 
-	def add_input_node(self, id, id_added=0):
+	def add_input_node(self, id : int, id_added=0):
 		'''
 		id			: int, L'id sur laquelle greffer une nouvelle node qui sera une input node liée par une arrête a cette première.
 		id_added	: int, L'id de l'input qu'on va ajouter. Si aucune valeur n'est spécifiée ou si la valeur est >= 0, on va attribuer une valeur aléatoire.
@@ -135,7 +144,7 @@ class open_digraph:
 		self.add_edge(id_added, id)
 		self.inputs.append(id_added)
 
-	def add_output_node(self, id, id_added=0):
+	def add_output_node(self, id : int, id_added=0):
 		'''
 		id			: int, L'id sur laquelle greffer une nouvelle node qui sera une output node liée par une arrête a cette première.
 		id_added	: int, L'id de l'input qu'on va ajouter. Si aucune valeur n'est spécifiée ou si la valeur est >= 0, on va attribuer une valeur aléatoire.
@@ -151,19 +160,35 @@ class open_digraph:
 		self.add_edge(id, id_added)
 		self.outputs.append(id_added)
 
-	def remove_edge(self, src, trg):
+	def remove_edge(self, src : int, trg : int):
+		'''
+		src : int, la noeud de départ de l'arrête a retirer
+		trg : int, le noeud d'arrivée de l'arrêtre a retirer
+		Enlève une arrête de src vers trg.
+		'''
 		self.get_node_by_id(trg).remove_parent_once(src)
 		self.get_node_by_id(src).remove_child_once(trg)
 
-	def remove_parallel_edge(self, src, trg):
+	def remove_parallel_edge(self, src : int, trg : int):
+		''' 
+		src : int, la noeud de départ de l'arrête a retirer
+		trg : int, le noeud d'arrivée de l'arrêtre a retirer
+		Enlève toutes les arrêtes de src vers trg.
+		'''
 		self.get_node_by_id(trg).remove_parent_id(src)
 		self.get_node_by_id(src).remove_child_id(trg)
 
 	def remove_edges(self, listEdge):
+		''' 
+		listEdge	: int list, une liste d'edge (Couple (int,int)) a retirer.
+		'''
 		for (src, trg) in listEdge:
 			self.remove_edge(src, trg)
 
 	def remove_parallel_edges(self, listEdge):
+		''' 
+		listEdge	: int list, une liste d'edge (Couple (int,int)) a retirer. Retire toute la multiplicité de ces dernières
+		'''
 		for (src, trg) in listEdge:
 			self.remove_parallel_edge(src, trg)
 
@@ -181,6 +206,9 @@ class open_digraph:
 				self.get_node_by_id(c).remove_parent_id(n.get_id())
 
 	def remove_nodes_by_id(self, ids):
+		'''
+		ids : int list, une liste d'id de  node a retirer.
+		'''
 		for id in ids:
 			self.remove_node_by_id(id)
 
@@ -246,35 +274,38 @@ class open_digraph:
 		else:
 			return 0
 
-	def shift_indices (self,n):
+	def shift_indices (self,shift : int):
 		'''
-		n : int, Un entier quelconque. (n=0 n'aura aucun effet sur le graphe)
+		shift : int, Un entier quelconque. (n=0 n'aura aucun effet sur le graphe)
 		'Shift les indice' de toutes les nodes du graph, i.e déplace tout les ids des nodes de 'n'.
 		'''
 		old_new = []
 		key_inv = sorted(self.nodes.keys())
-		if n > 0: # Si on doit faire un shift positif, on va d'abord décaler les plus grands nombre puis les plus petits, afin de ne pas écraser de donnée.
+		if shift > 0: # Si on doit faire un shift positif, on va d'abord décaler les plus grands nombre puis les plus petits, afin de ne pas écraser de donnée.
 			key_inv.reverse()
 		for key in key_inv:
-			self.nodes[key].shift_indice(n)
-			old_new.append((self.nodes[key], key+n))
+			self.nodes[key].shift_indice(shift)
+			old_new.append((self.nodes[key], key+shift))
 		for (o,n) in old_new:
 			self.nodes[n] = o
 			self.nodes.pop(o.get_id())
-			
-		if n > 0:
-			old_new.reverse() # On doit ré ajouter les inputs et outputs dans le même ordre
-		for(o,n) in old_new:
-			if o.get_id() in self.inputs:
-				self.inputs.remove(o.get_id())
-				self.inputs.append(n)
-			if o.get_id() in self.outputs:
-				self.outputs.remove(o.get_id())
-				self.outputs.append(n)
 			o.set_id(n)
 
+		
+		new_input = []
+		diff = -1
+		if shift < 0:
+			diff = 1
+		for i in self.inputs:
+			new = i+shift+diff
+			new_input.append(new)
+		self.inputs = new_input
+		new_outputs = []
+		for i in self.outputs:
+			new = i+shift+diff
+			new_outputs.append(new)
+		self.outputs = new_outputs
 			
-	   
 	def iparallel(self, g):
 		'''
 		Modifie le graph pour y ajouter g en parallèle, i.e. les deux parties seront dans le même open digraph mais ne seront pas connexe.
@@ -374,9 +405,8 @@ class open_digraph:
 		return o
 
 	@classmethod
-	def random(cls, n, bound, inputs=0, outputs=0, form = "free"):
+	def random(cls, n : int, bound : int, inputs=0, outputs=0, form = "free"):
 		'''
-		Doc
 		n       : int, Nombre de noeuds dans le graphe
 		bound   : int,  Nombre maximal de multiplicité pour une arrête
 		inputs  : int, Nombre d'input a générer dans le graphe
@@ -476,7 +506,7 @@ class open_digraph:
 			f.writelines(("}"))
 
 	@classmethod
-	def from_dot_file(cls, path):
+	def from_dot_file(cls, path : str):
 		''' 
 		path	: str, doit mener vers un fichier .dot
 		return	: open_digraph, construit depuis le fichier .dot se trouvant a 'path'.
@@ -535,7 +565,7 @@ class open_digraph:
 			
 			os.system("firefox -url 'https://dreampuf.github.io/GraphvizOnline#" + t + "'")
 
-	def is_cyclic(self):
+	def is_cyclic(self) -> bool:
 		'''
 		return	: boolean, vrai si le graphe est cyclique, faux sinon
 		'''
@@ -552,15 +582,15 @@ class open_digraph:
 		return True
 
 	
-	def dijkstra(self, src, direction = None, tgt = None):
+	def dijkstra(self, src : int, direction = None, tgt = None):
 		'''
-		Doc
 		src : int, L'id de la node de départ
 		direction : int,
 			1		: Relation de parents vers enfant uniquement
 			-1 		: Relation d'enfant a parent uniquement
 			None	: Qu'importe le sens de la relation
 		tgt : Si on recherche un chemin en particulier, une fois trouver, arrête la recherche de chemin.
+		return : (dic int->int, dic int -> int) La distance depuis le noeud source jusqu'a chaque autre noeud, ainsi que le 'chemins' pour aller jusqu'a cet autre noeud. 
 		Throw une ValueError si la source n'est pas dans le graphe
 		'''
 		if src not in self.nodes.keys():
@@ -590,7 +620,7 @@ class open_digraph:
 						return (dist, prev)	
 		return (dist, prev)
 
-	def shortest_path(self, src, tgt, direction = None):
+	def shortest_path(self, src : int, tgt : int, direction = None):
 		'''
 		Doc
 		src 	: L'id du node de départ
@@ -612,9 +642,8 @@ class open_digraph:
 		path = path[::-1]		# Comme on a rebroussé chemin, on doit inverser le chemin trouvé
 		return path
 
-	def ancetre_commun(self, a,b):
+	def ancetre_commun(self, a : int,b : int):
 		'''
-		Doc
 		a 		: int, Une id de node
 		b 		: int, Une id de node
 		return 	: dict (int, int), Un dictionnaire qui associe a chaque ancêtre commun des deux noeuds sa
@@ -655,7 +684,7 @@ class open_digraph:
 		
 		return tri_annexe(graph, 0)
 
-	def profondeur_node(self, id_node):
+	def profondeur_node(self, id_node : int) -> int:
 		'''
 		id_node : int, l'id d'une node du graph
 		return	: int, la profondeur de la node d'id 'id_graphe' ou -1 si id_node n'est pas dans le graphe.
@@ -666,14 +695,14 @@ class open_digraph:
 				return d
 		return -1
 	
-	def profondeur_graph(self):
+	def profondeur_graph(self) -> int:
 		'''
 		return	: int, la profondeur du graphe, i.e. la profondeur maximale atteint par une node du graph
 		'''
 		tt = self.tri_topologique()
 		return len(tt)
 
-	def longest_path(self, src, trg):
+	def longest_path(self, src : int, trg : int):
 		''' 
 		self	: open_digraph acyclique
 		src		: int, id de node de départ
@@ -711,7 +740,7 @@ class open_digraph:
 		raise Exception("Aucun chemin n'existe entre src et tgt.")
 		return ([], -1) # Aucun chemin n'a été trouvé.
 
-	def fusionne_node(self, a, b, new_label=''):
+	def fusionne_node(self, a : int, b : int, new_label=''):
 		''' 
 		a			: int, l'id du premier noeud de la fusion
 		b			: int, l'id du second noeud de la fsion

@@ -42,16 +42,16 @@ class node:
 	def get_children_ids(self):
 		return self.children
 
-	def get_children_mult(self, id):
+	def get_children_mult(self, id : int) -> int:
 		'''
 		Retourne la multiplicité de id
 		'''
 		return self.children[id]
 
-	def get_parent_mult(self, id):
+	def get_parent_mult(self, id : int) -> int:
 		return self.parents[id]
 
-	def set_id(self, new_id):
+	def set_id(self, new_id : int):
 		self.id = new_id
 
 	def set_parent_ids(self, new_parent):
@@ -60,49 +60,49 @@ class node:
 	def set_childen_ids(self, new_ids):
 		self.children = new_ids
 	
-	def set_label(self, new_label):
+	def set_label(self, new_label : str):
 		self.label = new_label
 
-	def add_parent_id(self, parent_id, mult = 1):
+	def add_parent_id(self, parent_id : int, mult = 1):
 		if self.parents.get(parent_id) == None:
 			self.parents[parent_id] = mult
 		else:
 			self.parents[parent_id] += mult
 
-	def add_children_id(self, child_id, mult = 1):
+	def add_children_id(self, child_id : int, mult = 1):
 		if self.children.get(child_id) == None:
 			self.children[child_id] = mult
 		else:
 			self.children[child_id] += mult
 
-	def remove_parent_once(self, id):
+	def remove_parent_once(self, id : int):
 		if id in self.parents:
 			self.parents[id] -= 1
 			if self.parents[id] == 0:
 				self.parents.pop(id)
 
-	def remove_child_once(self, id):
+	def remove_child_once(self, id : int):
 		if id in self.children:
 			self.children[id] -= 1
 			if self.children[id] == 0:
 				self.children.pop(id)
 
-	def remove_parent_id(self, id):
+	def remove_parent_id(self, id : int):
 		self.parents.pop(id)
 
-	def remove_child_id(self, id):
+	def remove_child_id(self, id : int):
 		self.children.pop(id)
 	
-	def indegree(self):
+	def indegree(self) -> int:
 		return sum(self.parents.values())
 		
-	def outdegree(self):
+	def outdegree(self) -> int:
 		return sum(self.children.values())
 	
-	def degree(self):
+	def degree(self) -> int:
 		return self.indegree + self.outdegree
 	
-	def shift_indice(self, shiftInd):
+	def shift_indice(self, shiftInd : int):
 		pc = {}
 		cc = {}
 		for id in self.parents.keys():
