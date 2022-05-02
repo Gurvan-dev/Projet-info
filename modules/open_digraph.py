@@ -254,22 +254,26 @@ class open_digraph:
 		old_new = []
 		key_inv = sorted(self.nodes.keys())
 		if n > 0: # Si on doit faire un shift positif, on va d'abord décaler les plus grands nombre puis les plus petits, afin de ne pas écraser de donnée.
-			kev_inv = key_inv.reverse()
-		
+			key_inv.reverse()
 		for key in key_inv:
 			self.nodes[key].shift_indice(n)
 			old_new.append((self.nodes[key], key+n))
 		for (o,n) in old_new:
 			self.nodes[n] = o
 			self.nodes.pop(o.get_id())
+			
+		if n > 0:
+			old_new.reverse() # On doit ré ajouter les inputs et outputs dans le même ordre
+		for(o,n) in old_new:
 			if o.get_id() in self.inputs:
 				self.inputs.remove(o.get_id())
 				self.inputs.append(n)
 			if o.get_id() in self.outputs:
 				self.outputs.remove(o.get_id())
 				self.outputs.append(n)
-
 			o.set_id(n)
+
+			
 	   
 	def iparallel(self, g):
 		'''
@@ -305,7 +309,6 @@ class open_digraph:
 		self.iparallel(g) # On va simplement les ajouter en parallel, puis relier les inputs et outputs qui doivent être relié.
 		self.display()
 		for new_in in g.outputs:
-			print(new_in)
 			self.outputs.remove(new_in)
 			rem = self.inputs.pop(0)
 			self.add_edge(new_in, rem)

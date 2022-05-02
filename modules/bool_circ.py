@@ -287,61 +287,88 @@ class bool_circ(open_digraph):
 
 		return cls
 
-		@classmethod
-		def Adder(cls,taille) -> bool_circ:
-			if(taille < 0):
-				raise ValueError("La taille de l'Adder ne peut être négative.")
-			elif(taille == 0):
-				cls = bool_circ.empty()
+	@classmethod
+	def adder(cls,taille):
+		if(taille < 0):
+			raise ValueError("La taille de l'Adder ne peut être négative.")
+		elif(taille == 0):
+			cls = bool_circ.empty()
 
-				one = cls.add_node()
-				two = cls.add_node()
-				three = cls.add_node()
+			one = cls.add_node()
+			two = cls.add_node()
+			three = cls.add_node()
 
-				cls.add_input_node(one)
-				cls.add_input_node(two)
-				cls.add_input_node(three)
+			cls.add_input_node(one)
+			cls.add_input_node(two)
+			cls.add_input_node(three)
 
-				a = cls.add_node("&")
+			a = cls.add_node("&")
 
-				cls.add_edge(one, a)
-				cls.add_edge(two, a)
+			cls.add_edge(one, a)
+			cls.add_edge(two, a)
 
-				b = cls.add_node("^")
-				cls.add_edge(one, b)
-				cls.add_edge(two, b)
+			b = cls.add_node("^")
+			cls.add_edge(one, b)
+			cls.add_edge(two, b)
 
-				four = cls.add_node()
-				
-				c = cls.add_node("&")
-				cls.add_edge(four, c)
-				cls.add_edge(three, c)
-				
-				d = cls.add_node("^")
-				cls.add_edge(three, d)
-				cls.add_edge(four, d)
-				
-				e = cls.add_node("|")
-				cls.add_edge(a,e)
-				cls.add_edge(c,e)
+			four = cls.add_node()
+			cls.add_edge(b,four)
+			
+			c = cls.add_node("&")
+			cls.add_edge(four, c)
+			cls.add_edge(three, c)
+			
+			d = cls.add_node("^")
+			cls.add_edge(three, d)
+			cls.add_edge(four, d)
+			
+			e = cls.add_node("|")
+			cls.add_edge(a,e)
+			cls.add_edge(c,e)
 
-				cls.add_output_node(e)
+			cls.add_output_node(d)
+			cls.add_output_node(e)
+			
 
-			else:
-				
-				cls = Adder(taille-1)
-				# Utiliser open_digraph.connected_components !
-				for _ in range((len(cls.inputs)/2)+1):
-					cls.remov
-					...
-			return cls
+		else:
+			
+			cls = bool_circ.adder(taille-1)
+			A2 = bool_circ.adder(taille-1)
+			cls.iparallel(A2)
+			retenueA1_in = A2.outputs.pop(0)
+			retenueA1 = cls.inputs[len(cls.inputs) - len(A2.inputs) -1]
+			cls.add_edge(retenueA1_in, retenueA1)
+			cls.outputs.remove(retenueA1_in)
+			cls.inputs.remove(retenueA1)
+			taille_moit = (int)((len(A2.inputs)-1)/2)
+			# On connecte la seconde moitié des première input a A2 (Premiere partie)
+			
+			for i in range(taille_moit):
+				inp = cls.inputs[taille_moit + i]
+				inp_node = cls.get_node_by_id(inp)
+				arr = A2.inputs[i]
+				arr_node = cls.get_node_by_id(arr)
+				new_inp_child = arr_node.children.copy()
+				new_arr_child = inp_node.children.copy()
+				while len(inp_node.get_children_ids()) > 0:	# On enlève tout les vieux enfants de inp pour les passer sur arr et TODO : inversement
+					ayo = list(inp_node.children)[0]
+					cls.remove_parallel_edge(inp, ayo)
+				while len(arr_node.get_children_ids()) > 0:	# On enlève tout les vieux enfants de inp pour les passer sur arr et TODO : inversement
+					ayo = list(arr_node.children)[0]
+					cls.remove_parallel_edge(arr, ayo)
+				for c in new_inp_child:
+					cls.add_edge(inp, c)
+				for c in new_arr_child:
+					cls.add_edge(arr, c)
+				print(f"{inp} {arr}")
+		return cls
 
-		@classmethod
-		def Half_Adder(cls, taille):
-			cls = Adder(taille)
-			added = cls.add_node("0")
-			retenue_id = cls.inputs[len(cls.inputs) -1]
-			for (child, mult) in cls.get_node_by_id(retenue_id).child:
-				for _ in range(mult):
-					cls.add_edge(added, child)
-			cls.inputs.remove(retenue_id)
+	@classmethod
+	def hald_adder(cls, taille):
+		cls = bool_circ.adder(taille)
+		added = cls.add_node("0")
+		retenue_id = cls.inputs[len(cls.inputs) -1]
+		for (child, mult) in cls.get_node_by_id(retenue_id).child:
+			for _ in range(mult):
+				cls.add_edge(added, child)
+		cls.inputs.remove(retenue_id)
