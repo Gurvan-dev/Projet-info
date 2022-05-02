@@ -17,5 +17,5 @@ utilisé (dans la méthode, donc), ce qui évite de potentiellement l’oublier.
 
 - [.] Finir random_bool
 - [.] Finir TD9: Vérifier K-Map puis question d'après
-- [.] TD10 en entier
+- [.] TD10 à partir de la question 2
 - [.] TD11 en entier

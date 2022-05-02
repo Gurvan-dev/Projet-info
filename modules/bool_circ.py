@@ -192,7 +192,13 @@ class bool_circ(open_digraph):
 		return cls
 
 	@classmethod
-	def random_bool(cls, n):
+	def random_bool(cls, n, inputs=1, outputs=1):
+		""" 
+		n		: int, le nombre de noeud dans le circuit booléen a produire
+		inputs	: int, le nombre d'inputs présent dans le circuit booléen retourné
+		outputs	: int,	/ pour le nombre d'outputs
+		return	: bool_circ, un circuit booléen aléatoire avec les paramètres données
+		"""
 		# TODO : Implémenter nombre input et output voulu
 		cls = open_digraph.random(n, 1, form="DAG")
 
