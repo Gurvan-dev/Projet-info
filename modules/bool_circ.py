@@ -286,3 +286,62 @@ class bool_circ(open_digraph):
 
 
 		return cls
+
+		@classmethod
+		def Adder(cls,taille) -> bool_circ:
+			if(taille < 0):
+				raise ValueError("La taille de l'Adder ne peut être négative.")
+			elif(taille == 0):
+				cls = bool_circ.empty()
+
+				one = cls.add_node()
+				two = cls.add_node()
+				three = cls.add_node()
+
+				cls.add_input_node(one)
+				cls.add_input_node(two)
+				cls.add_input_node(three)
+
+				a = cls.add_node("&")
+
+				cls.add_edge(one, a)
+				cls.add_edge(two, a)
+
+				b = cls.add_node("^")
+				cls.add_edge(one, b)
+				cls.add_edge(two, b)
+
+				four = cls.add_node()
+				
+				c = cls.add_node("&")
+				cls.add_edge(four, c)
+				cls.add_edge(three, c)
+				
+				d = cls.add_node("^")
+				cls.add_edge(three, d)
+				cls.add_edge(four, d)
+				
+				e = cls.add_node("|")
+				cls.add_edge(a,e)
+				cls.add_edge(c,e)
+
+				cls.add_output_node(e)
+
+			else:
+				
+				cls = Adder(taille-1)
+				# Utiliser open_digraph.connected_components !
+				for _ in range((len(cls.inputs)/2)+1):
+					cls.remov
+					...
+			return cls
+
+		@classmethod
+		def Half_Adder(cls, taille):
+			cls = Adder(taille)
+			added = cls.add_node("0")
+			retenue_id = cls.inputs[len(cls.inputs) -1]
+			for (child, mult) in cls.get_node_by_id(retenue_id).child:
+				for _ in range(mult):
+					cls.add_edge(added, child)
+			cls.inputs.remove(retenue_id)

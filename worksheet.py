@@ -28,7 +28,6 @@ s = '1100000001010111'
 a = bool_circ.from_table(s)
 
 
-
 print(bool_circ.code_gray(1))
 print(bool_circ.code_gray(2))
 print(bool_circ.code_gray(3))

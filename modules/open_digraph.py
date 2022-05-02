@@ -267,7 +267,7 @@ class open_digraph:
 				self.inputs.append(n)
 			if o.get_id() in self.outputs:
 				self.outputs.remove(o.get_id())
-				self.inputs.append(n)
+				self.outputs.append(n)
 
 			o.set_id(n)
 	   
@@ -281,8 +281,13 @@ class open_digraph:
 		self.shift_indices(id_max)
 		for n in g.get_nodes():
 			n = n.copy()
-			self.nodes[n.get_id()] = n.copy()
-
+			n_id = n.get_id()
+			self.nodes[n_id] = n.copy()
+			if n_id in g.inputs:
+				self.inputs.append(n_id)
+			if n_id in g.outputs:
+				self.outputs.append(n_id)
+			
 	@classmethod
 	def parallel(cls, a,b_list):
 		cls = a.copy()
@@ -298,11 +303,12 @@ class open_digraph:
 		if len(self.inputs) != len(g.outputs):
 			raise ValueError(f"Erreur: Tentative de composition entre deux graphe qui n'ont pas la même taille (inp : {len(self.inputs)} oup : {len(g.outputs)}")
 		self.iparallel(g) # On va simplement les ajouter en parallel, puis relier les inputs et outputs qui doivent être relié.
-		for inp in self.inputs:
-			oup = g.inputs.pop(0)
-			self.outputs.pop(oup)
-			self.inputs.pop(inp)
-			self.add_edge(oup, inp)
+		self.display()
+		for new_in in g.outputs:
+			print(new_in)
+			self.outputs.remove(new_in)
+			rem = self.inputs.pop(0)
+			self.add_edge(new_in, rem)
 
 	@classmethod
 	def compose(cls, a,b_list):
