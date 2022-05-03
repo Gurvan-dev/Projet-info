@@ -365,16 +365,7 @@ class bool_circ(open_digraph):
 			for i in part2[taille_moit2:]:
 				new_inp.append(i)
 
-			print(f"inp {part1} {part2} {new_inp}")
 			cls.set_input_ids(new_inp)
-			return cls
-			for i in range(taille_moit):
-				new_inp.append(cls.inputs[2*i])
-			for i in range(taille_moit):
-				new_inp.append(cls.inputs[(2*i)+1])
-			new_inp.append(cls.inputs[-1]) # On garde la retenue dans les inputs
-			cls.set_input_ids(new_inp)
-			
 		
 		return cls
 
