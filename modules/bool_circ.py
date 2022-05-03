@@ -30,16 +30,24 @@ class bool_circ(open_digraph):
 		for node in self.nodes.values():
 			if node.get_id() not in self.inputs and node.get_id() not in self.outputs:
 				lab = node.get_label()
-				if not (lab == '&' or lab == '|' or lab == '~' or lab == '0' or lab == '1' or lab == '^'): 	# Vérification que le label est valide
+				if not (lab == '' or lab == ' ' or lab == '&' or lab == '|' or lab == '~' or lab == '0' or lab == '1' or lab == '^'): 	# Vérification que le label est valide
 					return False
-				if lab == ' ' and (node.indegree() != 1 ): 													# Les portes de copies doivent avoir une seule entrée
+				if (lab == ' ' or lab == '') and (node.indegree() != 1 ): 													# Les portes de copies doivent avoir une seule entrée
 					return False
-				if (lab == '&' or lab=='|') and (node.outdegree() != 1): 									# Les portes 'Et' et 'Ou' doivent avoir éxactement une sortie.
+				if (lab == '&' or lab=='|' or lab == '^') and (node.outdegree() != 1): 									# Les portes 'Et' et 'Ou' doivent avoir éxactement une sortie.
 					return False      
 				if (lab == '~') and (node.outdegree() != 1 or node.indegree() != 1): 						# Les portes 'Non' doivent avoir une entrée et une sortie.
 					return False
 
 		return True
+
+	@classmethod
+	def empty(cls):
+		'''
+		Return an empty bool digraph.
+		'''
+		return bool_circ(open_digraph.empty())
+
 
 	@classmethod
 	def from_string(cls, *args):
@@ -48,10 +56,10 @@ class bool_circ(open_digraph):
 
 		return		:	bool_circ, Renvoie le circuit booléen formé par la formule propositionelle 's'
 		'''
-		cls = open_digraph.empty()
+		cls = bool_circ.empty()
 		for s in args:	# Pour chacun des arguments, on va crée un nouveau graph puis le fusionner en parallèle de g
 			
-			g = open_digraph.empty()
+			g = bool_circ.empty()
 			current_node = g.add_node()
 			g.add_output_node(current_node)
 			
@@ -222,7 +230,6 @@ class bool_circ(open_digraph):
 			for i in range(diff_in):
 				id = cls.inputs[0]
 				rand = randint(diff_in - i, len(cls.inputs)-1)
-				print(f"in : {rand} {len(cls.inputs)} {diff_out} {i}")
 				rand_id = cls.inputs[rand]
 				cls.inputs.remove(id)
 				cls.add_edge(rand_id, id)
@@ -242,7 +249,6 @@ class bool_circ(open_digraph):
 			for i in range(diff_out):
 				id = cls.outputs[0]
 				rand = randint(diff_out - i, len(cls.outputs)-1)
-				print(f"out : {rand} {len(cls.outputs)} {diff_out} {i}")
 				rand_id = cls.outputs[rand]
 
 				cls.outputs.remove(id)
@@ -271,7 +277,7 @@ class bool_circ(open_digraph):
 			elif node.indegree() == 1 and node.outdegree() > 1: # Noeud de copie
 				pass
 			elif node.indegree() > 1 and node.outdegree() == 1: # Opérateur binaire
-				node.set_label(choice(['&', '|']))
+				node.set_label(choice(['&', '|', '^']))
 			else:
 				uop = cls.add_node()
 				ucp = cls.add_node()
@@ -360,16 +366,176 @@ class bool_circ(open_digraph):
 					cls.add_edge(inp, c)
 				for c in new_arr_child:
 					cls.add_edge(arr, c)
-				print(f"{inp} {arr}")
 		return cls
 
 	@classmethod
-	def hald_adder(cls, taille : int):
+	def half_adder(cls, taille : int):
 		cls = bool_circ.adder(taille)
 		added = cls.add_node("0")
 		retenue_id = cls.inputs[len(cls.inputs) -1]
-		for (child, mult) in cls.get_node_by_id(retenue_id).child:
-			for _ in range(mult):
+		retenue_node =cls.get_node_by_id(retenue_id)
+		for child in retenue_node.children:
+			for _ in range(retenue_node.get_children_mult(child)):
 				cls.add_edge(added, child)
 		cls.inputs.remove(retenue_id)
+		return cls
+
+	@classmethod
+	def registre(cls, entier : int, taille:int):
+		'''
+		return : bool_circ, représente l'entier en binaires
+		'''
+		cls = bool_circ.empty()
+		bin_str = bin(entier)[2:]
+		diff = taille - len(bin_str)
+		if diff > 0:
+			for _ in range(diff):
+				added = cls.add_node(label='0')
+				cls.add_output_node(added)
+		if diff < 0:
+			bin_str = bin_str[abs(diff):]
+		for lab in bin_str:
+			added = cls.add_node(label=lab)
+			cls.add_output_node(added)
+		return cls
+
+	def transformation_non(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une note 1 ou 0
+		enf		: int, l'id d'une node enfant de par avec label '~'
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		if enf_node.get_label() != '~' or (par_node.get_label() != '0' and par_node.get_label() != '1') or (par not in enf_node.get_parents_ids()):
+			return False
+		lab = par_node.get_label()
+		new = self.fusionne_node(par, enf)
+		if lab == '0':
+			lab = '1'
+		else:
+			lab = '0'
+		# Pas besoin de retirer les parents ici car il ne devrait pas y en avoir
+		new_node = self.get_node_by_id(new)
+		new_node.set_label(lab)
+		return True
+
+	def transformation_copie(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une note 1 ou 0
+		enf		: int, l'id d'une node enfant de par avec label '~'
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		
+		if enf_node.get_label() != '' or (par_node.get_label() != '0' and par_node.get_label() != '1') or (par not in enf_node.get_parents_ids()):
+			return False
+		
+		lab = par_node.get_label()
+		for child_of_enf in enf_node.get_children_ids():
+			new = self.add_node(lab)
+			self.add_edge(new, child_of_enf)
+		self.remove_node_by_id(par)
+		self.remove_node_by_id(enf)
+		
+		return True
+
+	def transformation_et(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une note 1 ou 0
+		enf		: int, l'id d'une node enfant de par avec label '~'
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		if enf_node.get_label() != '&' or (par_node.get_label() != '0' and par_node.get_label() != '1') or (par not in enf_node.get_parents_ids()):
+			return False
+		lab = par_node.get_label()
+		new = self.fusionne_node(par, enf)
+		if lab == '0': # Si c'est un 0, alors la porte vaut forcément zéro
+			lab = '0'
+			self.remove_all_parents(new)
+		else: # Si c'est un 1, ça dépend de la deuxième entrée
+			lab = ''
+		new_node = self.get_node_by_id(new)
+		new_node.set_label(lab)
+		return True
+
+	def transformation_ou_exclusif(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une note 1 ou 0
+		enf		: int, l'id d'une node enfant de par avec label '~'
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		if enf_node.get_label() != '^' or (par_node.get_label() != '0' and par_node.get_label() != '1') or (par not in enf_node.get_parents_ids()):
+			return False
+		lab = par_node.get_label()
+		new = self.fusionne_node(par, enf)
+		if lab == '0':
+			lab = ''
+		else:
+			lab = '~'
+		
+		new_node = self.get_node_by_id(new)
+		new_node.set_label(lab)
+		return True
+
+
+	def transformation_ou(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une note 1 ou 0
+		enf		: int, l'id d'une node enfant de par avec label '~'
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		if enf_node.get_label() != '|' or (par_node.get_label() != '0' and par_node.get_label() != '1') or (par not in enf_node.get_parents_ids()):
+			return False
+		lab = par_node.get_label()
+		new = self.fusionne_node(par, enf)
+		if lab == '0':
+			lab = ''
+		else:
+			lab = '1'
+			self.remove_all_parents(new)
+		
+		new_node = self.get_node_by_id(new)
+		new_node.set_label(lab)
+		return True
+
+	# TEMP
+	def cofeuille(self):
+		cof = []
+		for i in self.nodes:
+			i_node = self.get_node_by_id(i)
+			if i_node.indegree() == 0:
+				cof.append(i)
+		return cof
+
+	def evaluate(self):
+		# On va temporairement faire une méthode peut optimiser qui consiste a bruteforce absolument tout
+		modif = True
+		while modif:
+			modif = False
+			for n_id in self.cofeuille():
+				if not modif:
+					n_node = self.get_node_by_id(n_id)
+					
+					if n_node.indegree() == 0 and n_node.outdegree() > 0: # On tiens une co-feuille ! Normallement c'en est forcément une lol
+						n_child = list(n_node.get_children_ids())[0]	
+						if n_child not in self.outputs:	
+							if self.transformation_copie(n_id, n_child):
+								modif = True
+							elif self.transformation_et(n_id, n_child):
+								modif = True
+							elif self.transformation_non(n_id, n_child):
+								modif = True
+							elif self.transformation_ou(n_id, n_child):
+								modif = True
+							elif self.transformation_ou_exclusif(n_id, n_child):
+								modif = True
+			
 

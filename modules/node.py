@@ -88,10 +88,12 @@ class node:
 				self.children.pop(id)
 
 	def remove_parent_id(self, id : int):
-		self.parents.pop(id)
+		if id in self.parents:
+			self.parents.pop(id)
 
 	def remove_child_id(self, id : int):
-		self.children.pop(id)
+		if id in self.children:
+			self.children.pop(id)
 	
 	def indegree(self) -> int:
 		return sum(self.parents.values())

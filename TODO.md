@@ -18,7 +18,11 @@ utilisé (dans la méthode, donc), ce qui évite de potentiellement l’oublier.
 - [.] Finir TD9: Vérifier K-Map puis question d'après
 - [.] TD10 question 4 et 5
 - [.] TD11 en entier
+- [.] On doit penser a supprimer les parents si on fusionne une node et on la transforme en truc primitif
 
 ## Possibles bugs & Questions
 
--[.] La fonctions fusionne node garde-t-elle les inputs outputs ? Comment les gère t-elles ?
+- [.] La fonctions fusionne node garde-t-elle les inputs outputs ? Comment les gère t-elles ?
+- [.] Vérifier que c est bien a la bonne valeur lors d'un icompose
+- [.] Je pense que half adder n'enlève pas la retenue donc y'a pb Y4A PB
+- [.] Adder ne marche surement pas ahhhhh a l'aide

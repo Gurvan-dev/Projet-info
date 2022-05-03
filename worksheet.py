@@ -24,18 +24,29 @@ import inspect
 #print(m2.connected_components())
 
 
-s = '1100000001010111'
-a = bool_circ.from_table(s)
+#s = '1100000001010111'
+#a = bool_circ.from_table(s)
 
 
-print(bool_circ.code_gray(1))
-print(bool_circ.code_gray(2))
-print(bool_circ.code_gray(3))
+#print(bool_circ.code_gray(1))
+#print(bool_circ.code_gray(2))
+#print(bool_circ.code_gray(3))
 
-print(bool_circ.K_map(s))
+#print(bool_circ.K_map(s))
 
 #bool_circ.random_bool(10, inputs=11, outputs=24).display()
-add0 = bool_circ.adder(1)
-print(add0.inputs)
-add0.display()
-bool_circ.adder(1).display()
+#add0 = bool_circ.adder(1)
+#print(add0.inputs)
+#add0.display()
+#bool_circ.adder(1).display()
+
+taille = 4
+a = 1
+b = 1
+abc =  bool_circ.registre(a, taille)
+bbc = bool_circ.registre(b, taille)
+abc.iparallel(bbc)
+add = bool_circ.half_adder(2)
+add.icompose(abc)
+add.evaluate()
+add.display()

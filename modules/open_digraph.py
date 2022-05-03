@@ -212,6 +212,26 @@ class open_digraph:
 		for id in ids:
 			self.remove_node_by_id(id)
 
+	def remove_all_parents(self, id : int):
+		''' 
+		id : int, un id du graphe
+		retirer tout ses parents a id
+		'''
+		id_node = self.get_node_by_id(id)
+		while len(id_node.get_parents_ids()) > 0:
+			par = list(id_node.get_parents_ids())[0]
+			self.remove_parallel_edge(par, id)
+
+	def remove_all_childrens(self, id : int):
+		''' 
+		id : int, un id du graphe
+		retirer tout ses enfants a id
+		'''
+		id_node = self.get_node_by_id(id)
+		while len(id_node.get_children_ids()) > 0:
+			chi = list(id_node.get_children_ids())[0]
+			self.remove_parallel_edge(chi, id)
+
 	def is_well_formed(self):
 		''' 
 		Renvoie vrai si le graph est bien formé, i.e. :
@@ -291,18 +311,14 @@ class open_digraph:
 			self.nodes.pop(o.get_id())
 			o.set_id(n)
 
-		
 		new_input = []
-		diff = -1
-		if shift < 0:
-			diff = 1
 		for i in self.inputs:
-			new = i+shift+diff
+			new = i+shift
 			new_input.append(new)
 		self.inputs = new_input
 		new_outputs = []
 		for i in self.outputs:
-			new = i+shift+diff
+			new = i+shift
 			new_outputs.append(new)
 		self.outputs = new_outputs
 			
@@ -313,6 +329,7 @@ class open_digraph:
 		M = self.max_id()
 		m = g.max_id()
 		id_max = max(m, M) # Pour empêcher un chevauchement des ID ou des IDs qui sont les même dans les deux graph, on effectue un shife indice
+		self.c = id_max*2
 		self.shift_indices(id_max)
 		for n in g.get_nodes():
 			n = n.copy()
@@ -322,7 +339,7 @@ class open_digraph:
 				self.inputs.append(n_id)
 			if n_id in g.outputs:
 				self.outputs.append(n_id)
-			
+
 	@classmethod
 	def parallel(cls, a,b_list):
 		cls = a.copy()
@@ -336,9 +353,8 @@ class open_digraph:
 		Throw une exception si g n'a pas autant d'output que self a d'inputs (Car on ne peut pas les composer dans cette configuration)
 		'''
 		if len(self.inputs) != len(g.outputs):
-			raise ValueError(f"Erreur: Tentative de composition entre deux graphe qui n'ont pas la même taille (inp : {len(self.inputs)} oup : {len(g.outputs)}")
+			raise ValueError(f"Erreur: Tentative de composition entre deux graphe qui n'ont pas la même taille (inp : {len(self.inputs)} oup : {len(g.outputs)})")
 		self.iparallel(g) # On va simplement les ajouter en parallel, puis relier les inputs et outputs qui doivent être relié.
-		self.display()
 		for new_in in g.outputs:
 			self.outputs.remove(new_in)
 			rem = self.inputs.pop(0)
@@ -740,7 +756,7 @@ class open_digraph:
 		raise Exception("Aucun chemin n'existe entre src et tgt.")
 		return ([], -1) # Aucun chemin n'a été trouvé.
 
-	def fusionne_node(self, a : int, b : int, new_label=''):
+	def fusionne_node(self, a : int, b : int, new_label='') -> int:
 		''' 
 		a			: int, l'id du premier noeud de la fusion
 		b			: int, l'id du second noeud de la fsion
@@ -748,6 +764,8 @@ class open_digraph:
 		return		: int, l'id du noeud crée par la fusion
 		Fusionne les deux noeuds dont les ids sont donnés en paramètre
 		'''
+		self.remove_parallel_edge(a, b)
+		self.remove_edge(b, a)
 		an = self.get_node_by_id(a)
 		bn = self.get_node_by_id(b)
 		# On va maintenant faire une liste de tout les parents de a et b (resp enfant)
