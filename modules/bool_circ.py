@@ -25,18 +25,23 @@ class bool_circ(open_digraph):
 
 	def is_well_formed(self) -> bool:
 		if self.is_cyclic():
+			print("cyclique????")
 			return False
 
 		for node in self.nodes.values():
 			if node.get_id() not in self.inputs and node.get_id() not in self.outputs:
 				lab = node.get_label()
 				if not (lab == '' or lab == ' ' or lab == '&' or lab == '|' or lab == '~' or lab == '0' or lab == '1' or lab == '^'): 	# Vérification que le label est valide
+					print("euh")
 					return False
-				if (lab == ' ' or lab == '') and (node.indegree() != 1 ): 													# Les portes de copies doivent avoir une seule entrée
+				if (lab == ' ' or lab == '') and (node.indegree() != 1 ): 																# Les portes de copies doivent avoir une seule entrée
+					print("a")
 					return False
-				if (lab == '&' or lab=='|' or lab == '^') and (node.outdegree() != 1): 									# Les portes 'Et' et 'Ou' doivent avoir éxactement une sortie.
+				if (lab == '&' or lab=='|' or lab == '^') and (node.outdegree() != 1): 													# Les portes 'Et' et 'Ou' doivent avoir éxactement une sortie.
+					print("b")
 					return False      
-				if (lab == '~') and (node.outdegree() != 1 or node.indegree() != 1): 						# Les portes 'Non' doivent avoir une entrée et une sortie.
+				if (lab == '~') and (node.outdegree() != 1 or node.indegree() != 1): 													# Les portes 'Non' doivent avoir une entrée et une sortie.
+					print("c")
 					return False
 
 		return True
@@ -88,11 +93,8 @@ class bool_circ(open_digraph):
 		for (id, n) in cls.nodes.items():		# On va regarder les feuilles (Ici les variables, les entrées)
 			if len(n.get_parents_ids()) == 0:	# On vérifie si c'est bien une feuille
 				feuilles.append(id)				# On va stocker toutes les feuilles
-				cls.add_input_id(id)			# On les ajoute bien aux entrées du graphe
+				
 
-		for (id, n) in cls.nodes.items():		# On ajoute les queues aux outputs.
-			if len(n.get_children_ids()) == 0:
-				cls.add_outputs_id(id)
 
 		for a in feuilles:			# Pour toutes les feuilles, on va regarder si il existe une autre feuille avec le même nom, i.e. que l'on peut fusionner
 			for b in feuilles:
@@ -113,6 +115,15 @@ class bool_circ(open_digraph):
 		for (a, bs) in fusion_a_faire.items():	# On effectue toutes les fusions a faire
 			for b in bs:
 				cls.fusionne_node(a, b)
+			cls.get_node_by_id(a).set_label("")
+			cls.add_input_id(a)
+
+		for (id, n) in cls.nodes.items():		# On va regarder les feuilles (Ici les variables, les entrées)
+			if n.indegree() == 0 and id not in cls.inputs:	# On vérifie si c'est bien une feuille
+				cls.add_input_id(id)			# On va stocker toutes les feuilles
+		
+	
+		
 		return bool_circ(cls)
 	
 	@classmethod
@@ -507,25 +518,16 @@ class bool_circ(open_digraph):
 		new_node.set_label(lab)
 		return True
 
-	# TEMP
-	def cofeuille(self):
-		cof = []
-		for i in self.nodes:
-			i_node = self.get_node_by_id(i)
-			if i_node.indegree() == 0:
-				cof.append(i)
-		return cof
-
 	def evaluate(self):
-		# On va temporairement faire une méthode peut optimiser qui consiste a bruteforce absolument tout
 		modif = True
 		while modif:
 			modif = False
-			for n_id in self.cofeuille():
+			cofeuille = self.tri_topologique()[0]
+			for n_id in cofeuille:
 				if not modif:
 					n_node = self.get_node_by_id(n_id)
 					
-					if n_node.indegree() == 0 and n_node.outdegree() > 0: # On tiens une co-feuille ! Normallement c'en est forcément une lol
+					if n_node.outdegree() > 0: # On tiens une co-feuille 
 						n_child = list(n_node.get_children_ids())[0]	
 						if n_child not in self.outputs:	
 							if self.transformation_copie(n_id, n_child):
@@ -539,4 +541,14 @@ class bool_circ(open_digraph):
 							elif self.transformation_ou_exclusif(n_id, n_child):
 								modif = True
 			
+	@classmethod
+	def encoder(cls):
+		cls = bool_circ.from_string("(x1)^(x3)^(x4)", "(x1)^(x3)^(x4)","(x1)","(x2)^(x3)^(x4)", "(x2)", "(x3)", "(x4)")
+		return cls
 
+	@classmethod
+	def decoder(cls):
+		b = bool_circ.encoder()
+		cls = bool_circ.from_string("((x1)&(x2)&(~(x4)))^(x3)", "(x5)^((x1)&(x4)&(~(x2)))", "(x6)^((~(x1))&(x2)&(x4))","(x7)^((x1)&(x2)&(x4))")
+		cls.icompose(b)
+		return cls

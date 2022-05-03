@@ -40,19 +40,25 @@ import inspect
 #add0.display()
 #bool_circ.adder(1).display()
 
-a = 32
-b = 57
-taille = 8
-abc =  bool_circ.registre(a, taille)
-bbc = bool_circ.registre(b, taille)
-abc.iparallel(bbc)
-add = bool_circ.half_adder(3)
-add.display()
-add.icompose(abc)
+#a = 32
+#b = 57
+#taille = 8
+#abc =  bool_circ.registre(a, taille)
+#bbc = bool_circ.registre(b, taille)
+#abc.iparallel(bbc)
+#add = bool_circ.half_adder(3)
+#add.display()
+#add.icompose(abc)
 
-add.evaluate()
-c = bool_circ.registre((a+b),taille)
-add.display()
-c.display()
-print(c)
-print(add)
+#add.evaluate()
+#c = bool_circ.registre((a+b),taille)
+#add.display()
+#c.display()
+#print(c)
+#print(add)
+
+#test = bool_circ.from_string("(x1)^(x3)^(x4)", "(x1)^(x3)^(x4)","(x1)","(x2)^(x3)^(x4)", "(x2)", "(x3)", "(x4)")
+#test.display()
+
+bool_circ.encoder().display()
+bool_circ.decoder().display()
