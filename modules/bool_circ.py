@@ -332,9 +332,9 @@ class bool_circ(open_digraph):
 			cls.add_edge(a,e)
 			cls.add_edge(c,e)
 
-			cls.add_output_node(d)
-			cls.add_output_node(e)
 			
+			cls.add_output_node(e)
+			cls.add_output_node(d)
 
 		else:
 			
@@ -346,26 +346,36 @@ class bool_circ(open_digraph):
 			cls.add_edge(retenueA1_in, retenueA1)
 			cls.outputs.remove(retenueA1_in)
 			cls.inputs.remove(retenueA1)
-			taille_moit = (int)((len(A2.inputs)-1)/2)
-			# On connecte la seconde moitié des première input a A2 (Premiere partie)
+
 			
+			# On va ré-organiser les inputs pour correspondre a l'addition.
+			# Cette méthode est moins lisible que d'autre quand on essaye de faire un .display(),
+			# Mais marche tout aussi bien en gardant un code compact
+			taille_moit = (int)(len(A2.inputs)-1) 
+			new_inp = []
+			part1 = cls.inputs[:taille_moit]
+			part2 = A2.inputs
+			taille_moit2 = int(taille_moit/2)
+			for i in part1[:taille_moit2]:
+				new_inp.append(i)
+			for i in part2[:taille_moit2]:
+				new_inp.append(i)
+			for i in part1[taille_moit2:]:
+				new_inp.append(i)
+			for i in part2[taille_moit2:]:
+				new_inp.append(i)
+
+			print(f"inp {part1} {part2} {new_inp}")
+			cls.set_input_ids(new_inp)
+			return cls
 			for i in range(taille_moit):
-				inp = cls.inputs[taille_moit + i]
-				inp_node = cls.get_node_by_id(inp)
-				arr = A2.inputs[i]
-				arr_node = cls.get_node_by_id(arr)
-				new_inp_child = arr_node.children.copy()
-				new_arr_child = inp_node.children.copy()
-				while len(inp_node.get_children_ids()) > 0:	# On enlève tout les vieux enfants de inp pour les passer sur arr et TODO : inversement
-					ayo = list(inp_node.children)[0]
-					cls.remove_parallel_edge(inp, ayo)
-				while len(arr_node.get_children_ids()) > 0:	# On enlève tout les vieux enfants de inp pour les passer sur arr et TODO : inversement
-					ayo = list(arr_node.children)[0]
-					cls.remove_parallel_edge(arr, ayo)
-				for c in new_inp_child:
-					cls.add_edge(inp, c)
-				for c in new_arr_child:
-					cls.add_edge(arr, c)
+				new_inp.append(cls.inputs[2*i])
+			for i in range(taille_moit):
+				new_inp.append(cls.inputs[(2*i)+1])
+			new_inp.append(cls.inputs[-1]) # On garde la retenue dans les inputs
+			cls.set_input_ids(new_inp)
+			
+		
 		return cls
 
 	@classmethod
@@ -377,7 +387,7 @@ class bool_circ(open_digraph):
 		for child in retenue_node.children:
 			for _ in range(retenue_node.get_children_mult(child)):
 				cls.add_edge(added, child)
-		cls.inputs.remove(retenue_id)
+		cls.remove_node_by_id(retenue_id)
 		return cls
 
 	@classmethod

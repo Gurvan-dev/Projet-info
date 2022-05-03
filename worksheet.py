@@ -40,13 +40,19 @@ import inspect
 #add0.display()
 #bool_circ.adder(1).display()
 
+a = 3
+b = 6
 taille = 4
-a = 1
-b = 1
 abc =  bool_circ.registre(a, taille)
 bbc = bool_circ.registre(b, taille)
 abc.iparallel(bbc)
 add = bool_circ.half_adder(2)
-add.icompose(abc)
-add.evaluate()
 add.display()
+add.icompose(abc)
+
+add.evaluate()
+c = bool_circ.registre((a+b),taille)
+add.display()
+c.display()
+print(c)
+print(add)

@@ -127,7 +127,7 @@ class open_digraph:
 			self.add_edge(id, c)
 		return id
 
-	def add_input_node(self, id : int, id_added=0):
+	def add_input_node(self, id : int, id_added=0) -> int:
 		'''
 		id			: int, L'id sur laquelle greffer une nouvelle node qui sera une input node liée par une arrête a cette première.
 		id_added	: int, L'id de l'input qu'on va ajouter. Si aucune valeur n'est spécifiée ou si la valeur est >= 0, on va attribuer une valeur aléatoire.
@@ -143,8 +143,9 @@ class open_digraph:
 			self.add_node(id=id_added)
 		self.add_edge(id_added, id)
 		self.inputs.append(id_added)
+		return id_added
 
-	def add_output_node(self, id : int, id_added=0):
+	def add_output_node(self, id : int, id_added=0) -> int:
 		'''
 		id			: int, L'id sur laquelle greffer une nouvelle node qui sera une output node liée par une arrête a cette première.
 		id_added	: int, L'id de l'input qu'on va ajouter. Si aucune valeur n'est spécifiée ou si la valeur est >= 0, on va attribuer une valeur aléatoire.
@@ -159,6 +160,7 @@ class open_digraph:
 			self.add_node(id=id_added)
 		self.add_edge(id, id_added)
 		self.outputs.append(id_added)
+		return id_added
 
 	def remove_edge(self, src : int, trg : int):
 		'''
@@ -198,13 +200,18 @@ class open_digraph:
 		Supprime la node du graphe, ainsi que les arrête qui y passent
 		'''
 		n = self.nodes.pop(id)
+		n_id = n.get_id()
+		if n_id in self.inputs:
+			self.inputs.remove(n_id)
+		if n_id in self.outputs:
+			self.outputs.remove(n_id)
 		for p in n.get_parents_ids():
 			if p in self.nodes:
-				self.get_node_by_id(p).remove_child_id(n.get_id())
+				self.get_node_by_id(p).remove_child_id(n_id)
 		for c in n.get_children_ids():
 			if c in self.nodes:
-				self.get_node_by_id(c).remove_parent_id(n.get_id())
-
+				self.get_node_by_id(c).remove_parent_id(n_id)
+		
 	def remove_nodes_by_id(self, ids):
 		'''
 		ids : int list, une liste d'id de  node a retirer.

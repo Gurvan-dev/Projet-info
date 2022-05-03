@@ -17,7 +17,8 @@ utilisé (dans la méthode, donc), ce qui évite de potentiellement l’oublier.
 
 - [.] Finir TD9: Vérifier K-Map puis question d'après
 - [.] TD10 question 4 et 5
-- [.] TD11 en entier
+- [.] TD11 a vérifier
+- [.] TD12
 - [.] On doit penser a supprimer les parents si on fusionne une node et on la transforme en truc primitif
 
 ## Possibles bugs & Questions
