@@ -25,23 +25,18 @@ class bool_circ(open_digraph):
 
 	def is_well_formed(self) -> bool:
 		if self.is_cyclic():
-			print("cyclique????")
 			return False
 
 		for node in self.nodes.values():
 			if node.get_id() not in self.inputs and node.get_id() not in self.outputs:
 				lab = node.get_label()
 				if not (lab == '' or lab == ' ' or lab == '&' or lab == '|' or lab == '~' or lab == '0' or lab == '1' or lab == '^'): 	# Vérification que le label est valide
-					print("euh")
 					return False
 				if (lab == ' ' or lab == '') and (node.indegree() != 1 ): 																# Les portes de copies doivent avoir une seule entrée
-					print("a")
 					return False
 				if (lab == '&' or lab=='|' or lab == '^') and (node.outdegree() != 1): 													# Les portes 'Et' et 'Ou' doivent avoir éxactement une sortie.
-					print("b")
 					return False      
 				if (lab == '~') and (node.outdegree() != 1 or node.indegree() != 1): 													# Les portes 'Non' doivent avoir une entrée et une sortie.
-					print("c")
 					return False
 
 		return True
@@ -49,7 +44,7 @@ class bool_circ(open_digraph):
 	@classmethod
 	def empty(cls):
 		'''
-		Return an empty bool digraph.
+		return	: bool_circ, un circuit booléen vide
 		'''
 		return bool_circ(open_digraph.empty())
 
@@ -169,7 +164,7 @@ class bool_circ(open_digraph):
 	@classmethod
 	def code_gray(cls, n : int):
 		"""
-		n		: int, > 1, le nombre de bit du code_gray
+		n		: int, un entier positif supérieur à 1, le nombre de bit du code_gray
 		return	: list(str), tout les nombre du code_gray codé sur n bit.
 		"""
 		if n < 1:
@@ -192,7 +187,7 @@ class bool_circ(open_digraph):
 	def K_map(cls, strinput : str):
 		nb_input = int(log(len(strinput), 2))
 		top = [i for i in range(0, int(nb_input /2))]
-		bot = [i for i in range(int(nb_input/2), nb_input)] # bot peut contenir un élément de + que top si c'est impaire
+		bot = [i for i in range(int(nb_input/2), nb_input)] # ici, bot peut contenir un élément de + que top si c'est impaire
 		top_cg =  bool_circ.code_gray(len(top))
 		bot_cg = bool_circ.code_gray(len(bot))
 		cls = []
@@ -200,7 +195,7 @@ class bool_circ(open_digraph):
 			line = []
 			for x in range(len(top_cg)):
 				res = 0
-				## On doit chopper la ligne associée et la mettre dans res
+				# On doit chopper la ligne associée et la mettre dans res
 				line_stat = int(f'{top_cg[x]}{top_cg[y]}', 2)
 				
 				line.append(strinput[line_stat])
@@ -211,11 +206,11 @@ class bool_circ(open_digraph):
 		return cls
 
 	@classmethod
-	def random_bool(cls, n, inputs=1, outputs=1):
+	def random_bool(cls, n : int, inputs=1, outputs=1):
 		""" 
-		n		: int, le nombre de noeud dans le circuit booléen a produire
+		n		: int, le nombre de noeud présent dans le circuit booléen retourné
 		inputs	: int, le nombre d'inputs présent dans le circuit booléen retourné
-		outputs	: int,	/ pour le nombre d'outputs
+		outputs	: int, le nombre d'outputs présent dans le circuit booléen retourné
 		return	: bool_circ, un circuit booléen aléatoire avec les paramètres données
 		"""
 		if inputs < 1:
@@ -306,6 +301,11 @@ class bool_circ(open_digraph):
 
 	@classmethod
 	def adder(cls,taille : int):
+		''' 
+		taille	: 	int, la taille du Adder. Le nombre d'entrée du circuit retourné sera égal à 2^(taille) + 1 (la retenue)
+		return	: 	bool_circ, un circuit booléen permettant l'addition entre deux nombres sous formes binaires de taille 'taille',
+					avec une possible retenue utilisable en paramètre supplémentaire 
+		'''
 		if(taille < 0):
 			raise ValueError("La taille de l'Adder ne peut être négative.")
 		elif(taille == 0):
@@ -382,6 +382,10 @@ class bool_circ(open_digraph):
 
 	@classmethod
 	def half_adder(cls, taille : int):
+		''' 
+		taille	: int, la taille du Adder. Le nombre d'entrée du circuit retourné sera égal à 2^(taille)
+		return	: bool_circ, un circuit booléen permettant l'addition entre deux nombres sous formes binaires de taille 'taille'.
+		'''
 		cls = bool_circ.adder(taille)
 		added = cls.add_node("0")
 		retenue_id = cls.inputs[len(cls.inputs) -1]
@@ -395,7 +399,9 @@ class bool_circ(open_digraph):
 	@classmethod
 	def registre(cls, entier : int, taille:int):
 		'''
-		return : bool_circ, représente l'entier en binaires
+		entier	: int, l'entier a coder
+		taille	: int, la taille (le nombre de bit) dans lequel sera encodé l'entier
+		return	: bool_circ, représente l'entier en binaires
 		'''
 		cls = bool_circ.empty()
 		bin_str = bin(entier)[2:]
@@ -410,6 +416,8 @@ class bool_circ(open_digraph):
 			added = cls.add_node(label=lab)
 			cls.add_output_node(added)
 		return cls
+
+	# BEGIN : Transformations TD11.  Les fonctions ci-dessous sont expliquée dans le fichier 'TD11.PDF'
 
 	def transformation_non(self, par : int, enf : int) -> bool:
 		''' 
@@ -427,7 +435,7 @@ class bool_circ(open_digraph):
 			lab = '1'
 		else:
 			lab = '0'
-		# Pas besoin de retirer les parents ici car il ne devrait pas y en avoir
+		# Pas besoin de retirer les parents ici car il ne devrait pas y en avoir.
 		new_node = self.get_node_by_id(new)
 		new_node.set_label(lab)
 		return True
@@ -498,25 +506,119 @@ class bool_circ(open_digraph):
 
 	def transformation_ou(self, par : int, enf : int) -> bool:
 		''' 
-		par		: int, l'id d'une note 1 ou 0
-		enf		: int, l'id d'une node enfant de par avec label '~'
+		par		: int, l'id d'une note '^'
+		enf		: int, l'id d'une node '^', enfant de la node par
 		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
 		'''
 		enf_node = self.get_node_by_id(enf)
 		par_node = self.get_node_by_id(par)
-		if enf_node.get_label() != '|' or (par_node.get_label() != '0' and par_node.get_label() != '1') or (par not in enf_node.get_parents_ids()):
+		if enf_node.get_label() != '^' or par_node.get_label() != '^' or (par not in enf_node.get_parents_ids()):
 			return False
-		lab = par_node.get_label()
 		new = self.fusionne_node(par, enf)
-		if lab == '0':
-			lab = ''
-		else:
-			lab = '1'
-			self.remove_all_parents(new)
-		
-		new_node = self.get_node_by_id(new)
-		new_node.set_label(lab)
 		return True
+
+	# END 	: Transformations TD11
+
+	# BEGIN : Transformations TD12. Les fonctions ci-dessous sont expliquée dans le fichier 'TD12.PDF'
+
+	def transformation_association_xor(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une node '^'
+		enf		: int, l'id d'une node '^', enfant de la node par
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		if enf_node.get_label() != '^' or par_node.get_label() != '^' or (par not in enf_node.get_parents_ids()):
+			return False
+		new = self.fusionne_node(par, enf)
+		return True
+
+	def transformation_association_copie(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une node copie
+		enf		: int, l'id d'une node copie, enfant de la node par
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		if enf_node.get_label() != '' or par_node.get_label() != '' or (par not in enf_node.get_parents_ids()):
+			return False
+		new = self.fusionne_node(par, enf)
+		return True
+
+	def transformation_involution_xor(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une node copie
+		enf		: int, l'id d'une node '^'
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		if enf_node.get_label() != '^' or par_node.get_label() != '' or (par not in enf_node.get_parents_ids()) or par_node.get_children_mult(enf) < 1:
+			return False
+		new_mult = par_node.get_children_mult(enf) % 2
+		self.remove_parallel_edge(par, enf)
+		for _ in range(new_mult):
+			self.add_edge(par, enf)
+		
+		return True
+	
+	def transformation_effacement(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une node '~' possédant un parent
+		enf		: int, l'id d'une node copie, enfant de la node par
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		if enf_node.get_label() != '~' or par_node.get_label() != '~' or enf_node.outdegree() == 0 or par_node.indegree() == 0 (par not in enf_node.get_parents_ids()):
+			return False
+		... # TODO
+
+	def transformation_non_xor(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une node '~' 
+		enf		: int, l'id d'une node '^'
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		if enf_node.get_label() != '^' or par_node.get_label() != '~' (par not in enf_node.get_parents_ids()):
+			return False
+		... # TODO
+
+
+	def transformation_non_copie(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une node '~'
+		enf		: int, l'id d'une node copie, enfant de la node par
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		if enf_node.get_label() != '' or par_node.get_label() != '~'(par not in enf_node.get_parents_ids()):
+			return False
+		... # TODO
+
+	def transformation_involution_non(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une node '~' possédant un parent
+		enf		: int, l'id d'une node '~', enfant de la node par, possédant un enfant
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		if enf_node.get_label() != '~' or par_node.get_label() != '~' or enf_node.outdegree() == 0 or par_node.indegree() == 0 (par not in enf_node.get_parents_ids()):
+			return False
+		# Théoriquement, comme on a deux nodes 'non', il y a un unique parent et un unique enfant.
+		par_par = par_node.get_parents_ids()[0]
+		enf_enf = enf_node.get_children_ids()[0]
+		self.add_edge(par_par, enf_enf)
+		self.remove_nodes_by_id([par, enf])
+		return True
+
+	# END 	: Transformations TD 12
 
 	def evaluate(self):
 		modif = True

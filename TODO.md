@@ -26,4 +26,16 @@ utilisé (dans la méthode, donc), ce qui évite de potentiellement l’oublier.
 - [.] Vérifier que encoder et decodre connectent bien les bons trucs avec les autres bon truc sur le icompose
 - [.] Finir typage et docstring pour le reste de bool_circ
 - [.] écrire des tests pour bool_circ
+
+## Documentations & Autre
+
+- [.] Les documentations des transformations TD 11 ne sont pas les bonnes
+
+## FEEDBACK TD 7
+
+- [.] Dijkstra : je ne pense pas que toutes les copies soient nécessaires, sinon très bien.
+( [.] Shortest_path : ça peut être bien de mettre src au début et tgt à la fin de la liste, c’est habituellement comme ça qu’on représente les chemins
+(idem longest_path). Très bien sinon.
+- [.] tri_topologique : tri_annexe : to_be_removed n’est pas utilisé. On peut faire un peu mieux en terme de complexité en ne cherchant les cofeuilles
+que parmi les enfants des cofeuilles précédentes.
   
