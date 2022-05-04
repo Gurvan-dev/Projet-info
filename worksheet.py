@@ -73,28 +73,46 @@ import inspect
 #dec.display()
 #print(dec)
 
-a = 5
-b = 5
-encodage = 2
-encodage_reel = 2**encodage
-abc = bool_circ.registre(a, encodage_reel)
-bbc = bool_circ.registre(b, encodage_reel)
-ayder = bool_circ.half_adder(encodage)
-abc.iparallel(bbc)
+#a = 5
+#b = 5
+#encodage = 2
+#encodage_reel = 2**encodage
+#abc = bool_circ.registre(a, encodage_reel)
+#bbc = bool_circ.registre(b, encodage_reel)
+#ayder = bool_circ.half_adder(encodage)
+#abc.iparallel(bbc)
 
-ayder.display()
-ayder.icompose(abc)
+#ayder.display()
+#ayder.icompose(abc)
 
-ayder.display()
-print(ayder)
-ayder.evaluate()
-print(ayder)
-print(f"{bin(a)} {bin(b)}")
-ayder.display()
-print(bin((a+b)))
-print(ayder.get_output_str())
-print(int(ayder.get_output_str(), 2))
+#ayder.display()
+#print(ayder)
+#ayder.evaluate()
+#print(ayder)
+#print(f"{bin(a)} {bin(b)}")
+#ayder.display()
+#print(bin((a+b)))
+#print(ayder.get_output_str())
+#print(int(ayder.get_output_str(), 2))
 
+#rand = bool_circ(open_digraph.from_dot_file('erreur.dot'))
+#rand.display()
+#rand.simplify()
+#rand.display()
+
+test_range = 100
+tot = 0
+for _ in range(test_range):
+    rand = bool_circ.random_bool(20,5,5)
+    rand.save_as_dot_file('erreur.dot')
+    #rand.display()
+    pre = len(rand.nodes)
+    rand.simplify()
+    post = len(rand.nodes)
+    tot = tot + (pre - post)
+
+print(tot)
+print(tot/test_range)
 
 #helpme.display()
 #dec.icompose(helpme)

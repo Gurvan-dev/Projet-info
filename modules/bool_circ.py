@@ -25,6 +25,7 @@ class bool_circ(open_digraph):
 
 	def is_well_formed(self) -> bool:
 		if self.is_cyclic():
+			print("not cyclic")
 			return False
 
 		for node in self.nodes.values():
@@ -35,8 +36,11 @@ class bool_circ(open_digraph):
 				if (lab == ' ' or lab == '') and (node.indegree() != 1 ): 																# Les portes de copies doivent avoir une seule entrée
 					return False
 				if (lab == '&' or lab=='|' or lab == '^') and (node.outdegree() != 1): 													# Les portes 'Et' et 'Ou' doivent avoir éxactement une sortie.
+					print("c")
 					return False      
 				if (lab == '~') and (node.outdegree() != 1 or node.indegree() != 1): 													# Les portes 'Non' doivent avoir une entrée et une sortie.
+					print(node)
+					print("d")
 					return False
 
 		return True
@@ -231,7 +235,7 @@ class bool_circ(open_digraph):
 			raise(ValueError("Le nombre de sortie ne peut pas être inférieur à 1"))
 	
 		cls = open_digraph.random(n, 1, form="DAG")
-
+		
 		for node in cls.get_nodes():
 			if node.indegree() == 0:
 				cls.add_input_node(node.get_id())
@@ -309,7 +313,7 @@ class bool_circ(open_digraph):
 				cls.get_node_by_id(uop).set_label(choice(['&', '|']))
 
 
-		return cls
+		return bool_circ(cls)
 
 	@classmethod
 	def adder(cls,taille : int):
@@ -609,18 +613,6 @@ class bool_circ(open_digraph):
 		
 		return True
 	
-	def transformation_effacement(self, par : int, enf : int) -> bool:
-		''' 
-		par		: int, l'id d'une node '~' possédant un parent
-		enf		: int, l'id d'une node copie, enfant de la node par
-		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
-		'''
-		enf_node = self.get_node_by_id(enf)
-		par_node = self.get_node_by_id(par)
-		if enf_node.get_label() != '~' or par_node.get_label() != '~' or enf_node.outdegree() == 0 or par_node.indegree() == 0 or (par not in enf_node.get_parents_ids()):
-			return False
-		... # TODO
-
 	def transformation_non_xor(self, par : int, enf : int) -> bool:
 		''' 
 		par		: int, l'id d'une node '~' 
@@ -632,14 +624,22 @@ class bool_circ(open_digraph):
 		if enf_node.get_label() != '^' or par_node.get_label() != '~' or (par not in enf_node.get_parents_ids()):
 			return False
 		self.remove_parallel_edge(par, enf)
-		self.fusionne_node(enf, par) # L'enfant 'absorbe' le parent
+		
 
 		# On rajoute avant chaque enfant un opérateur 'non'.
 		# En théorie il n'y a qu'un seul enfant donc pas besoin d'un for
-		for enf_enf in enf_node.get_children_ids(): 
-			new = self.add_node('~')
-			self.add_edge(fusion, new)
+
+		news = []
+		for enf_enf in enf_node.get_children_ids(): # On rajoute avant chaque enfant un opérateur 'non'
+			new = self.add_node('~')	
+			news.append(new)
 			self.add_edge(new, enf_enf)
+			
+		self.remove_all_childrens(enf)
+		for new in news:
+			self.add_edge(enf, new)
+
+		fusion = self.fusionne_node(enf, par) # On fusionne les deux noeuds en prenant comme base enf, donc avec le label copie
 		return True
 
 
@@ -653,12 +653,18 @@ class bool_circ(open_digraph):
 		par_node = self.get_node_by_id(par)
 		if enf_node.get_label() != '' or par_node.get_label() != '~' or (par not in enf_node.get_parents_ids()):
 			return False
-		self.remove_parallel_edge(par, enf) 		# On remove les noeuds entre les deux pour ne pas avoir une node qui pointe vers elle même
-		fusion = self.fusionne_node(enf, par) 		# On fusionne les deux noeuds en prenant comme base enf, donc avec le label copie
+
+		news = []
 		for enf_enf in enf_node.get_children_ids(): # On rajoute avant chaque enfant un opérateur 'non'
-			new = self.add_node('~')
-			self.add_edge(fusion, new)
+			new = self.add_node('~')	
+			news.append(new)
 			self.add_edge(new, enf_enf)
+
+		self.remove_all_childrens(enf)
+		for new in news:
+			self.add_edge(enf, new)
+
+		fusion = self.fusionne_node(enf, par) # On fusionne les deux noeuds en prenant comme base enf, donc avec le label copie
 		return True
 
 
@@ -673,10 +679,8 @@ class bool_circ(open_digraph):
 		if enf_node.get_label() != '~' or par_node.get_label() != '~' or enf_node.outdegree() == 0 or par_node.indegree() == 0 or (par not in enf_node.get_parents_ids()):
 			return False
 		# Théoriquement, comme on a deux nodes 'non', il y a un unique parent et un unique enfant.
-		par_par = par_node.get_parents_ids()[0]
-		enf_enf = enf_node.get_children_ids()[0]
-		self.add_edge(par_par, enf_enf)
-		self.remove_nodes_by_id([par, enf])
+		enf_node.set_label('')
+		self.fusionne_node(enf, par)
 		return True
 
 	# END 	: Transformations TD 12
@@ -690,8 +694,9 @@ class bool_circ(open_digraph):
 
 	# END	: Simplification de circuit, question ouverte 
 
-	def evaluate(self):
+	def evaluate(self) -> bool:
 		''' 
+		return		: bool, vrai si le graphe a été changé et faux sinon
 		Voir TD11.pdf pour plus de détail sur la fonction
 		'''
 		transformation_list = [
@@ -715,27 +720,31 @@ class bool_circ(open_digraph):
 		
 		return False
 
-	def simplify(self) -> bool:
-		''' 
-		return		: bool, vrai si le graph a pu être simplifié et faux sinon
-		'''
+	def simplify_sub(self):
 		transformation_list = [
 			self.transformation_involution_non,
 			self.transformation_non_copie,
 			self.transformation_non_xor,
-			self.transformation_effacement,
 			self.transformation_involution_xor,
 			self.transformation_association_copie,
 			self.transformation_association_xor,
 			]
-
 		for par in list(self.nodes.keys()):
 			par_node = self.get_node_by_id(par)
 			for enf in par_node.get_children_ids():
 				for transfo in transformation_list:
 					if transfo(par, enf):
-						self.simplify()
 						return True
+		return False
+
+	def simplify(self) -> bool:
+		''' 
+		return		: bool, vrai si le graph a pu être simplifié et faux sinon
+		'''
+		modif = True
+		while modif:
+			modif = self.simplify_sub()
+
 		return False
 
 

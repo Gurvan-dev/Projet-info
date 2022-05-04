@@ -17,11 +17,6 @@ utilisé (dans la méthode, donc), ce qui évite de potentiellement l’oublier.
 
 - [.] Finir TD9: Vérifier K-Map puis question d'après
 - [.] TD10 question 4 et 5
-- [.] TD12
-
-## Amélioration possible
-
-- [.] Pour la fonction évaluation, on peut peut être utiliser une liste de fonctions qu'on appelera tour a tour plutôt que plein de if else
 
 ## OBLIGATOIRE
 
@@ -29,11 +24,7 @@ utilisé (dans la méthode, donc), ce qui évite de potentiellement l’oublier.
 
 ## Possibles bugs & Questions
 
-- [.] La fonctions fusionne node garde-t-elle les inputs outputs ? Comment les gère t-elles ? (En théorie si y'a un input ou un output c'est la merde, donc faudrait mieux pas gérer ?)
-- [.] Vérifier que encoder et decodre connectent bien les bons trucs avec les autres bon truc sur le icompose
-- [.] Finir typage et docstring pour le reste de bool_circ
 - [.] écrire des tests pour bool_circ
-- [.] Si on fusionne deux noeuds qui se pointent entre eux, est-ce qu'on obtient une node qui se pointe vers elle même ? (En théorie oui, en pratique : ?)
 
 ## Documentations & Autre
 
