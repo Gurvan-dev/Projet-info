@@ -82,7 +82,9 @@ bbc = bool_circ.registre(b, encodage_reel)
 ayder = bool_circ.half_adder(encodage)
 abc.iparallel(bbc)
 
+ayder.display()
 ayder.icompose(abc)
+
 ayder.display()
 print(ayder)
 ayder.evaluate()
@@ -92,6 +94,7 @@ ayder.display()
 print(bin((a+b)))
 print(ayder.get_output_str())
 print(int(ayder.get_output_str(), 2))
+
 
 #helpme.display()
 #dec.icompose(helpme)
