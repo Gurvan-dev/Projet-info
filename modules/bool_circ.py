@@ -464,7 +464,8 @@ class bool_circ(open_digraph):
 			return False
 		
 		if enf in self.outputs:
-			self.add_outputs_id(par)
+			enf_index = self.outputs.index(enf)
+			self.outputs[enf_index] = par
 		else : 
 			lab = par_node.get_label()
 			for child_of_enf in enf_node.get_children_ids():
@@ -508,9 +509,9 @@ class bool_circ(open_digraph):
 			return False
 		lab = par_node.get_label()
 		new = self.fusionne_node(enf, par)
-		new_node = self.get_node_by_id(new)
 		
 		if lab == '1':
+			new_node = self.get_node_by_id(new)
 			non = self.add_node('~')
 			chi = new_node.get_children_ids().copy()
 			self.remove_all_childrens(new)
@@ -524,19 +525,21 @@ class bool_circ(open_digraph):
 	def transformation_ou(self, par : int, enf : int) -> bool:
 		''' 
 		par		: int, l'id d'une note '1' ou '0'
-		enf		: int, l'id d'une node '^', enfant de la node par
+		enf		: int, l'id d'une node '|', enfant de la node par
 		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
 		'''
 		enf_node = self.get_node_by_id(enf)
 		par_node = self.get_node_by_id(par)
-		if enf_node.get_label() != '&' or (par_node.get_label() != '0' and par_node.get_label() != '1') or (par not in enf_node.get_parents_ids()):
+		if enf_node.get_label() != '|' or (par_node.get_label() != '0' and par_node.get_label() != '1') or (par not in enf_node.get_parents_ids()):
 			return False
 		parlab = par_node.get_label()
-		new = self.fusionne_node(par, enf)
+		new = self.fusionne_node(enf, par)
+		
 		if parlab == '1':
-			new.set_label('1')
+			new_node = self.get_node_by_id(new)
+			new_node.set_label('1')
 			self.remove_all_parents(new)
-
+		
 		return True
 
 	def transformation_neutre(self, par : int, enf : int) -> bool:
@@ -691,8 +694,6 @@ class bool_circ(open_digraph):
 		''' 
 		Voir TD11.pdf pour plus de détail sur la fonction
 		'''
-
-
 		transformation_list = [
 			self.transformation_copie,
 			self.transformation_et,
@@ -711,6 +712,7 @@ class bool_circ(open_digraph):
 						if transfo(par, enf):
 							self.evaluate()
 							return True
+		
 		return False
 
 	def simplify(self) -> bool:
@@ -748,3 +750,13 @@ class bool_circ(open_digraph):
 		cls = bool_circ.from_string("((x1)&(x2)&(~(x4)))^(x3)", "(x5)^((x1)&(x4)&(~(x2)))", "(x6)^((~(x1))&(x2)&(x4))","(x7)^((x1)&(x2)&(x4))")
 		cls.icompose(part_1)
 		return cls
+
+	def get_output_str(self) -> str:
+		''' 
+		return : str, tout les labels des outputs concaténé dans l'ordre.
+		Peut par exemple être utilisé pour avoir un nombre en binaire facilement a partir d'un bool_circ.
+		'''
+		ret = ""
+		for out in self.outputs:
+			ret = ret + self.get_node_by_id(out).get_label()
+		return ret

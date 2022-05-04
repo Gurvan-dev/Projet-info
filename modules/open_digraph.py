@@ -780,10 +780,13 @@ class open_digraph:
 
 		an = self.get_node_by_id(a)
 		bn = self.get_node_by_id(b)
-		if b in self.outputs and a not in self.inputs and an.indegree() == 0:
-			self.add_outputs_id(a)
-		elif b in self.inputs and a not in self.outputs and an.outdegree() == 0:
-			self.add_outputs_id(a)
+		# Les outputs et inputs ne sont plus dans le bon ordre
+		if b in self.outputs and a not in self.inputs and a not in self.outputs and an.indegree() == 0:
+			b_index = self.outputs.index(b)
+			self.outputs[b_index] = a
+		elif b in self.inputs and a not in self.outputs and a not in self.inputs and an.outdegree() == 0:
+			b_index = self.inputs.index(b)
+			self.inputs[b_index] = a
 
 		for (un, deux) in bn.get_parents_ids().items():
 			self.add_edge(un, a, deux)

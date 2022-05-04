@@ -63,15 +63,35 @@ import inspect
 #enc = bool_circ.encoder()
 
 
-helpme = bool_circ.registre(5, 4)
-dec = bool_circ.decoder()
-enc = bool_circ.encoder()
-dec.icompose(enc)
-dec.icompose(helpme)
-dec.display()
-dec.evaluate()
-dec.display()
-print(dec)
+#helpme = bool_circ.registre(5, 4)
+#dec = bool_circ.decoder()
+#enc = bool_circ.encoder()
+#dec.icompose(enc)
+#dec.icompose(helpme)
+#dec.display()
+#dec.evaluate()
+#dec.display()
+#print(dec)
+
+a = 5
+b = 5
+encodage = 2
+encodage_reel = 2**encodage
+abc = bool_circ.registre(a, encodage_reel)
+bbc = bool_circ.registre(b, encodage_reel)
+ayder = bool_circ.half_adder(encodage)
+abc.iparallel(bbc)
+
+ayder.icompose(abc)
+ayder.display()
+print(ayder)
+ayder.evaluate()
+print(ayder)
+print(f"{bin(a)} {bin(b)}")
+ayder.display()
+print(bin((a+b)))
+print(ayder.get_output_str())
+print(int(ayder.get_output_str(), 2))
 
 #helpme.display()
 #dec.icompose(helpme)
