@@ -89,8 +89,6 @@ class bool_circ(open_digraph):
 			if len(n.get_parents_ids()) == 0:	# On vérifie si c'est bien une feuille
 				feuilles.append(id)				# On va stocker toutes les feuilles
 				
-
-
 		for a in feuilles:			# Pour toutes les feuilles, on va regarder si il existe une autre feuille avec le même nom, i.e. que l'on peut fusionner
 			for b in feuilles:
 				if a != b and cls.get_node_by_id(a).get_label() == cls.get_node_by_id(b).get_label():	# Si a et b ont le même label (nom), on peut les fusionners
@@ -110,14 +108,28 @@ class bool_circ(open_digraph):
 		for (a, bs) in fusion_a_faire.items():	# On effectue toutes les fusions a faire
 			for b in bs:
 				cls.fusionne_node(a, b)
-			cls.get_node_by_id(a).set_label("")
+			
 			cls.add_input_id(a)
 
 		for (id, n) in cls.nodes.items():		# On va regarder les feuilles (Ici les variables, les entrées)
 			if n.indegree() == 0 and id not in cls.inputs:	# On vérifie si c'est bien une feuille
 				cls.add_input_id(id)			# On va stocker toutes les feuilles
 		
-	
+		# On va maintenant réstaurer le bon ordre des inputs.
+
+		new_inputs_dic = {}
+		for tovoid in cls.inputs:
+			tovoid_node = cls.get_node_by_id(tovoid)
+			num = int(re.search(r'\d+', tovoid_node.get_label()).group()) # On prend le nombre dans la node. ex : x3 -> 3
+			new_inputs_dic[num] = tovoid
+			tovoid_node.set_label("")
+		new_inputs = list(new_inputs_dic.keys())
+		new_inputs.sort()
+		
+		cls.inputs = []
+		for key in new_inputs:
+			value = new_inputs_dic[key]
+			cls.inputs.append(value)
 		
 		return bool_circ(cls)
 	
@@ -391,8 +403,7 @@ class bool_circ(open_digraph):
 		retenue_id = cls.inputs[len(cls.inputs) -1]
 		retenue_node =cls.get_node_by_id(retenue_id)
 		for child in retenue_node.children:
-			for _ in range(retenue_node.get_children_mult(child)):
-				cls.add_edge(added, child)
+			cls.add_edge(added, child, retenue_node.get_children_mult(child)) # REMOVE_NOTE : Anciennement un for avec ajout pour chaque mult
 		cls.remove_node_by_id(retenue_id)
 		return cls
 
@@ -443,7 +454,7 @@ class bool_circ(open_digraph):
 	def transformation_copie(self, par : int, enf : int) -> bool:
 		''' 
 		par		: int, l'id d'une note 1 ou 0
-		enf		: int, l'id d'une node enfant de par avec label '~'
+		enf		: int, l'id d'une node enfant de par avec label ''
 		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
 		'''
 		enf_node = self.get_node_by_id(enf)
@@ -452,11 +463,14 @@ class bool_circ(open_digraph):
 		if enf_node.get_label() != '' or (par_node.get_label() != '0' and par_node.get_label() != '1') or (par not in enf_node.get_parents_ids()):
 			return False
 		
-		lab = par_node.get_label()
-		for child_of_enf in enf_node.get_children_ids():
-			new = self.add_node(lab)
-			self.add_edge(new, child_of_enf)
-		self.remove_node_by_id(par)
+		if enf in self.outputs:
+			self.add_outputs_id(par)
+		else : 
+			lab = par_node.get_label()
+			for child_of_enf in enf_node.get_children_ids():
+				new = self.add_node(lab)
+				self.add_edge(new, child_of_enf)
+			self.remove_node_by_id(par)
 		self.remove_node_by_id(enf)
 		
 		return True
@@ -464,7 +478,7 @@ class bool_circ(open_digraph):
 	def transformation_et(self, par : int, enf : int) -> bool:
 		''' 
 		par		: int, l'id d'une note 1 ou 0
-		enf		: int, l'id d'une node enfant de par avec label '~'
+		enf		: int, l'id d'une node enfant de par avec label '&'
 		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
 		'''
 		enf_node = self.get_node_by_id(enf)
@@ -485,7 +499,7 @@ class bool_circ(open_digraph):
 	def transformation_ou_exclusif(self, par : int, enf : int) -> bool:
 		''' 
 		par		: int, l'id d'une note 1 ou 0
-		enf		: int, l'id d'une node enfant de par avec label '~'
+		enf		: int, l'id d'une node enfant de par avec label '^'
 		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
 		'''
 		enf_node = self.get_node_by_id(enf)
@@ -493,28 +507,53 @@ class bool_circ(open_digraph):
 		if enf_node.get_label() != '^' or (par_node.get_label() != '0' and par_node.get_label() != '1') or (par not in enf_node.get_parents_ids()):
 			return False
 		lab = par_node.get_label()
-		new = self.fusionne_node(par, enf)
-		if lab == '0':
-			lab = ''
-		else:
-			lab = '~'
-		
+		new = self.fusionne_node(enf, par)
 		new_node = self.get_node_by_id(new)
-		new_node.set_label(lab)
+		
+		if lab == '1':
+			non = self.add_node('~')
+			chi = new_node.get_children_ids().copy()
+			self.remove_all_childrens(new)
+			for c in chi:
+				self.add_edge(non, c)
+			self.add_edge(new, non)
+		
 		return True
 
 
 	def transformation_ou(self, par : int, enf : int) -> bool:
 		''' 
-		par		: int, l'id d'une note '^'
+		par		: int, l'id d'une note '1' ou '0'
 		enf		: int, l'id d'une node '^', enfant de la node par
 		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
 		'''
 		enf_node = self.get_node_by_id(enf)
 		par_node = self.get_node_by_id(par)
-		if enf_node.get_label() != '^' or par_node.get_label() != '^' or (par not in enf_node.get_parents_ids()):
+		if enf_node.get_label() != '&' or (par_node.get_label() != '0' and par_node.get_label() != '1') or (par not in enf_node.get_parents_ids()):
 			return False
+		parlab = par_node.get_label()
 		new = self.fusionne_node(par, enf)
+		if parlab == '1':
+			new.set_label('1')
+			self.remove_all_parents(new)
+
+		return True
+
+	def transformation_neutre(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une note '^' , '|' ou '&'
+		enf		: int, l'id d'une node enfant de par quelconque
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		par_label = par_node.get_label()
+		if (par_label != '|' and par_label != '^' and par_label != '&') or (par not in enf_node.get_parents_ids()):
+			return False
+		lab = '0'
+		if par_label == '&':
+			lab = '1'
+		par_node.set_label(lab)
 		return True
 
 	# END 	: Transformations TD11
@@ -555,12 +594,15 @@ class bool_circ(open_digraph):
 		'''
 		enf_node = self.get_node_by_id(enf)
 		par_node = self.get_node_by_id(par)
-		if enf_node.get_label() != '^' or par_node.get_label() != '' or (par not in enf_node.get_parents_ids()) or par_node.get_children_mult(enf) < 1:
+		if enf_node.get_label() != '^' or par_node.get_label() != '' or (par not in enf_node.get_parents_ids()) or par_node.get_children_mult(enf) <= 1:
 			return False
 		new_mult = par_node.get_children_mult(enf) % 2
+
 		self.remove_parallel_edge(par, enf)
-		for _ in range(new_mult):
+		if new_mult == 1:
 			self.add_edge(par, enf)
+		elif enf_node.indegree() == 0:
+			self.fusionne_node(par, enf)
 		
 		return True
 	
@@ -572,7 +614,7 @@ class bool_circ(open_digraph):
 		'''
 		enf_node = self.get_node_by_id(enf)
 		par_node = self.get_node_by_id(par)
-		if enf_node.get_label() != '~' or par_node.get_label() != '~' or enf_node.outdegree() == 0 or par_node.indegree() == 0 (par not in enf_node.get_parents_ids()):
+		if enf_node.get_label() != '~' or par_node.get_label() != '~' or enf_node.outdegree() == 0 or par_node.indegree() == 0 or (par not in enf_node.get_parents_ids()):
 			return False
 		... # TODO
 
@@ -584,9 +626,18 @@ class bool_circ(open_digraph):
 		'''
 		enf_node = self.get_node_by_id(enf)
 		par_node = self.get_node_by_id(par)
-		if enf_node.get_label() != '^' or par_node.get_label() != '~' (par not in enf_node.get_parents_ids()):
+		if enf_node.get_label() != '^' or par_node.get_label() != '~' or (par not in enf_node.get_parents_ids()):
 			return False
-		... # TODO
+		self.remove_parallel_edge(par, enf)
+		self.fusionne_node(enf, par) # L'enfant 'absorbe' le parent
+
+		# On rajoute avant chaque enfant un opérateur 'non'.
+		# En théorie il n'y a qu'un seul enfant donc pas besoin d'un for
+		for enf_enf in enf_node.get_children_ids(): 
+			new = self.add_node('~')
+			self.add_edge(fusion, new)
+			self.add_edge(new, enf_enf)
+		return True
 
 
 	def transformation_non_copie(self, par : int, enf : int) -> bool:
@@ -597,9 +648,16 @@ class bool_circ(open_digraph):
 		'''
 		enf_node = self.get_node_by_id(enf)
 		par_node = self.get_node_by_id(par)
-		if enf_node.get_label() != '' or par_node.get_label() != '~'(par not in enf_node.get_parents_ids()):
+		if enf_node.get_label() != '' or par_node.get_label() != '~' or (par not in enf_node.get_parents_ids()):
 			return False
-		... # TODO
+		self.remove_parallel_edge(par, enf) 		# On remove les noeuds entre les deux pour ne pas avoir une node qui pointe vers elle même
+		fusion = self.fusionne_node(enf, par) 		# On fusionne les deux noeuds en prenant comme base enf, donc avec le label copie
+		for enf_enf in enf_node.get_children_ids(): # On rajoute avant chaque enfant un opérateur 'non'
+			new = self.add_node('~')
+			self.add_edge(fusion, new)
+			self.add_edge(new, enf_enf)
+		return True
+
 
 	def transformation_involution_non(self, par : int, enf : int) -> bool:
 		''' 
@@ -609,7 +667,7 @@ class bool_circ(open_digraph):
 		'''
 		enf_node = self.get_node_by_id(enf)
 		par_node = self.get_node_by_id(par)
-		if enf_node.get_label() != '~' or par_node.get_label() != '~' or enf_node.outdegree() == 0 or par_node.indegree() == 0 (par not in enf_node.get_parents_ids()):
+		if enf_node.get_label() != '~' or par_node.get_label() != '~' or enf_node.outdegree() == 0 or par_node.indegree() == 0 or (par not in enf_node.get_parents_ids()):
 			return False
 		# Théoriquement, comme on a deux nodes 'non', il y a un unique parent et un unique enfant.
 		par_par = par_node.get_parents_ids()[0]
@@ -620,37 +678,73 @@ class bool_circ(open_digraph):
 
 	# END 	: Transformations TD 12
 
+
+	# BEGIN : Simplification de circuit, question ouverte
+
+	# Une porte & + & = une seule porte, de même pour | et |, ^ et ^, copie et copie, 
+	# non et non = rien du tout
+	# copie vers deux non différent = non avant copie
+
+	# END	: Simplification de circuit, question ouverte 
+
 	def evaluate(self):
-		modif = True
-		while modif:
-			modif = False
-			cofeuille = self.tri_topologique()[0]
-			for n_id in cofeuille:
-				if not modif:
-					n_node = self.get_node_by_id(n_id)
-					
-					if n_node.outdegree() > 0: # On tiens une co-feuille 
-						n_child = list(n_node.get_children_ids())[0]	
-						if n_child not in self.outputs:	
-							if self.transformation_copie(n_id, n_child):
-								modif = True
-							elif self.transformation_et(n_id, n_child):
-								modif = True
-							elif self.transformation_non(n_id, n_child):
-								modif = True
-							elif self.transformation_ou(n_id, n_child):
-								modif = True
-							elif self.transformation_ou_exclusif(n_id, n_child):
-								modif = True
-			
+		''' 
+		Voir TD11.pdf pour plus de détail sur la fonction
+		'''
+
+
+		transformation_list = [
+			self.transformation_copie,
+			self.transformation_et,
+			self.transformation_non,
+			self.transformation_ou,
+			self.transformation_ou_exclusif,
+			self.transformation_neutre,
+			]
+
+		topo = self.tri_topologique()
+		for par in topo[0]:
+			par_node = self.get_node_by_id(par)
+			for enf in par_node.get_children_ids():
+					enf_node = self.get_node_by_id(enf)
+					for transfo in transformation_list:
+						if transfo(par, enf):
+							self.evaluate()
+							return True
+		return False
+
+	def simplify(self) -> bool:
+		''' 
+		return		: bool, vrai si le graph a pu être simplifié et faux sinon
+		'''
+		transformation_list = [
+			self.transformation_involution_non,
+			self.transformation_non_copie,
+			self.transformation_non_xor,
+			self.transformation_effacement,
+			self.transformation_involution_xor,
+			self.transformation_association_copie,
+			self.transformation_association_xor,
+			]
+
+		for par in list(self.nodes.keys()):
+			par_node = self.get_node_by_id(par)
+			for enf in par_node.get_children_ids():
+				for transfo in transformation_list:
+					if transfo(par, enf):
+						self.simplify()
+						return True
+		return False
+
+
 	@classmethod
 	def encoder(cls):
-		cls = bool_circ.from_string("(x1)^(x3)^(x4)", "(x1)^(x3)^(x4)","(x1)","(x2)^(x3)^(x4)", "(x2)", "(x3)", "(x4)")
+		cls = bool_circ.from_string("(x1)^(x2)^(x4)", "(x1)^(x3)^(x4)","(x1)","(x2)^(x3)^(x4)", "(x2)", "(x3)", "(x4)")
 		return cls
 
 	@classmethod
 	def decoder(cls):
-		b = bool_circ.encoder()
+		part_1 = bool_circ.from_string("(x1)^(x3)^(x5)^(x7)", "(x2)^(x3)^(x6)^(x7)","(x3)","(x4)^(x5)^(x6)^(x7)", "(x5)", "(x6)", "(x7)")
 		cls = bool_circ.from_string("((x1)&(x2)&(~(x4)))^(x3)", "(x5)^((x1)&(x4)&(~(x2)))", "(x6)^((~(x1))&(x2)&(x4))","(x7)^((x1)&(x2)&(x4))")
-		cls.icompose(b)
+		cls.icompose(part_1)
 		return cls

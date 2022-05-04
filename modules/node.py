@@ -102,7 +102,7 @@ class node:
 		return sum(self.children.values())
 	
 	def degree(self) -> int:
-		return self.indegree + self.outdegree
+		return self.indegree() + self.outdegree()
 	
 	def shift_indice(self, shiftInd : int):
 		pc = {}

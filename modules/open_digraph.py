@@ -84,17 +84,19 @@ class open_digraph:
 		self.outputs = ids
 
 	def add_input_id(self, id : int):
-		self.inputs.append(id)
+		if id not in self.inputs:
+			self.inputs.append(id)
 
 	def add_outputs_id(self, id : int):
-		self.outputs.append(id)
+		if id not in self.outputs:
+			self.outputs.append(id)
 
 	def new_id(self):
 		return self.c + 1
 
-	def add_edge(self, src : int, trg : int):
-		self.get_node_by_id(src).add_children_id(trg)
-		self.get_node_by_id(trg).add_parent_id(src)
+	def add_edge(self, src : int, trg : int, mult = 1):
+		self.get_node_by_id(src).add_children_id(trg, mult)
+		self.get_node_by_id(trg).add_parent_id(src, mult)
 	
 	def add_edges(self, edgeList):
 		for (src, trg) in edgeList:
@@ -142,7 +144,7 @@ class open_digraph:
 		else:
 			self.add_node(id=id_added)
 		self.add_edge(id_added, id)
-		self.inputs.append(id_added)
+		self.add_input_id(id_added)
 		return id_added
 
 	def add_output_node(self, id : int, id_added=0) -> int:
@@ -159,7 +161,7 @@ class open_digraph:
 		else:
 			self.add_node(id=id_added)
 		self.add_edge(id, id_added)
-		self.outputs.append(id_added)
+		self.add_outputs_id(id_added)
 		return id_added
 
 	def remove_edge(self, src : int, trg : int):
@@ -237,7 +239,7 @@ class open_digraph:
 		id_node = self.get_node_by_id(id)
 		while len(id_node.get_children_ids()) > 0:
 			chi = list(id_node.get_children_ids())[0]
-			self.remove_parallel_edge(chi, id)
+			self.remove_parallel_edge(id, chi)
 
 	def is_well_formed(self):
 		''' 
@@ -306,6 +308,7 @@ class open_digraph:
 		shift : int, Un entier quelconque. (n=0 n'aura aucun effet sur le graphe)
 		'Shift les indice' de toutes les nodes du graph, i.e déplace tout les ids des nodes de 'n'.
 		'''
+		self.c = self.c + shift
 		old_new = []
 		key_inv = sorted(self.nodes.keys())
 		if shift > 0: # Si on doit faire un shift positif, on va d'abord décaler les plus grands nombre puis les plus petits, afin de ne pas écraser de donnée.
@@ -336,16 +339,15 @@ class open_digraph:
 		M = self.max_id()
 		m = g.max_id()
 		id_max = max(m, M) # Pour empêcher un chevauchement des ID ou des IDs qui sont les même dans les deux graph, on effectue un shife indice
-		self.c = id_max*2
 		self.shift_indices(id_max)
 		for n in g.get_nodes():
 			n = n.copy()
 			n_id = n.get_id()
 			self.nodes[n_id] = n.copy()
-			if n_id in g.inputs:
-				self.inputs.append(n_id)
-			if n_id in g.outputs:
-				self.outputs.append(n_id)
+		for inp in g.inputs:
+			self.add_input_id(inp)
+		for out in g.outputs:
+			self.add_outputs_id(out)
 
 	@classmethod
 	def parallel(cls, a,b_list):
@@ -767,34 +769,30 @@ class open_digraph:
 		''' 
 		a			: int, l'id du premier noeud de la fusion
 		b			: int, l'id du second noeud de la fsion
-		new_label	: le label du noeud crée par la fusion (Sera le label de a si non spécifié)
+		new_label	: [Optional] str, le label du noeud crée par la fusion (Sera le label de a si non spécifié)
 		return		: int, l'id du noeud crée par la fusion
-		Fusionne les deux noeuds dont les ids sont donnés en paramètre
+		Fusionne les deux noeuds dont les ids sont donnés en paramètre.
+		En réalité, le noeud 'a' va 'absorber' le noeud b, càd que le noeud a va conserver toutes ses propriétée (Si c'est un input, un output et son label)
+		Si b est un output et que a peut le devenir avec la fusion, alors le nouveau noeud sera un output. Idem pour les inputs.
 		'''
 		self.remove_parallel_edge(a, b)
-		self.remove_edge(b, a)
+		self.remove_parallel_edge(b, a)
+
 		an = self.get_node_by_id(a)
 		bn = self.get_node_by_id(b)
-		# On va maintenant faire une liste de tout les parents de a et b (resp enfant)
-		par = an.get_parents_ids().copy()
-		chi = an.get_children_ids().copy()
+		if b in self.outputs and a not in self.inputs and an.indegree() == 0:
+			self.add_outputs_id(a)
+		elif b in self.inputs and a not in self.outputs and an.outdegree() == 0:
+			self.add_outputs_id(a)
+
 		for (un, deux) in bn.get_parents_ids().items():
-			if un not in par:
-				par[un] = deux
-			else:
-				par[un] = par[un] + deux
-		
+			self.add_edge(un, a, deux)
 		for (un, deux) in bn.get_children_ids().items():
-			if un not in par:
-				chi[un] = deux
-			else:
-				chi[un] = chi[un] + deux
+			self.add_edge(a, un, deux)
 
-		if new_label == '':
-			new_label = an.get_label()
-
-		self.remove_node_by_id(a)	# On enlève les vieux a et b
-		self.remove_node_by_id(b)
-		fusion = self.add_node(new_label, par, chi, a)
+		if new_label != '':
+			an.set_label(new_label)
 		
-		return fusion
+		self.remove_node_by_id(b) # On enlève b
+		
+		return a

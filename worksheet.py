@@ -60,5 +60,20 @@ import inspect
 #test = bool_circ.from_string("(x1)^(x3)^(x4)", "(x1)^(x3)^(x4)","(x1)","(x2)^(x3)^(x4)", "(x2)", "(x3)", "(x4)")
 #test.display()
 
-bool_circ.encoder().display()
-bool_circ.decoder().display()
+#enc = bool_circ.encoder()
+
+
+helpme = bool_circ.registre(5, 4)
+dec = bool_circ.decoder()
+enc = bool_circ.encoder()
+dec.icompose(enc)
+dec.icompose(helpme)
+dec.display()
+dec.evaluate()
+dec.display()
+print(dec)
+
+#helpme.display()
+#dec.icompose(helpme)
+#dec.evaluate()
+#dec.display()
