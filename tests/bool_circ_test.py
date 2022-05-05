@@ -46,7 +46,6 @@ class InitTest(unittest.TestCase):
 
     def test_k_map(self):
         self.assertEqual(bool_circ.K_map('1110001000111111'), [['1', '0', '1', '0'], ['1', '0', '1', '0'], ['0', '0','1','1'], ['1','1','1','1']]) # Reprise de l'exemple donnée dans l'énnoncé
-        print()
 
     def test_random_bool(self):
         r1 = bool_circ.random_bool(10, inputs=5, outputs=3)
@@ -126,7 +125,5 @@ class InitTest(unittest.TestCase):
 
             self.assertTrue(premier_res == second_res)
 
-
-    
 if __name__ == '__main__':  # the following code is called only when
     unittest.main()         # precisely this file is run
