@@ -25,7 +25,6 @@ class bool_circ(open_digraph):
 
 	def is_well_formed(self) -> bool:
 		if self.is_cyclic():
-			print("not cyclic")
 			return False
 
 		for node in self.nodes.values():
@@ -36,11 +35,8 @@ class bool_circ(open_digraph):
 				if (lab == ' ' or lab == '') and (node.indegree() != 1 ): 																# Les portes de copies doivent avoir une seule entrée
 					return False
 				if (lab == '&' or lab=='|' or lab == '^') and (node.outdegree() != 1): 													# Les portes 'Et' et 'Ou' doivent avoir éxactement une sortie.
-					print("c")
 					return False      
 				if (lab == '~') and (node.outdegree() != 1 or node.indegree() != 1): 													# Les portes 'Non' doivent avoir une entrée et une sortie.
-					print(node)
-					print("d")
 					return False
 
 		return True
@@ -147,26 +143,32 @@ class bool_circ(open_digraph):
 			raise ValueError("L'entrée n'est pas valide.")
 		nombre_input = int(nombre_input)
 		cls = bool_circ.empty()
+		inpuz = []
 		for i in range(nombre_input):
 			an = cls.add_node()
 			cls.add_input_id(an)
+			inpuz.append(an)
 		
 		f_list = []
 		for i in range(len(strinput)): 					# Chaque ligne du tableau
 			if(int(strinput[i]) != 0):
 				table_a_ajouter = bin(i)[2:] 			# Correspond a la ligne du tableau associé a l'output
+				for _ in range (nombre_input - len(table_a_ajouter)):
+					table_a_ajouter ='0' + table_a_ajouter
 				etage = []
+				inpinetaz = []
 				for a in range(nombre_input): 			# Pour chaque colonne du tableau (Sauf output)
-					if (a < len(table_a_ajouter) and table_a_ajouter[a] == 0) or a >= len(table_a_ajouter): # Si la table a la ligne i et colonne a est 0, alors on met la négation
+					if (a < len(table_a_ajouter) and table_a_ajouter[a] == '0') or a >= len(table_a_ajouter): # Si la table a la ligne i et colonne a est 0, alors on met la négation
 						e = cls.add_node('~')																# Note : 0 également si out of bounds donc on le vérifie
-						cls.add_edge(a, e)
+						cls.add_edge(inpuz[a], e)
 						etage.append(e)
+						inpinetaz.append(inpuz[a])
 						
 				f = cls.add_node('&')
 				for e in etage:
 					cls.add_edge(e, f)
 				for inp in cls.get_input_ids():
-					if inp not in etage:
+					if inp not in inpinetaz:
 						cls.add_edge(inp, f)
 				f_list.append(f)
 		
@@ -217,8 +219,6 @@ class bool_circ(open_digraph):
 				line.append(strinput[line_stat])
 			
 			cls.append(line)
-		print(top_cg)
-		print(bot_cg)
 		return cls
 
 	@classmethod
@@ -407,7 +407,7 @@ class bool_circ(open_digraph):
 		retenue_id = cls.inputs[len(cls.inputs) -1]
 		retenue_node =cls.get_node_by_id(retenue_id)
 		for child in retenue_node.children:
-			cls.add_edge(added, child, retenue_node.get_children_mult(child)) # REMOVE_NOTE : Anciennement un for avec ajout pour chaque mult
+			cls.add_edge(added, child, retenue_node.get_children_mult(child))
 		cls.remove_node_by_id(retenue_id)
 		return cls
 
@@ -491,14 +491,11 @@ class bool_circ(open_digraph):
 		if enf_node.get_label() != '&' or (par_node.get_label() != '0' and par_node.get_label() != '1') or (par not in enf_node.get_parents_ids()):
 			return False
 		lab = par_node.get_label()
-		new = self.fusionne_node(par, enf)
+		self.remove_parallel_edge(par, enf)
 		if lab == '0': # Si c'est un 0, alors la porte vaut forcément zéro
 			lab = '0'
-			self.remove_all_parents(new)
-		else: # Si c'est un 1, ça dépend de la deuxième entrée
-			lab = ''
-		new_node = self.get_node_by_id(new)
-		new_node.set_label(lab)
+			self.remove_all_parents(enf)
+			enf_node.set_label('0')
 		return True
 
 	def transformation_ou_exclusif(self, par : int, enf : int) -> bool:
@@ -613,8 +610,6 @@ class bool_circ(open_digraph):
 		self.remove_parallel_edge(par, enf)
 		if new_mult == 1:
 			self.add_edge(par, enf)
-		#elif enf_node.indegree() == 0:
-	#		self.fusionne_node(par, enf)
 		
 		return True
 	
@@ -651,14 +646,13 @@ class bool_circ(open_digraph):
 	def transformation_non_copie(self, par : int, enf : int) -> bool:
 		''' 
 		par		: int, l'id d'une node '~'
-		enf		: int, l'id d'une node copie, enfant de la node par
+		enf		: int, l'id d'une node copie, enfant de la node par qui n'est pas un output
 		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
 		'''
 		enf_node = self.get_node_by_id(enf)
 		par_node = self.get_node_by_id(par)
-		if enf_node.get_label() != '' or par_node.get_label() != '~' or (par not in enf_node.get_parents_ids()):
+		if enf_node.get_label() != '' or par_node.get_label() != '~' or (par not in enf_node.get_parents_ids()) or enf in self.outputs:
 			return False
-
 		news = []
 		for enf_enf in enf_node.get_children_ids(): # On rajoute avant chaque enfant un opérateur 'non'
 			new = self.add_node('~')	
@@ -668,7 +662,7 @@ class bool_circ(open_digraph):
 		self.remove_all_childrens(enf)
 		for new in news:
 			self.add_edge(enf, new)
-
+		
 		fusion = self.fusionne_node(enf, par) # On fusionne les deux noeuds en prenant comme base enf, donc avec le label copie
 		return True
 
@@ -825,11 +819,7 @@ class bool_circ(open_digraph):
 
 	# END	: Simplification de circuit, question ouverte 
 
-	def evaluate(self) -> bool:
-		''' 
-		return		: bool, vrai si le graphe a été changé et faux sinon
-		Voir TD11.pdf pour plus de détail sur la fonction
-		'''
+	def evaluate_sub(self) -> bool:
 		transformation_list = [
 			self.transformation_copie,
 			self.transformation_et,
@@ -838,7 +828,6 @@ class bool_circ(open_digraph):
 			self.transformation_ou_exclusif,
 			self.transformation_neutre
 			]
-
 		topo = self.tri_topologique()
 		for par in topo[0]:
 			par_node = self.get_node_by_id(par)
@@ -846,15 +835,23 @@ class bool_circ(open_digraph):
 					enf_node = self.get_node_by_id(enf)
 					for transfo in transformation_list:
 						if transfo(par, enf):
-							self.evaluate()
 							return True
 		
 		return False
-	
-	def simplify_sub(self):
+
+	def evaluate(self) -> bool:
+		''' 
+		return		: bool, vrai si le graphe a été changé et faux sinon
+		Voir TD11.pdf pour plus de détail sur la fonction
+		'''
+		modif = True
+		while modif:
+			modif = self.evaluate_sub()
+		
+	def simplify_sub(self) -> bool:
 		transformation_list = [
 			self.transformation_involution_non,
-			self.transformation_non_copie,
+			self.transformation_non_copie, # CAUSE PB DANS TEST
 			self.transformation_non_xor,
 			self.transformation_involution_xor,
 			# Les transformations d'associations ont été fusionnées dans la question ouverte.
@@ -881,16 +878,13 @@ class bool_circ(open_digraph):
 						return True
 		return False
 
-	def simplify(self) -> bool:
+	def simplify(self):
 		''' 
-		return		: bool, vrai si le graph a pu être simplifié et faux sinon
 		Simplifie le graphe jusqu'a ce que ça ne soit plus possible.
 		'''
 		modif = True
 		while modif:
 			modif = self.simplify_sub()
-
-		return False
 
 
 	@classmethod

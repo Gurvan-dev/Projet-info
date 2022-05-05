@@ -105,7 +105,7 @@ import inspect
 
 #rand = bool_circ.random_bool(20,5,5)
 #rand.simplify()
-#rand.display()
+#pyrand.display()
 
 test_range = 150
 tot = 0
@@ -142,16 +142,28 @@ print(tot/test_range)
 #testtt.evaluate()
 #testtt.display()
 
-id = bool_circ.decoder()
-id.icompose(bool_circ.encoder())
-id.display()
-id.simplify()
-id.display()
-print(id)
-id.icompose(bool_circ.registre(15, 4))
-print(id)
-id.evaluate()
-id.display()
+#id = bool_circ.decoder()
+#id.icompose(bool_circ.encoder())
+#id.display()
+#id.simplify()
+#id.display()
+#print(id)
+#id.icompose(bool_circ.registre(15, 4))
+#print(id)
+#id.evaluate()
+#id.display()
+
+paypay = bool_circ.empty()
+n1 = paypay.add_node('~')
+n2 = paypay.add_node('')
+n3 = paypay.add_node('&')
+n4 = paypay.add_node('|')
+paypay.add_edge(n1, n2)
+paypay.add_edge(n2, n3)
+paypay.add_edge(n2, n4)
+paypay.display()
+paypay.simplify()
+paypay.display()
 
 
 # 6.98

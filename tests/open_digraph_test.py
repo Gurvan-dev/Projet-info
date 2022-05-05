@@ -230,18 +230,7 @@ class InitTest(unittest.TestCase):
             o3.longest_path(11, 1)
 
         self.assertEqual(o3.longest_path(1, 8), ([4,6], 3))
-    def test_open_digraph_from_string(self):
-        g = bool_circ.from_string('((x0)&((x1)&(x2)))|((x1)&(~(x2)))')
-        self.assertTrue(g.is_well_formed())
-        #g.display()
-
-        g2 = bool_circ.from_string("((x0)&((x1)&(x2)))|((x1)&(~(x2)))", "((x0)&(~(x1)))|(x2)")
-        self.assertTrue(g2.is_well_formed())
-        #g2.display()
-
-        g3 = bool_circ.from_string("((x0)&(x1)&(x2))|((x1)&(~(x2)))") 
-        self.assertTrue(g3.is_well_formed())
-        #g3.display()
+    
 
     def test_matrix_digraph(self):
         n = 5
@@ -280,13 +269,29 @@ class InitTest(unittest.TestCase):
         
 
         o2 = open_digraph.random(n, bound, form="loop-free undirected")
-        # TODO : Vérifier ici que o2 est symmétrique ET n'a aucun node qui pointe vers lui même
+        for ids in o2.nodes:
+            ids_node = o2.get_node_by_id(ids)
+            self.assertTrue(ids not in ids_node.get_children_ids())
 
         m = open_digraph.random(5, 5, 3, 3)
         m.save_as_dot_file()
         m2 = open_digraph.from_dot_file("Out.dot")
 
         self.assertEqual(m, m2)
+
+    def test_fusionne_node(self):
+        o = open_digraph.empty()
+        
+        n1 = o.add_node()
+        i1 = o.add_input_node(n1)
+        n2 = o.add_node()
+        o1 = o.add_output_node(n2)
+        o.add_edge(n1, n2)
+        self.assertTrue(len(o.nodes) == 4)
+        o.fusionne_node(n1, n2)
+        self.assertTrue(len(o.nodes) == 3)
+        self.assertTrue(n1 in o.get_node_by_id(o1).get_parents_ids())
+
 
 if __name__ == '__main__':  # the following code is called only when
     unittest.main()         # precisely this file is run

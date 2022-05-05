@@ -691,7 +691,6 @@ class open_digraph:
 		'''
 		def tri_annexe(graph, depth, prev=[]): 				# On va ici utiliser une méthode récursive avec une sous fonction.
 			prev.append([])									# On rajoute un étage de 'Pronfondeur'
-			to_be_removed = []
 			for i in graph.nodes.values():
 				if len(i.parents) == 0: 					# On regarde si le graph d'id i est une co-feuilles i.e qu'il n'a pas de parents
 					prev[depth].append(i.get_id()) 
