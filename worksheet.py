@@ -74,13 +74,16 @@ import inspect
 #print(dec)
 
 #a = 5
-#b = 5
+#b = 6
 #encodage = 2
 #encodage_reel = 2**encodage
 #abc = bool_circ.registre(a, encodage_reel)
-#bbc = bool_circ.registre(b, encodage_reel)
+#abc.display()
+##bbc = bool_circ.registre(b, encodage_reel)
+#bbc.display()
 #ayder = bool_circ.half_adder(encodage)
 #abc.iparallel(bbc)
+#abc.display()
 
 #ayder.display()
 #ayder.icompose(abc)
@@ -100,11 +103,15 @@ import inspect
 #rand.simplify()
 #rand.display()
 
-test_range = 100
+rand = bool_circ.random_bool(20,5,5)
+rand.simplify()
+rand.display()
+
+test_range = 150
 tot = 0
 for _ in range(test_range):
-    rand = bool_circ.random_bool(20,5,5)
-    rand.save_as_dot_file('erreur.dot')
+    rand = bool_circ.random_bool(50,5,5)
+    #rand.save_as_dot_file('erreur.dot')
     #rand.display()
     pre = len(rand.nodes)
     rand.simplify()
@@ -118,3 +125,34 @@ print(tot/test_range)
 #dec.icompose(helpme)
 #dec.evaluate()
 #dec.display()
+
+#testtt = bool_circ.from_string("(x1)^(x1)^(x2)^(x3)^(x2)^(x3)")
+#testtt.display()
+#testtt2 = bool_circ(testtt.copy())
+
+#ayo = bool_circ.registre(3, 3)
+
+#testtt2.icompose(ayo)
+#testtt2.evaluate()
+#testtt2.display()
+
+#testtt.simplify()
+#testtt.display()
+#testtt.icompose(ayo)
+#testtt.evaluate()
+#testtt.display()
+
+#id = bool_circ.decoder()
+#id.icompose(bool_circ.encoder())
+#id.display()
+#id.simplify()
+#id.display()
+#print(id)
+#id.icompose(bool_circ.registre(15, 4))
+#print(id)
+#id.evaluate()
+#id.display()
+
+
+# 6.98
+# 7.79

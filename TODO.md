@@ -25,6 +25,7 @@ utilisé (dans la méthode, donc), ce qui évite de potentiellement l’oublier.
 ## Possibles bugs & Questions
 
 - [.] écrire des tests pour bool_circ
+- [.] On peut penser a faire l'association a travers les copies pour gagner plein de petite node sympa
 
 ## Documentations & Autre
 

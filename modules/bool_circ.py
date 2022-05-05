@@ -548,19 +548,24 @@ class bool_circ(open_digraph):
 
 	def transformation_neutre(self, par : int, enf : int) -> bool:
 		''' 
-		par		: int, l'id d'une note '^' , '|' ou '&'
+		par		: int, l'id d'une note '^' , '|' ou '&' qui ne possède pas de parents, ou alors un seul.
 		enf		: int, l'id d'une node enfant de par quelconque
 		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
 		'''
 		enf_node = self.get_node_by_id(enf)
 		par_node = self.get_node_by_id(par)
 		par_label = par_node.get_label()
-		if (par_label != '|' and par_label != '^' and par_label != '&') or (par not in enf_node.get_parents_ids()):
+		if (par_label != '|' and par_label != '^' and par_label != '&') or (par not in enf_node.get_parents_ids()) or par_node.indegree() > 1:
 			return False
-		lab = '0'
-		if par_label == '&':
-			lab = '1'
-		par_node.set_label(lab)
+		
+		if par_node.indegree() == 0:
+			lab = '0'
+			if par_label == '&':
+				lab = '1'
+			par_node.set_label(lab)
+		else:
+			par_par = list(par_node.get_parents_ids().keys())[0] # indegree == 1, donc il y a un seul parent, on fusionne
+			self.fusionne_node(par_par, par) # Si il n'y a qu'un parent, alors on peut simplement effacer la node.
 		return True
 
 	# END 	: Transformations TD11
@@ -588,7 +593,7 @@ class bool_circ(open_digraph):
 		'''
 		enf_node = self.get_node_by_id(enf)
 		par_node = self.get_node_by_id(par)
-		if enf_node.get_label() != '' or par_node.get_label() != '' or (par not in enf_node.get_parents_ids()):
+		if enf_node.get_label() != '' or par_node.get_label() != '' or (par not in enf_node.get_parents_ids()) or enf in self.outputs:
 			return False
 		new = self.fusionne_node(par, enf)
 		return True
@@ -608,8 +613,8 @@ class bool_circ(open_digraph):
 		self.remove_parallel_edge(par, enf)
 		if new_mult == 1:
 			self.add_edge(par, enf)
-		elif enf_node.indegree() == 0:
-			self.fusionne_node(par, enf)
+		#elif enf_node.indegree() == 0:
+	#		self.fusionne_node(par, enf)
 		
 		return True
 	
@@ -688,9 +693,135 @@ class bool_circ(open_digraph):
 
 	# BEGIN : Simplification de circuit, question ouverte
 
-	# Une porte & + & = une seule porte, de même pour | et |, ^ et ^, copie et copie, 
-	# non et non = rien du tout
-	# copie vers deux non différent = non avant copie
+	# Les règles suivantes ont été élaborées dans un seul but : Si on prend le décoder composé a l'encodeur et que l'on simplifie ce circuit booléen,
+	# on veut directement obtenir l'identitée. Les règles précédentes n'étant pas suffisantes, on a décidé d'ajouter les règles qui suivent dans ce but.
+
+	# Transformation de l'associativité pour toutes les opérations qui peuvent l'accépter. 
+	def transformation_association(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une node '^', '&', '|' ou copie.
+		enf		: int, l'id d'une node avec le même label que par, enfant de par
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		par_label = par_node.get_label()
+		enf_label = enf_node.get_label()
+		if enf_label != par_label or (par_label != '^' and par_label != '' and par_label != '|' and par_label != '&') or (par not in enf_node.get_parents_ids()):
+			return False
+		if enf_label == '' and enf in self.outputs: # Cas particulier : On ne veut pas 'manger' les outputs.
+			return False
+		new = self.fusionne_node(par, enf)
+		return True
+
+	# Transformation de supression de copie inutile : Une copie avec un seul enfant peut être supprimée sans perte
+	def transformation_copie_inutile(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une node quelconque.
+		enf		: int, l'id d'une node copie avec un seul enfant, enfant de la node 'par'
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		par_label = par_node.get_label()
+		enf_label = enf_node.get_label()
+		if enf_label != '' or (par not in enf_node.get_parents_ids()) or enf_node.outdegree() != 1:
+			return False
+		new = self.fusionne_node(par, enf)
+		return True
+
+	# Si on a A | (A&...) alors on peut le simplifier en A | (...)
+	def transformation_et_ou(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une node quelconque.
+		enf		: int, l'id d'une node '|', enfant de la node A.
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		par_label = par_node.get_label()
+		enf_label = enf_node.get_label()
+		if enf_label != '|' or (par not in enf_node.get_parents_ids()):
+			return False
+		# On va regarder les parents de la node enfant. On veut y trouver soit une node & enfant de A,
+		# soit une node de copie, enfant d'une node '&' elle même enfant de A.
+		# Pour avoir un algorithme qui reste plus ou moins rapide, on va regarder tout ça directement et très simplement
+		par_copie_list = [] # On fait une liste de tout les parents de enf qui sont des copies
+		par_et_list = [] 	# On fait une lsite de tout les parents de enf qui sont des noeuds '&'
+		for enf_par in enf_node.get_parents_ids():
+			enf_par_node = self.get_node_by_id(enf_par)
+			if enf_par_node.get_label() == '':
+				par_copie_list.append(enf_par)
+			if enf_par_node.get_label() == '&':
+				par_et_list.append(enf_par)
+		par_par_et_list = {} # On stocke le noeud de par_par qui est un '&', et son enfant qui est la copie reliée a '|'.
+		for enf_par_cop in par_copie_list:
+			enf_par_cop_node = self.get_node_by_id(enf_par_cop)
+			for enf_par_cop_par in enf_par_cop_node.get_parents_ids():
+				enf_par_cop_par_node = self.get_node_by_id(enf_par_cop_par)
+				if enf_par_cop_par_node.get_label == '&':
+					par_par_et_list[enf_par_cop_par_node] = enf_par_cop
+		
+		# On a donc tout les parents de enf direct qui sont des noeuds '&'. Il nous reste a voir si A est parent d'une de ces node.
+		par_fus = []
+		par_par_fus = []
+		for possible in par_et_list:
+			possible_node = self.get_node_by_id(possible)
+			if par in possible_node.get_parents_ids():
+				par_fus.append(possible)
+		
+		for possible in list(par_par_et_list.keys()):
+			possible_node = self.get_node_by_id(possible)
+			if par in possible_node.get_parents_ids():
+				par_par_fus.append(possible)
+		
+		if (len(par_fus) + len(par_par_fus)) == 0:
+			return False # On n'a trouvé aucune fusion possible.
+		
+		# Il nous reste a supprimer les passage inutiles découverts
+
+		for n in par_fus: # Si la liaison est direct, on retire le lien de '&' vers le '|'
+			self.remove_parallel_edge(n, enf)
+		for n in par_par_fus: # Si la liaison n'est pas direct, on retire le lien de la copie vers '|'
+			self.remove_parallel_edge(par_par_et_list[n], enf)
+
+		return True
+
+	# Si on a A & (~A) alors c'est toujours faux.
+	def transformation_a_et_non_a(self, par : int, enf : int) -> bool:
+		''' 
+		par		: int, l'id d'une node copie. (Elle doit avoir au moins deux enfant, le & et le ~, donc c'est forcément une copie)
+		enf		: int, l'id d'une node '&', enfant de par.
+		return	: bool, vrai si la transformation a pu être éffécutée et faux sinon
+		'''
+		enf_node = self.get_node_by_id(enf)
+		par_node = self.get_node_by_id(par)
+		par_label = par_node.get_label()
+		enf_label = enf_node.get_label()
+		if enf_label != '&' or (par not in enf_node.get_parents_ids()):
+			return False
+
+		par_enf_non_list = []
+		for par_enf in par_node.get_children_ids():
+			par_enf_node = self.get_node_by_id(par_enf)
+			if par_enf_node.get_label() == '~':
+				par_enf_non_list.append(par_enf)
+
+		et_nul = False
+		for par_enf_non in par_enf_non_list:
+			par_enf_non_node = self.get_node_by_id(par_enf_non)
+			if enf in par_enf_non_node.get_children_ids():
+				et_nul = True
+				break
+			
+		if not et_nul:
+			return False
+
+		enf_node.set_label('0')
+		self.remove_all_parents(enf)
+
+		return True
+		
 
 	# END	: Simplification de circuit, question ouverte 
 
@@ -705,7 +836,7 @@ class bool_circ(open_digraph):
 			self.transformation_non,
 			self.transformation_ou,
 			self.transformation_ou_exclusif,
-			self.transformation_neutre,
+			self.transformation_neutre
 			]
 
 		topo = self.tri_topologique()
@@ -719,15 +850,28 @@ class bool_circ(open_digraph):
 							return True
 		
 		return False
-
+	
 	def simplify_sub(self):
 		transformation_list = [
 			self.transformation_involution_non,
 			self.transformation_non_copie,
 			self.transformation_non_xor,
 			self.transformation_involution_xor,
-			self.transformation_association_copie,
-			self.transformation_association_xor,
+			# Les transformations d'associations ont été fusionnées dans la question ouverte.
+			#self.transformation_association_copie,
+			#self.transformation_association_xor,
+			# A partir d'ici, les transformations sont celle ajoutée dans la question bonus du TD12.
+			self.transformation_copie_inutile,
+			self.transformation_association,
+			self.transformation_et_ou,
+			self.transformation_a_et_non_a,
+			# On ajoute également les fonctions du TD11.pdf ici, car certaines transformations (Nottament transformation_a_et_non_a) introduisent des constantes.
+			self.transformation_copie,
+			self.transformation_et,
+			self.transformation_non,
+			self.transformation_ou,
+			self.transformation_ou_exclusif,
+			self.transformation_neutre
 			]
 		for par in list(self.nodes.keys()):
 			par_node = self.get_node_by_id(par)
@@ -740,6 +884,7 @@ class bool_circ(open_digraph):
 	def simplify(self) -> bool:
 		''' 
 		return		: bool, vrai si le graph a pu être simplifié et faux sinon
+		Simplifie le graphe jusqu'a ce que ça ne soit plus possible.
 		'''
 		modif = True
 		while modif:
@@ -768,4 +913,4 @@ class bool_circ(open_digraph):
 		ret = ""
 		for out in self.outputs:
 			ret = ret + self.get_node_by_id(out).get_label()
-		return ret
+		return ret 
