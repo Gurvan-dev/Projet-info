@@ -73,7 +73,7 @@ class bool_circ(open_digraph):
 				if c == '(':		
 					if(cn.get_label() != s2):				# Si le label est déjà égal a s2, on évite d'avoir des problème du genre '&&' comme label
 						cn.set_label(cn.get_label() + s2)
-					current_node = g.add_node('', '', [current_node])
+					current_node = g.add_node('', children={current_node:1})
 					s2 = ''
 				elif c == ')':
 					

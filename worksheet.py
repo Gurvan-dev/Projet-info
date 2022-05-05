@@ -103,9 +103,9 @@ import inspect
 #rand.simplify()
 #rand.display()
 
-rand = bool_circ.random_bool(20,5,5)
-rand.simplify()
-rand.display()
+#rand = bool_circ.random_bool(20,5,5)
+#rand.simplify()
+#rand.display()
 
 test_range = 150
 tot = 0
@@ -142,16 +142,16 @@ print(tot/test_range)
 #testtt.evaluate()
 #testtt.display()
 
-#id = bool_circ.decoder()
-#id.icompose(bool_circ.encoder())
-#id.display()
-#id.simplify()
-#id.display()
-#print(id)
-#id.icompose(bool_circ.registre(15, 4))
-#print(id)
-#id.evaluate()
-#id.display()
+id = bool_circ.decoder()
+id.icompose(bool_circ.encoder())
+id.display()
+id.simplify()
+id.display()
+print(id)
+id.icompose(bool_circ.registre(15, 4))
+print(id)
+id.evaluate()
+id.display()
 
 
 # 6.98

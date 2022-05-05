@@ -98,8 +98,8 @@ class InitTest(unittest.TestCase):
 
         o3 = open_digraph.empty()
         o3.add_node('i')
-        o3.add_node('j', {1}, {1})
-        o3.add_node('k', {2}, {1})
+        o3.add_node('j', {1:1}, {1:1})
+        o3.add_node('k', {2:1}, {1:1})
         o3.remove_edges([(1, 2), (2, 3)])
 
 
@@ -141,10 +141,11 @@ class InitTest(unittest.TestCase):
         o1 = open_digraph().empty()
         o2 = o1.copy()
         o1.shift_indices(2)
-        self.assertEqual(o1, o2) # Edge case : Shift l'indice sur un graphe vide ne devrait pas avoir d'effet.
-
+        self.assertEqual(o1, o2)    # Edge case : Shift l'indice sur un graphe vide ne devrait pas avoir d'effet.
+        o1.shift_indices(-2)        # Le compteur interne de c sera ainsi remis a 0
         for _ in range(10):
             o1.add_node()
+        
         for i in range(5):
             o1.add_edge(i+1, i+2) # On va vérifier que le shift indice fonctionne aussi en testant avec des edges
         
@@ -154,12 +155,9 @@ class InitTest(unittest.TestCase):
         o2 = o1.copy()
         
         self.assertTrue(o1.is_well_formed()) # Ce assert ne vérifie pas si shiftIndice fonctionne mais vérifie que le test est cohérent
-        print(o2)
         o2.shift_indices(2)
         self.assertTrue(o1.is_well_formed()) # On vérifie ici que le shift indice a gardé la cohérence de o1
-        print(o2)
         o2.shift_indices(-2)
-        print(o2)
         self.assertTrue(o1.is_well_formed()) # On va vérifier que les deux shift se sont équilibrés, et que l'on n'a pas perdu de données entre temps.
         self.assertEqual(o1, o2)
 

@@ -92,7 +92,8 @@ class open_digraph:
 			self.outputs.append(id)
 
 	def new_id(self):
-		return self.c + 1
+		self.c = self.c + 1
+		return self.c
 
 	def add_edge(self, src : int, trg : int, mult = 1):
 		self.get_node_by_id(src).add_children_id(trg, mult)
@@ -119,14 +120,15 @@ class open_digraph:
 			parents={}
 		if children is None:
 			children={}
+		
 		if id <= 0:
 			id = self.new_id()
-		self.c = self.c + 1
+		
 		self.nodes[id] = node(id, label, {}, {})
 		for p in parents:
-			self.add_edge(p, id)
+			self.add_edge(p, id, parents[p])
 		for c in children:
-			self.add_edge(id, c)
+			self.add_edge(id, c, children[c])
 		return id
 
 	def add_input_node(self, id : int, id_added=0) -> int:
