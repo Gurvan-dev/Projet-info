@@ -684,7 +684,6 @@ class bool_circ(open_digraph):
 
 	# END 	: Transformations TD 12
 
-
 	# BEGIN : Simplification de circuit, question ouverte
 
 	# Les règles suivantes ont été élaborées dans un seul but : Si on prend le décoder composé a l'encodeur et que l'on simplifie ce circuit booléen,
@@ -815,11 +814,22 @@ class bool_circ(open_digraph):
 		self.remove_all_parents(enf)
 
 		return True
+	
+	# Sert a 'nettoyer' le graphe : Si un noeud n'est ni un output ni un input et n'a pas de parents ni d'enfant, alors on peut le supprimer sans perte de donnée car il ne sert a rien.
+	def transformation_nettoyage(self, id : int) -> bool:
+		id_node = self.get_node_by_id(id)
+		if id_node.indegree() != 0 or id_node.outdegree() != 0 or id in self.inputs or id in self.outputs:
+			return False
+		self.remove_node_by_id(id)
+		return True
 		
 
 	# END	: Simplification de circuit, question ouverte 
 
 	def evaluate_sub(self) -> bool:
+		''' 
+		return	:	bool, True si le circuit a pu avancer dans l'évaluation et faux sinon
+		'''
 		transformation_list = [
 			self.transformation_copie,
 			self.transformation_et,
@@ -839,19 +849,23 @@ class bool_circ(open_digraph):
 		
 		return False
 
-	def evaluate(self) -> bool:
+	def evaluate(self):
 		''' 
-		return		: bool, vrai si le graphe a été changé et faux sinon
 		Voir TD11.pdf pour plus de détail sur la fonction
 		'''
 		modif = True
 		while modif:
 			modif = self.evaluate_sub()
+		self.nettoyage()
 		
 	def simplify_sub(self) -> bool:
+		''' 
+		return		:  bool, True si le circuit booléen a pu être simplifié et faux sinon
+		Simplifie le circuit booléen une seule fois.
+		'''
 		transformation_list = [
 			self.transformation_involution_non,
-			self.transformation_non_copie, # CAUSE PB DANS TEST
+			self.transformation_non_copie,
 			self.transformation_non_xor,
 			self.transformation_involution_xor,
 			# Les transformations d'associations ont été fusionnées dans la question ouverte.
@@ -885,7 +899,27 @@ class bool_circ(open_digraph):
 		modif = True
 		while modif:
 			modif = self.simplify_sub()
+		
+		self.nettoyage()
 
+
+	def nettoyage_sub(self) -> bool:
+		'''
+		return	:	bool, True si le graphe a pu être néttoyé et faux sinon
+		Supprime une node du graphe sans parents ni enfant si possible
+		'''
+		for id in list(self.nodes.keys()):
+			if self.transformation_nettoyage(id):
+				return True
+		return False
+
+	def nettoyage(self):
+		'''
+		Nettoie le graphe, càd supprime toutes les nodes qui n'ont ni parents ni enfant
+		'''
+		modif = True
+		while modif:
+			modif = self.nettoyage_sub()
 
 	@classmethod
 	def encoder(cls):

@@ -2,115 +2,13 @@ from modules.open_digraph import *
 from modules.bool_circ import *
 import inspect
 
-#print(dir(node))
-#print(dir(open_digraph.empty))
+# Ci dessous un test pour connaître le nombre de node retiré en moyenne par une simplification
 
-#print("\n")
-
-#print(inspect.getdoc(node.__init__))
-#print("\n")
-#print(inspect.getsource(node.__init__))
-#print("\n")
-#print(inspect.getfile(node.__init__))
-#print("\n")
-
-#m = open_digraph.random(5, 5, 3, 3)
-#m.get_node_by_id(1).set_label('cool') # label cool
-# m.display()
-#m2 = m.from_dot_file('tmp.dot')
-
-#m2.iparallel(m)
-#m2.display()
-#print(m2.connected_components())
-
-
-#s = '1100000001010111'
-#a = bool_circ.from_table(s)
-
-
-#print(bool_circ.code_gray(1))
-#print(bool_circ.code_gray(2))
-#print(bool_circ.code_gray(3))
-
-#print(bool_circ.K_map(s))
-
-#bool_circ.random_bool(10, inputs=11, outputs=24).display()
-#add0 = bool_circ.adder(1)
-#print(add0.inputs)
-#add0.display()
-#bool_circ.adder(1).display()
-
-#a = 32
-#b = 57
-#taille = 8
-#abc =  bool_circ.registre(a, taille)
-#bbc = bool_circ.registre(b, taille)
-#abc.iparallel(bbc)
-#add = bool_circ.half_adder(3)
-#add.display()
-#add.icompose(abc)
-
-#add.evaluate()
-#c = bool_circ.registre((a+b),taille)
-#add.display()
-#c.display()
-#print(c)
-#print(add)
-
-#test = bool_circ.from_string("(x1)^(x3)^(x4)", "(x1)^(x3)^(x4)","(x1)","(x2)^(x3)^(x4)", "(x2)", "(x3)", "(x4)")
-#test.display()
-
-#enc = bool_circ.encoder()
-
-
-#helpme = bool_circ.registre(5, 4)
-#dec = bool_circ.decoder()
-#enc = bool_circ.encoder()
-#dec.icompose(enc)
-#dec.icompose(helpme)
-#dec.display()
-#dec.evaluate()
-#dec.display()
-#print(dec)
-
-#a = 5
-#b = 6
-#encodage = 2
-#encodage_reel = 2**encodage
-#abc = bool_circ.registre(a, encodage_reel)
-#abc.display()
-##bbc = bool_circ.registre(b, encodage_reel)
-#bbc.display()
-#ayder = bool_circ.half_adder(encodage)
-#abc.iparallel(bbc)
-#abc.display()
-
-#ayder.display()
-#ayder.icompose(abc)
-
-#ayder.display()
-#print(ayder)
-#ayder.evaluate()
-#print(ayder)
-#print(f"{bin(a)} {bin(b)}")
-#ayder.display()
-#print(bin((a+b)))
-#print(ayder.get_output_str())
-#print(int(ayder.get_output_str(), 2))
-
-#rand = bool_circ(open_digraph.from_dot_file('erreur.dot'))
-#rand.display()
-#rand.simplify()
-#rand.display()
-
-#rand = bool_circ.random_bool(20,5,5)
-#rand.simplify()
-#pyrand.display()
-
-test_range = 150
+test_range = 250
+taille_node = 10
 tot = 0
 for _ in range(test_range):
-    rand = bool_circ.random_bool(50,5,5)
+    rand = bool_circ.random_bool(taille_node,5,5)
     #rand.save_as_dot_file('erreur.dot')
     #rand.display()
     pre = len(rand.nodes)
@@ -121,50 +19,71 @@ for _ in range(test_range):
 print(tot)
 print(tot/test_range)
 
-#helpme.display()
-#dec.icompose(helpme)
-#dec.evaluate()
-#dec.display()
+# Quelques résultats obtenus avec une test_range = 250: 
+# taille_node : (tot/test_range)
+# 50 : 4.556
+# 20 : 4.08
+# 10 : 3.236
 
-#testtt = bool_circ.from_string("(x1)^(x1)^(x2)^(x3)^(x2)^(x3)")
-#testtt.display()
-#testtt2 = bool_circ(testtt.copy())
+# On note que le nombre de node retiré par la simplification n'est pas du tout proportionel au nombre de noeud dans le circuit.
+# On peut expliquer ça de différentes façons:
+# La simplification peut également ajouter des noeuds, qui peuvent compense l'ajout d'autres noeuds.
+# La complexité du circuit augmente quand la taille du circuit augmente, et cette complexité peut ne pas être simplifiable
 
-#ayo = bool_circ.registre(3, 3)
+# Ci dessous on va vérifier que l'encoder-décoder permet bien de conserver les données.
 
-#testtt2.icompose(ayo)
-#testtt2.evaluate()
-#testtt2.display()
+enc = bool_circ.encoder()
+i_test = 3
+num = bool_circ.registre(i_test, 4)
+enc.icompose(num)
+enc.evaluate()
+enc.display()
+num.evaluate()
 
-#testtt.simplify()
-#testtt.display()
-#testtt.icompose(ayo)
-#testtt.evaluate()
-#testtt.display()
+# On va créer un bruit en changeant tout les bits et vérifier que le décodeur rend bien le même résultat
+for i in range(len(enc.outputs)):
+    enc_copy = bool_circ(enc.copy())
+    out_node = enc_copy.get_node_by_id(enc_copy.outputs[i])
+    dec = bool_circ.decoder()
+    label = '0'
+    if out_node.get_label() == '0':
+        label = '1'
+    out_node.set_label(label)
 
-#id = bool_circ.decoder()
-#id.icompose(bool_circ.encoder())
-#id.display()
-#id.simplify()
-#id.display()
-#print(id)
-#id.icompose(bool_circ.registre(15, 4))
-#print(id)
-#id.evaluate()
-#id.display()
+    dec.icompose(enc_copy)
+    dec.evaluate()
+    print(f"{num.get_output_str()} {dec.get_output_str()}")
 
-paypay = bool_circ.empty()
-n1 = paypay.add_node('~')
-n2 = paypay.add_node('')
-n3 = paypay.add_node('&')
-n4 = paypay.add_node('|')
-paypay.add_edge(n1, n2)
-paypay.add_edge(n2, n3)
-paypay.add_edge(n2, n4)
-paypay.display()
-paypay.simplify()
-paypay.display()
+# Après un lancement, on remarque bien que le bruit n'affecte pas le résultat final.
+# On va ensuite vérifier qu'en changeant deux noeuds, la donnée initiale est bien perdue:
 
+enc_copy = bool_circ(enc.copy())
+enc_copy.display()
+out_node = enc_copy.get_node_by_id(enc_copy.outputs[0])
+label = '0'
+if out_node.get_label() == '0':
+    label = '1'
+out_node.set_label(label)
 
-# 6.98
-# 7.79
+out_node = enc_copy.get_node_by_id(enc_copy.outputs[1])
+
+label = '0'
+if out_node.get_label() == '0':
+    label = '1'
+out_node.set_label(label)
+
+enc_copy.display()
+
+dec = bool_circ.decoder()
+dec.icompose(enc_copy)
+dec.evaluate()
+print(f"{num.get_output_str()} {dec.get_output_str()}")
+
+# On voit bien que ce n'est plus la même chose et que la donnée initiale est perdue.
+
+# On va vérifier aussi que le décodeur et l'encoder composé donnent bien l'identité
+
+id = bool_circ.decoder()
+id.icompose(bool_circ.encoder())
+id.simplify()
+id.display()

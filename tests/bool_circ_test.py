@@ -96,7 +96,36 @@ class InitTest(unittest.TestCase):
         self.assertTrue('10' == res_str)
 
     def test_evaluate(self):
-        ...
+        
+        un = bool_circ.registre(1, 4)
+        un.evaluate()
+        self.assertTrue(un.get_output_str() == '0001')
+
+        non = bool_circ.from_string('(x1)|(~(x2))')
+        non_cp = bool_circ(non.copy())
+        non.icompose(bool_circ.registre(1,2))
+        non.evaluate()
+        self.assertTrue(non.get_output_str() == '0')
+
+        non_cp.icompose(bool_circ.registre(3, 2))
+        non_cp.evaluate()
+        self.assertTrue(non_cp.get_output_str() == '1')
+
+        ou_exclu = bool_circ.from_string('(x1)^(x2)')
+        ou_exclu2 = bool_circ(ou_exclu.copy())
+        ou_exclu3 = bool_circ(ou_exclu.copy())
+
+        ou_exclu.icompose(bool_circ.registre(1, 2))
+        ou_exclu.evaluate()
+        self.assertTrue(ou_exclu.get_output_str() == '1')
+        
+        ou_exclu2.icompose(bool_circ.registre(0,2))
+        ou_exclu2.evaluate()
+        self.assertTrue(ou_exclu2.get_output_str() == '0')
+
+        ou_exclu3.icompose(bool_circ.registre(3,2))
+        ou_exclu3.evaluate()
+        self.assertTrue(ou_exclu3.get_output_str() == '0')
 
     def test_simplify(self):
         # On va éfféctuer un test plutôt simple : 
@@ -105,7 +134,7 @@ class InitTest(unittest.TestCase):
         # Sur la première copie, on va simplement évaluer le circuit
         # Sur la deuxième copie, on va d'abord simplifier le circuit, puis l'évaluer
         # On peut ensuite comparer les deux résultats et conclure
-        nombre_de_test = 250
+        nombre_de_test = 250 # Si bool_circ prend trop de temp a executer, baisser cette variable
         rand_nombre = 3
 
         for _ in range(nombre_de_test):
