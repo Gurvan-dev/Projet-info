@@ -1,3 +1,4 @@
+from __future__ import annotations
 from modules.matrice import *
 from modules.node import *
 from modules.open_digraph import *
@@ -42,7 +43,7 @@ class bool_circ(open_digraph):
 		return True
 
 	@classmethod
-	def empty(cls):
+	def empty(cls) -> bool_circ:
 		'''
 		return	: bool_circ, un circuit booléen vide
 		'''
@@ -50,7 +51,7 @@ class bool_circ(open_digraph):
 
 
 	@classmethod
-	def from_string(cls, *args):
+	def from_string(cls, *args) -> bool_circ:
 		''' 
 		args		: des str, des formule propositionnelles de circuit booléen
 
@@ -134,9 +135,10 @@ class bool_circ(open_digraph):
 		return bool_circ(cls)
 	
 	@classmethod
-	def from_table(cls, strinput : str):
+	def from_table(cls, strinput : str) -> bool_circ:
 		"""
 		strinput		: str, '0000110', dernière colonne du tableau. La taille du string doit être une puissance de 2.
+		return			: bool_circ, circuit booléen correspondant a strinput, voir TD9.pdf
 		"""
 		nombre_input = log(len(strinput), 2) 
 		if nombre_input != int(nombre_input):
@@ -180,7 +182,7 @@ class bool_circ(open_digraph):
 		return cls
 	
 	@classmethod
-	def code_gray(cls, n : int):
+	def code_gray(cls, n : int) -> list(str):
 		"""
 		n		: int, un entier positif supérieur à 1, le nombre de bit du code_gray
 		return	: list(str), tout les nombre du code_gray codé sur n bit.
@@ -222,7 +224,7 @@ class bool_circ(open_digraph):
 		return cls
 
 	@classmethod
-	def random_bool(cls, n : int, inputs=1, outputs=1):
+	def random_bool(cls, n : int, inputs=1, outputs=1) -> bool_circ:
 		""" 
 		n		: int, le nombre de noeud présent dans le circuit booléen retourné
 		inputs	: int, le nombre d'inputs présent dans le circuit booléen retourné
@@ -316,7 +318,7 @@ class bool_circ(open_digraph):
 		return bool_circ(cls)
 
 	@classmethod
-	def adder(cls,taille : int):
+	def adder(cls,taille : int) -> bool_circ:
 		''' 
 		taille	: 	int, la taille du Adder. Le nombre d'entrée du circuit retourné sera égal à 2^(taille) + 1 (la retenue)
 		return	: 	bool_circ, un circuit booléen permettant l'addition entre deux nombres sous formes binaires de taille 'taille',
@@ -397,7 +399,7 @@ class bool_circ(open_digraph):
 		return cls
 
 	@classmethod
-	def half_adder(cls, taille : int):
+	def half_adder(cls, taille : int) -> bool_circ:
 		''' 
 		taille	: int, la taille du Adder. Le nombre d'entrée du circuit retourné sera égal à 2^(taille)
 		return	: bool_circ, un circuit booléen permettant l'addition entre deux nombres sous formes binaires de taille 'taille'.
@@ -412,7 +414,7 @@ class bool_circ(open_digraph):
 		return cls
 
 	@classmethod
-	def registre(cls, entier : int, taille:int):
+	def registre(cls, entier : int, taille:int) -> bool_circ:
 		'''
 		entier	: int, l'entier a coder
 		taille	: int, la taille (le nombre de bit) dans lequel sera encodé l'entier
@@ -922,12 +924,12 @@ class bool_circ(open_digraph):
 			modif = self.nettoyage_sub()
 
 	@classmethod
-	def encoder(cls):
+	def encoder(cls) -> bool_circ:
 		cls = bool_circ.from_string("(x1)^(x2)^(x4)", "(x1)^(x3)^(x4)","(x1)","(x2)^(x3)^(x4)", "(x2)", "(x3)", "(x4)")
 		return cls
 
 	@classmethod
-	def decoder(cls):
+	def decoder(cls) -> bool_circ:
 		part_1 = bool_circ.from_string("(x1)^(x3)^(x5)^(x7)", "(x2)^(x3)^(x6)^(x7)","(x3)","(x4)^(x5)^(x6)^(x7)", "(x5)", "(x6)", "(x7)")
 		cls = bool_circ.from_string("((x1)&(x2)&(~(x4)))^(x3)", "(x5)^((x1)&(x4)&(~(x2)))", "(x6)^((~(x1))&(x2)&(x4))","(x7)^((x1)&(x2)&(x4))")
 		cls.icompose(part_1)

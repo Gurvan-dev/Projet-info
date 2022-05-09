@@ -1,3 +1,4 @@
+from __future__ import annotations
 from modules.matrice import *
 from modules.node import *
 from random import randint
@@ -40,16 +41,16 @@ class open_digraph:
 		self.nodes=c
 
 	@classmethod
-	def empty(cls):
+	def empty(cls) -> open_digraph:
 		'''
 		Return an empty open digraph.
 		'''
 		return open_digraph([], [], [])
 
-	def get_input_ids(self):
+	def get_input_ids(self) -> list(int):
 		return self.inputs
 
-	def get_output_ids(self):
+	def get_output_ids(self) -> list(int):
 		return self.outputs
 	
 	def get_id_node_map(self):
@@ -61,13 +62,13 @@ class open_digraph:
 	def get_nodes_ids(self):
 		return list(self.nodes.keys())
 	
-	def get_node_by_id(self, i : int):
+	def get_node_by_id(self, i : int) -> node:
 		''' 
 		i	: int, un id du graphe
 		'''
 		return self.nodes[i]
 
-	def get_nodes_by_ids(self, t):
+	def get_nodes_by_ids(self, t : list(int)) -> list(node):
 		''' 
 		t		: int list, une liste d'id du graphe
 		return	: node list, la liste de node avec les ids correspondant a ceux présents dans t
@@ -77,10 +78,10 @@ class open_digraph:
 			res.append(self.nodes[i])
 		return res
 
-	def set_input_ids(self, ids):
+	def set_input_ids(self, ids : list(int)):
 		self.inputs = ids
 	
-	def set_output_ids(self, ids):
+	def set_output_ids(self, ids : list(int)):
 		self.outputs = ids
 
 	def add_input_id(self, id : int):
@@ -91,7 +92,7 @@ class open_digraph:
 		if id not in self.outputs:
 			self.outputs.append(id)
 
-	def new_id(self):
+	def new_id(self) -> int:
 		self.c = self.c + 1
 		return self.c
 
@@ -99,7 +100,7 @@ class open_digraph:
 		self.get_node_by_id(src).add_children_id(trg, mult)
 		self.get_node_by_id(trg).add_parent_id(src, mult)
 	
-	def add_edges(self, edgeList):
+	def add_edges(self, edgeList : list((int,int))):
 		for (src, trg) in edgeList:
 			self.add_edge(src,trg)
 	
@@ -184,21 +185,21 @@ class open_digraph:
 		self.get_node_by_id(trg).remove_parent_id(src)
 		self.get_node_by_id(src).remove_child_id(trg)
 
-	def remove_edges(self, listEdge):
+	def remove_edges(self, listEdge : list((int,int))):
 		''' 
 		listEdge	: int list, une liste d'edge (Couple (int,int)) a retirer.
 		'''
 		for (src, trg) in listEdge:
 			self.remove_edge(src, trg)
 
-	def remove_parallel_edges(self, listEdge):
+	def remove_parallel_edges(self, listEdge : list((int,int))):
 		''' 
 		listEdge	: int list, une liste d'edge (Couple (int,int)) a retirer. Retire toute la multiplicité de ces dernières
 		'''
 		for (src, trg) in listEdge:
 			self.remove_parallel_edge(src, trg)
 
-	def remove_node_by_id(self, id):
+	def remove_node_by_id(self, id : int):
 		''' 
 		id	: int, L'id d'une node du graph
 		Supprime la node du graphe, ainsi que les arrête qui y passent
@@ -243,7 +244,7 @@ class open_digraph:
 			chi = list(id_node.get_children_ids())[0]
 			self.remove_parallel_edge(id, chi)
 
-	def is_well_formed(self):
+	def is_well_formed(self) -> bool:
 		''' 
 		Renvoie vrai si le graph est bien formé, i.e. :
 		- Que tout les inputs sont bien présents dans le graphe (resp output)
@@ -290,13 +291,13 @@ class open_digraph:
 		
 		return True
 	
-	def min_id(self):
+	def min_id(self) -> int:
 		'''
 		return	: int, le plus petit indice d'id du graph
 		'''
 		return min(self.nodes.keys())
 		
-	def max_id(self):
+	def max_id(self) -> int:
 		'''
 		return	: int, le plus grand indice d'id du graph
 		'''
@@ -352,7 +353,7 @@ class open_digraph:
 			self.add_outputs_id(out)
 
 	@classmethod
-	def parallel(cls, a,b_list):
+	def parallel(cls, a : open_digraph,b_list) -> open_digraph:
 		cls = a.copy()
 		for b in b_list:
 			cls.iparallel(b.copy())
@@ -372,13 +373,13 @@ class open_digraph:
 			self.add_edge(new_in, rem)
 
 	@classmethod
-	def compose(cls, a,b_list):
+	def compose(cls, a,b_list) -> open_digraph:
 		cls = a.copy()
 		for b in b_list:
 			cls.icompose(b.copy())
 		return cls
 
-	def connected_components(self):
+	def connected_components(self) -> (int, list(list(int))):
 		''' 
 		return	: (int, int list list) les différentes parties connecté du graphe
 		'''
@@ -417,7 +418,7 @@ class open_digraph:
 	   
 
 	@classmethod
-	def graph_from_adjacency_matrix(cls, mat):
+	def graph_from_adjacency_matrix(cls, mat) -> open_digraph:
 		'''
 		mat 	: int list list
 		return	: open_digraph, open_digraph formed with the input matrix (See sujets/TD3.pdf).
@@ -432,7 +433,7 @@ class open_digraph:
 		return o
 
 	@classmethod
-	def random(cls, n : int, bound : int, inputs=0, outputs=0, form = "free"):
+	def random(cls, n : int, bound : int, inputs=0, outputs=0, form = "free") -> open_digraph:
 		'''
 		n       : int, Nombre de noeuds dans le graphe
 		bound   : int,  Nombre maximal de multiplicité pour une arrête
@@ -488,7 +489,6 @@ class open_digraph:
 		'''
 		return : matrice, La matrice d'adjacence associé au graph
 		'''
-
 		mat = []
 		for _ in range (len(self.nodes)):
 			mat.append([] * len(self.nodes))
@@ -533,7 +533,7 @@ class open_digraph:
 			f.writelines(("}"))
 
 	@classmethod
-	def from_dot_file(cls, path : str):
+	def from_dot_file(cls, path : str) -> open_digraph:
 		''' 
 		path	: str, doit mener vers un fichier .dot
 		return	: open_digraph, construit depuis le fichier .dot se trouvant a 'path'.
@@ -647,7 +647,7 @@ class open_digraph:
 						return (dist, prev)	
 		return (dist, prev)
 
-	def shortest_path(self, src : int, tgt : int, direction = None):
+	def shortest_path(self, src : int, tgt : int, direction = None) -> list(int):
 		'''
 		Doc
 		src 	: L'id du node de départ
@@ -684,7 +684,7 @@ class open_digraph:
 				res[id_n] = (dija[id_n], dijb[id_n])
 		return res
 
-	def tri_topologique(self):
+	def tri_topologique(self) -> list(list(int)):
 		'''
 		return	: int list list, le tri topologique du graphe. 
 		(Regarder TP7 exercice 4)
@@ -728,7 +728,7 @@ class open_digraph:
 		tt = self.tri_topologique()
 		return len(tt)
 
-	def longest_path(self, src : int, trg : int):
+	def longest_path(self, src : int, trg : int) -> ([int], int):
 		''' 
 		self	: open_digraph acyclique
 		src		: int, id de node de départ
